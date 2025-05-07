@@ -2,6 +2,7 @@ const GITHUB_API_URL = `https://api.github.com/repos/${
   import.meta.env.VITE_GITHUB_OWNER
 }/${import.meta.env.VITE_GITHUB_REPO}/contents/Notes`;
 
+
 export const fetchMainFolders = async (path = "/") => {
   try {
     let github_path = GITHUB_API_URL + path;
