@@ -10,15 +10,15 @@ export default function HeroSection() {
       <FloatingDots />
       <MovingLines />
       <RadialGradient />
-
+      <br />
       <div className="max-w-4xl mx-auto z-10">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+          className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight"
         >
-          Discover Knowledge with {" "}
+          Discover Knowledge with{" "}
           <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text">
             Bharat <span className="text-blue-400">Docs</span>
           </span>
@@ -28,7 +28,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-4 text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto z-10"
+          className="mt-4 text-lg sm:text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto z-10"
         >
           Your all-in-one hub for tech documentation, coding guides, and smart
           study notes.
@@ -38,11 +38,11 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-12 z-10 flex flex-col sm:flex-row justify-center gap-6"
+          className="mt-15 w-full z-10 flex flex-wrap justify-center item-center sm:flex-row gap-4"
         >
           <Button
             onClick={() => navigate("/blogs/all-blogs")}
-            className="group relative overflow-hidden px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-300"
+            className="group relative overflow-hidden px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-300 w-[220px] sm:w-auto"
           >
             <span className="relative z-10 flex items-center gap-3">
               <BookOpen className="w-5 h-5" />
@@ -54,7 +54,7 @@ export default function HeroSection() {
 
           <Button
             onClick={() => navigate("/notes/view")}
-            className="group relative overflow-hidden px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300"
+            className="group relative overflow-hidden px-8 py-6 text-lg font-semibold rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300 w-[220px] sm:w-auto"
           >
             <span className="relative z-10 flex items-center gap-3">
               <Notebook className="w-5 h-5" />
@@ -67,7 +67,7 @@ export default function HeroSection() {
       </div>
 
       <motion.div
-        className="absolute bottom-6 right-6 z-10 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 opacity-30"
+        className="absolute top-20 right-6 z-10 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 opacity-30"
         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       />
