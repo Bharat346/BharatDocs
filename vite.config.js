@@ -6,7 +6,7 @@ import mdx from "@mdx-js/rollup";
 import remarkGfm from "remark-gfm";
 
 export default defineConfig({
-  base: "/Docs_and_Notes/",
+  base: "/",
   plugins: [
     react(),
     tailwindcss(),
