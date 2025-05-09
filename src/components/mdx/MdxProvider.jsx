@@ -3,6 +3,8 @@ import HideBtn from '@/utils/Blogs_utils/HideBtn';
 import {CodeBlock} from '../ui/CodeBlock';
 import { TBComponent } from '../ui/MDXTable';
 import React from 'react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion';
+// import { ChevronDownIcon } from '@radix-ui/react-icons';
 
 // In BlogContent.jsx
 const TextComponent = ({ children, className, ...props }) => {
@@ -62,11 +64,22 @@ const customComponents = {
   // Ensure pre tags don't get wrapped in paragraphs
   pre: (props) => <div className="my-4">{props.children}</div>,
 
-  Accordion: ({ title, children }) => (
-    <div className="border rounded-lg overflow-hidden my-4">
-      <div className="p-4 bg-gray-100 dark:bg-gray-800 font-medium">{title}</div>
-      <div className="prose custom-prose p-4">{children}</div>
-    </div>
+  Accordion: ({ title = "click", children }) => (
+    // <div className="border rounded-lg overflow-hidden my-4">
+    //   <div className="p-4 bg-gray-100 dark:bg-gray-800 font-medium">{title}</div>
+    //   <div className="prose custom-prose p-4">{children}</div>
+    // </div>
+     <Accordion type="single" collapsible className="w-full max-w-md">
+     <AccordionItem value="item-1">
+       <AccordionTrigger className="flex items-center justify-between w-full py-4 font-medium transition-all hover:underline [&[data-state=open]>svg:rotate-180">
+         <span>{title}</span>
+         {/* <ChevronDownIcon className="h-4 w-4 transition-transform duration-200" /> */}
+       </AccordionTrigger>
+       <AccordionContent className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+         {children}
+       </AccordionContent>
+     </AccordionItem>
+   </Accordion>
   ),
 
   h1: (props) => <Heading {...props} level={1} />,
@@ -95,52 +108,13 @@ const customComponents = {
 
   img: (props) => (
     <div className="my-6 flex justify-center">
-      <img className="rounded-lg shadow-md max-w-full h-auto" style={{ maxWidth: '500px' }} {...props} />
+      <img className="rounded-lg shadow-md max-w-full w-[95%] h-auto" style={{ maxWidth: '500px' }} {...props} />
     </div>
   ),
 
   TBComponent,
   strong: ({children}) => <strong>{children}</strong>,
 
-  
-  // Table: ({ children, ...props }) => {
-  //   console.log('Table component called', { children, props });
-  //   return (
-  //     <div className="my-6 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-  //       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-  //         {children}
-  //       </table>
-  //     </div>
-  //   );
-  // },
-  // thead: ({ children, ...props }) => (
-  //   <thead className="bg-gray-50 dark:bg-gray-800" {...props}>
-  //     {children}
-  //   </thead>
-  // ),
-  // tbody: ({ children, ...props }) => (
-  //   <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900" {...props}>
-  //     {children}
-  //   </tbody>
-  // ),
-  // tr: ({ children, ...props }) => (
-  //   <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" {...props}>
-  //     {children}
-  //   </tr>
-  // ),
-  // th: ({ children, ...props }) => (
-  //   <th 
-  //     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-  //     {...props}
-  //   >
-  //     {children}
-  //   </th>
-  // ),
-  // td: ({ children, ...props }) => (
-  //   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300" {...props}>
-  //     {children}
-  //   </td>
-  // ),
 };
 
 export function useCustomMDXComponents() {
