@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Import components
 import { BlogContent } from "./BlogContent";
 import { BlogNavigation } from "./BlogNavigation";
-import { BlogSidebar } from "./BlogSidebar";
+import { BlogSidebar } from "./BlogSideBar";
 import { BlogHeader } from "./BlogHeader";
 import { MobileHeader } from "./MobileHeader";
 import { ScrollProgress, useScrollProgress } from "./ScrollProgress";
