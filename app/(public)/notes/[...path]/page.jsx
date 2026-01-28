@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import Breadcrumbs from "@/components/NotesPage/Breadcrumbs";
 import NotesGrid from "@/components/NotesPage/NotesGrid";
+import SEO from "@/components/SEO/SEO";
 
 // API fetcher function
 const fetchNotes = async (collectionName, parentSlug) => {
@@ -33,12 +34,21 @@ export default function NotesPathPage() {
     queryKey: ["notes", collectionName, lastSlug || "root"],
     queryFn: () => fetchNotes(collectionName, lastSlug),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes cache
+    gcTime: 60 * 60 * 1000, // 1 hour cache
+    keepPreviousData: true,
   });
+
+  //Dynamic SEO values
+  const title = lastSlug ? `${lastSlug.toUpperCase()} | Notes` : "Notes";
+  const description = nodes.length
+    ? `Browse ${nodes.length} notes in ${lastSlug ?? "the collection"}.`
+    : "Explore notes in this collection.";
+  const url = `https://bharat-docs.vercel.app/notes/${slugArray.join("/")}`;
 
   if (error) {
     return (
       <>
+      <SEO title="Notes | My App" description="Failed to load notes" url={url} />
         <Breadcrumbs slugArray={slugArray} />
         <div className="py-12 text-center text-red-500">{error.message}</div>
       </>
@@ -47,6 +57,7 @@ export default function NotesPathPage() {
 
   return (
     <div>
+      <SEO title={title} description={description} url={url} />
       <Breadcrumbs slugArray={slugArray} />
       <br />
       <NotesGrid nodes={nodes} slugArray={slugArray} isLoading={isLoading} />

@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+# Host
+Host: https://bharat-docs.vercel.app
+
+# Sitemaps
+Sitemap: https://bharat-docs.vercel.app/sitemap.xml
