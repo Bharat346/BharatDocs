@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Font classes */
+.font-montserrat {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+/* Grid Pattern Background */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.dark .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+/* Base colors for the site */
+:root {
+  --color-primary: #3b82f6;   /* Blue - Main color for buttons, links, gradients */
+  --color-secondary: #10b981; /* Green - Accents, highlights */
+  --color-accent: #f59e0b;    /* Amber/Yellow - Callouts, icons, badges */
+}
+
+/* Dark mode overrides */
+.dark {
+  --color-primary: #60a5fa;   /* Lighter blue for dark backgrounds */
+  --color-secondary: #34d399; /* Softer green */
+  --color-accent: #fbbf24;    /* Softer amber */
+}
