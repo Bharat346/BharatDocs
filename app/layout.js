@@ -3,6 +3,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
+import FingerprintProvider from "@/lib/FingerPrintProvider";
 
 // Optimize font loading
 const inter = Inter({
@@ -119,6 +120,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <QueryProvider>
             <NavBar />
+            <FingerprintProvider/>
             <main className="overflow-hidden">{children}</main>
           </QueryProvider>
         </ThemeProvider>
