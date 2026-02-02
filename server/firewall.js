@@ -3,7 +3,7 @@ import { withSecurityHeaders } from "./security-headers";
 
 const ALLOWED_ORIGINS = new Set([
   "http://localhost:3000",
-  "https://bharat-docs.vercel.app",
+  "https://bhdocs.in",
 ]);
 
 const BLOCKED_UA = [

@@ -9,7 +9,7 @@ import { withSecurityHeaders } from "@/server/security-headers";
 ========================= */
 const isProd = process.env.NODE_ENV === "production";
 const BASE_URL = isProd
-  ? "https://bharat-docs.vercel.app"
+  ? "https://bhdocs.in"
   : "http://localhost:3000";
 
 const MAX_REDIRECTS = 2;
