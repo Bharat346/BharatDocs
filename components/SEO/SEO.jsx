@@ -1,4 +1,4 @@
-// components/SEO/SEO.tsx
+// components/SEO/SEO.jsx
 export default function SEO({ title, description, url }) {
   return (
     <head>

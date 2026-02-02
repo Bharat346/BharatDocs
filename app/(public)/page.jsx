@@ -11,7 +11,7 @@ export default function HomePage() {
   const { theme , mounted } = useThemeContext();
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${theme === "dark" ? "bg-gradient-to-b from-gray-900 via-gray-900/95 to-gray-900" : "bg-gradient-to-b from-white via-gray-50/50 to-white"}`}>
+    <div className={`min-h-[90svh] lg:min-h-screen transition-all duration-300`}>
       
       <HeroSection theme={theme} />
       <FeaturesSection theme={theme} features={FEATURES} />

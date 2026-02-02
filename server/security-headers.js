@@ -3,24 +3,37 @@ export function withSecurityHeaders(res) {
 
   const csp = isProd
     ? [
+        // Base rule (MUST exist)
         "default-src 'self'",
 
-        // Next.js needs inline scripts for hydration
+        // Scripts
         "script-src 'self' 'unsafe-inline'",
-
-        // Explicitly allow inline script elements
         "script-src-elem 'self' 'unsafe-inline'",
 
-        // Inline styles & style attributes (Next + Tailwind)
+        // Styles
         "style-src 'self' 'unsafe-inline'",
         "style-src-attr 'unsafe-inline'",
 
-        "img-src 'self' data: blob:",
-        "font-src 'self' data:",
-        "connect-src 'self'",
-        "media-src 'self' data:",
+        // Images (PDF renders images via canvas)
+        "img-src 'self' data: blob: https://*.vercel-storage.com",
 
-        "frame-ancestors 'none'",
+        // Fonts
+        "font-src 'self' data:",
+
+        // PDF.js worker
+        "worker-src 'self' blob:",
+
+        // PDF fetch (CRITICAL)
+        "connect-src 'self' https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app",
+
+        // Media inside PDFs (rare but safe)
+        "media-src 'self' blob:",
+
+        // No iframes allowed
+        "frame-src 'self' https://*.vercel-storage.com",
+        "frame-ancestors 'self' https://*.vercel-storage.com",
+
+        // Lock down misc
         "base-uri 'none'",
         "form-action 'self'",
         "object-src 'none'",
@@ -31,10 +44,13 @@ export function withSecurityHeaders(res) {
         "script-src-elem 'self' 'unsafe-inline'",
         "style-src 'self' 'unsafe-inline'",
         "style-src-attr 'unsafe-inline'",
-        "img-src 'self' data: blob:",
+        "img-src 'self' data: blob: https://*.vercel-storage.com",
         "font-src 'self' data:",
-        "connect-src 'self' ws://localhost:*",
-        "frame-ancestors 'none'",
+        "worker-src 'self' blob:",
+        "connect-src 'self' ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app",
+        "media-src 'self' blob:",
+        "frame-src 'self' https://*.vercel-storage.com",
+        "frame-ancestors 'self' https://*.vercel-storage.com",
         "base-uri 'none'",
         "form-action 'self'",
         "object-src 'none'",
@@ -42,7 +58,7 @@ export function withSecurityHeaders(res) {
 
   res.headers.set("Content-Security-Policy", csp);
 
-  /* ---------- Standard Hardening ---------- */
+  /* ---------- Security Hardening ---------- */
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");

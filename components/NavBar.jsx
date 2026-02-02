@@ -158,7 +158,7 @@ export default function NavBar() {
               </div>
               <div className="flex flex-col leading-tight">
                 <span
-                  className={`font-bold text-xl bg-gradient-to-r ${
+                  className={`font-mono text-xl bg-gradient-to-r ${
                     theme === "dark"
                       ? "from-gray-100 via-white to-gray-100"
                       : "from-gray-900 via-gray-800 to-gray-900"
@@ -185,7 +185,7 @@ export default function NavBar() {
                 >
                   <Link
                     href={item.href}
-                    className={`group relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                    className={`group relative px-5 py-2.5 rounded-xl text-sm transition-all duration-300 flex items-center gap-2 font-mono ${
                       theme === "dark"
                         ? "text-gray-300 hover:text-white"
                         : "text-gray-700 hover:text-gray-900"
@@ -226,7 +226,7 @@ export default function NavBar() {
                     >
                       <div className="p-2">
                         <div
-                          className={`text-xs font-semibold uppercase tracking-wider px-3 py-2 ${
+                          className={`text-xs font-mono uppercase tracking-wider px-3 py-2 ${
                             theme === "dark"
                               ? "text-gray-500"
                               : "text-gray-400"
@@ -239,7 +239,7 @@ export default function NavBar() {
                             <Link
                               key={child.label}
                               href={child.href}
-                              className={`group flex items-center px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
+                              className={`group flex items-center px-3 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 ${
                                 theme === "dark"
                                   ? "text-gray-300 hover:bg-gray-800/50 hover:text-white"
                                   : "text-gray-700 hover:bg-gray-100/80 hover:text-gray-900"
@@ -274,7 +274,7 @@ export default function NavBar() {
                       <div className="p-4">
                         <div className="flex items-center justify-between mb-4">
                           <div
-                            className={`text-xs font-semibold uppercase tracking-wider ${
+                            className={`text-xs font-mono uppercase tracking-wider ${
                               theme === "dark"
                                 ? "text-gray-500"
                                 : "text-gray-400"
@@ -284,7 +284,7 @@ export default function NavBar() {
                           </div>
                           <Link
                             href="/notes"
-                            className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                            className={`text-sm font-roboto px-3 py-1.5 rounded-lg transition-all duration-200 ${
                               theme === "dark"
                                 ? "text-blue-400 hover:text-blue-300 hover:bg-gray-800/50"
                                 : "text-blue-600 hover:text-blue-700 hover:bg-gray-100/80"
@@ -303,7 +303,7 @@ export default function NavBar() {
                                 <Code className={`h-5 w-5 ${
                                   theme === "dark" ? "text-blue-400" : "text-blue-600"
                                 }`} />
-                                <h3 className={`font-semibold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                                <h3 className={`font-roboto text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                                   Computer Science
                                 </h3>
                               </div>
@@ -312,7 +312,7 @@ export default function NavBar() {
                                   <Link
                                     key={subject.name}
                                     href={subject.href}
-                                    className={`group flex items-center gap-2 p-2 rounded-lg text-sm transition-all duration-200 ${
+                                    className={`group flex items-center gap-2 p-2 rounded-lg text-sm font-mono transition-all duration-200 ${
                                       theme === "dark"
                                         ? "text-gray-300 hover:bg-gray-800/50 hover:text-white"
                                         : "text-gray-700 hover:bg-gray-100/80 hover:text-gray-900"
@@ -333,7 +333,7 @@ export default function NavBar() {
                                 <GraduationCap className={`h-5 w-5 ${
                                   theme === "dark" ? "text-green-400" : "text-green-600"
                                 }`} />
-                                <h3 className={`font-semibold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                                <h3 className={`font-roboto text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                                   Competitive Exams
                                 </h3>
                               </div>
@@ -342,7 +342,7 @@ export default function NavBar() {
                                   <Link
                                     key={subject.name}
                                     href={subject.href}
-                                    className={`group flex items-center gap-2 p-2 rounded-lg text-sm transition-all duration-200 ${
+                                    className={`group flex items-center gap-2 p-2 rounded-lg text-sm transition-all duration-200 font-mono ${
                                       theme === "dark"
                                         ? "text-gray-300 hover:bg-gray-800/50 hover:text-white"
                                         : "text-gray-700 hover:bg-gray-100/80 hover:text-gray-900"
@@ -426,7 +426,7 @@ export default function NavBar() {
                       <Link
                         href={item.href}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`flex-1 flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-200 ${
+                        className={`flex-1 flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-mono transition-all duration-200 ${
                           theme === "dark"
                             ? "text-gray-300 hover:bg-gray-800/50 hover:text-white"
                             : "text-gray-700 hover:bg-gray-100/80 hover:text-gray-900"
@@ -447,7 +447,7 @@ export default function NavBar() {
                           }`}
                         >
                           <ChevronDown
-                            className={`h-4 w-4 transition-transform duration-300 ${
+                            className={`h-4 w-4 transition-transform duration-300 font-mono ${
                               openCategories.includes(item.label) ? "rotate-180" : ""
                             }`}
                           />
@@ -468,7 +468,7 @@ export default function NavBar() {
                             key={child.label}
                             href={child.href}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 ${
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 font-mono ${
                               theme === "dark"
                                 ? "text-gray-400 hover:bg-gray-800/30 hover:text-white"
                                 : "text-gray-600 hover:bg-gray-100/50 hover:text-gray-900"
@@ -494,8 +494,8 @@ export default function NavBar() {
                             <div key={category.title || index} className="space-y-2">
                               {/* Category Header */}
                               <div className="flex items-center gap-2 px-4 py-2">
-                                <category.icon className="h-4 w-4" />
-                                <span className="text-sm font-medium">{category.title}</span>
+                                <category.icon className={`h-4 w-4 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`} />
+                                <span className={`text-sm font-roboto ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>{category.title}</span>
                               </div>
                               
                               {/* Subjects Grid */}
@@ -505,7 +505,7 @@ export default function NavBar() {
                                     key={subject.name}
                                     href={subject.href}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all font-mono duration-200 ${
                                       theme === "dark"
                                         ? "text-gray-400 hover:bg-gray-800/30 hover:text-white"
                                         : "text-gray-600 hover:bg-gray-100/50 hover:text-gray-900"

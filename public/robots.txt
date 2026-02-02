@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://bharat-docs.vercel.app
+Host: https://bhdocs.in
 
 # Sitemaps
-Sitemap: https://bharat-docs.vercel.app/sitemap.xml
+Sitemap: https://bhdocs.in/sitemap.xml

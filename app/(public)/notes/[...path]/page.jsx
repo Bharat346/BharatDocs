@@ -43,7 +43,7 @@ export default function NotesPathPage() {
   const description = nodes.length
     ? `Browse ${nodes.length} notes in ${lastSlug ?? "the collection"}.`
     : "Explore notes in this collection.";
-  const url = `https://bharat-docs.vercel.app/notes/${slugArray.join("/")}`;
+  const url = `https://bhdocs.in/notes/${slugArray.join("/")}`;
 
   if (error) {
     return (

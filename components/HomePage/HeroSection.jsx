@@ -1,394 +1,430 @@
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Sparkles, BookOpen, Notebook, ArrowRight, Shield, Zap, Search, Globe } from "lucide-react";
+"use client";
+
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Terminal,
+  TypingAnimation,
+  AnimatedSpan,
+} from "@/components/ui/terminal";
+import {
+  ArrowRight,
+  BookOpen,
+  Notebook,
+  FileText,
+  Folder,
+  FileCode,
+  FileJson,
+  FileArchive,
+  Cpu,
+  Database,
+  Shield,
+  Zap,
+  Cloud,
+  Lock,
+  Search,
+  Globe,
+  Server,
+  Code,
+  Terminal as TerminalIcon,
+  GitBranch,
+  Cpu as CpuIcon,
+  Database as DatabaseIcon,
+  Shield as ShieldIcon,
+} from "lucide-react";
+
+// Register GSAP plugins
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+}
 
 export default function HeroSection({ theme }) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const isDark = theme === "dark";
+  const containerRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const buttonsRef = useRef(null);
+  const particlesRef = useRef(null);
+
+  const techIcons = [
+    { icon: Cpu, color: "text-purple-400", delay: 0 },
+    { icon: Database, color: "text-emerald-400", delay: 0.1 },
+  ];
+
+  const floatingIcons = [
+    { icon: FileText, x: "10%", y: "20%", delay: 0, size: 24, path: "circle" },
+    { icon: Folder, x: "85%", y: "15%", delay: 0.2, size: 28, path: "sine" },
+    {
+      icon: FileCode,
+      x: "15%",
+      y: "85%",
+      delay: 0.4,
+      size: 22,
+      path: "triangle",
+    },
+    {
+      icon: FileJson,
+      x: "90%",
+      y: "75%",
+      delay: 0.6,
+      size: 26,
+      path: "circle",
+    },
+    {
+      icon: FileArchive,
+      x: "5%",
+      y: "50%",
+      delay: 0.8,
+      size: 20,
+      path: "sine",
+    },
+    {
+      icon: TerminalIcon,
+      x: "80%",
+      y: "40%",
+      delay: 1,
+      size: 24,
+      path: "triangle",
+    },
+    {
+      icon: GitBranch,
+      x: "20%",
+      y: "30%",
+      delay: 1.2,
+      size: 28,
+      path: "circle",
+    },
+    { icon: CpuIcon, x: "75%", y: "90%", delay: 1.4, size: 22, path: "sine" },
+    {
+      icon: DatabaseIcon,
+      x: "40%",
+      y: "10%",
+      delay: 1.6,
+      size: 26,
+      path: "triangle",
+    },
+    {
+      icon: ShieldIcon,
+      x: "60%",
+      y: "85%",
+      delay: 1.8,
+      size: 24,
+      path: "circle",
+    },
+  ];
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    const ctx = gsap.context(() => {
+      // Title animation
+      gsap.fromTo(
+        titleRef.current,
+        { opacity: 0, y: 100, scale: 0.8 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.5,
+          ease: "power4.out",
+          delay: 0.3,
+        },
+      );
+      // Subtitle animation
+      gsap.fromTo(
+        subtitleRef.current,
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", delay: 0.8 },
+      );
+      // Buttons animation
+      gsap.fromTo(
+        buttonsRef.current?.children,
+        { opacity: 0, y: 30, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          ease: "back.out(1.7)",
+          stagger: 0.2,
+          delay: 1.2,
+        },
+      );
 
-    // Mouse move effect for desktop
-    const handleMouseMove = (e) => {
-      if (window.innerWidth >= 1024) {
-        setMousePosition({
-          x: (e.clientX / window.innerWidth) * 100,
-          y: (e.clientY / window.innerHeight) * 100
+      // Floating icons
+      floatingIcons.forEach((icon, i) => {
+        const el = document.querySelector(`.floating-icon-${i}`);
+        if (!el) return;
+
+        let pathValues;
+        switch (icon.path) {
+          case "circle":
+            pathValues = [
+              { x: 0, y: 0 },
+              { x: 30, y: -40 },
+              { x: 60, y: 0 },
+              { x: 30, y: 40 },
+              { x: 0, y: 0 },
+            ];
+            break;
+          case "sine":
+            pathValues = [
+              { x: 0, y: 0 },
+              { x: 40, y: -30 },
+              { x: 80, y: 0 },
+              { x: 120, y: 30 },
+              { x: 160, y: 0 },
+            ];
+            break;
+          case "triangle":
+            pathValues = [
+              { x: 0, y: 0 },
+              { x: 50, y: -50 },
+              { x: 100, y: 0 },
+              { x: 50, y: 50 },
+              { x: 0, y: 0 },
+            ];
+            break;
+        }
+
+        gsap.to(el, {
+          motionPath: { values: pathValues, curviness: 1 },
+          duration: 15 + Math.random() * 10,
+          repeat: -1,
+          ease: "none",
+          delay: icon.delay * 2,
+        });
+        gsap.to(el, {
+          rotation: 360,
+          duration: 20 + Math.random() * 10,
+          repeat: -1,
+          ease: "none",
+          delay: icon.delay,
+        });
+      });
+
+      // Tech icons floating
+      techIcons.forEach((icon, i) => {
+        const el = document.querySelector(`.tech-icon-${i}`);
+        if (!el) return;
+        gsap.to(el, {
+          y: -20,
+          duration: 2 + Math.random(),
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: icon.delay,
+        });
+        gsap.to(el, {
+          opacity: 0.7,
+          duration: 1.5,
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+          delay: icon.delay * 1.5,
+        });
+      });
+
+      // Particle animation
+      if (particlesRef.current) {
+        const particles = particlesRef.current.querySelectorAll(".particle");
+        particles.forEach((p, i) => {
+          gsap.to(p, {
+            x: `+=${Math.random() * 200 - 100}`,
+            y: `+=${Math.random() * 200 - 100}`,
+            duration: 3 + Math.random() * 4,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: i * 0.1,
+          });
         });
       }
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
+
+      // Scroll-trigger
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+          gsap.to(".terminal-wrapper", {
+            y: self.progress * 100,
+            rotation: self.progress * 2,
+            duration: 0.1,
+          });
+        },
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section className={`relative pt-24 lg:pt-32 pb-20 lg:pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-screen flex items-center ${theme === "dark" ? "bg-gray-950" : "bg-white"}`}>
-      {/* Advanced Background Effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <BackgroundGrid theme={theme} />
-        <AnimatedGradients theme={theme} mousePosition={mousePosition} />
-        <FloatingShapes theme={theme} />
-        <ParticleBackground theme={theme} />
-      </div>
-
-      {/* Main Content */}
-      <div className="relative max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left Content */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="relative z-20"
-          >
-            <HeroContent theme={theme} />
-          </motion.div>
-
-          {/* Right Visualization - Premium 3D Cards */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, rotateY: 10 }}
-            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="relative z-10 hidden lg:block"
-          >
-            <DocumentVisualization theme={theme} mousePosition={mousePosition} />
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <ScrollIndicator theme={theme} />
-    </section>
-  );
-}
-
-function BackgroundGrid({ theme }) {
-  return (
-    <>
-      <div className={`absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px] ${theme === "dark" ? "opacity-10" : "opacity-5"}`} />
-      {/* Radial gradient center */}
-      <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl ${theme === "dark" ? "bg-blue-500/10" : "bg-blue-400/10"}`} />
-      <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl ${theme === "dark" ? "bg-emerald-500/10" : "bg-emerald-400/10"}`} />
-    </>
-  );
-}
-
-function AnimatedGradients({ theme, mousePosition }) {
-  return (
-    <>
-      {/* Interactive Gradient */}
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, ${
-            theme === "dark" 
-              ? "rgba(59, 130, 246, 0.15)" 
-              : "rgba(59, 130, 246, 0.1)"
-          } 0%, transparent 50%)`,
-        }}
-      />
-      
-      {/* Animated Gradient Bars */}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={i}
-          className={`absolute h-1 w-64 rounded-full ${
-            theme === "dark" ? "bg-gradient-to-r from-blue-500/20 via-blue-400/20 to-blue-500/20" : "bg-gradient-to-r from-blue-400/10 via-blue-300/10 to-blue-400/10"
-          }`}
-          animate={{
-            x: [i * 200, i * 200 + 400],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: 3 + i,
-            repeat: Infinity,
-            delay: i * 0.5,
-            ease: "easeInOut",
-          }}
-          style={{
-            top: `${20 + i * 30}%`,
-            rotate: -45,
-          }}
-        />
-      ))}
-    </>
-  );
-}
-
-function FloatingShapes({ theme }) {
-  const shapes = [
-    { icon: BookOpen, color: "text-blue-500", delay: 0 },
-    { icon: Notebook, color: "text-emerald-500", delay: 0.3 },
-    { icon: Shield, color: "text-blue-500", delay: 0.6 },
-    { icon: Search, color: "text-emerald-500", delay: 0.9 },
-  ];
-
-  return (
-    <>
-      {shapes.map((shape, i) => {
-        const Icon = shape.icon;
-        return (
-          <motion.div
+    <section
+      ref={containerRef}
+      className={`relative min-h-screen overflow-hidden ${isDark ? "bg-gray-900" : "bg-white"}`}
+    >
+      {/* Particles */}
+      <div ref={particlesRef} className="absolute inset-0 overflow-hidden">
+        {[...Array(30)].map((_, i) => (
+          <div
             key={i}
-            className="absolute hidden lg:block"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 0.2, y: 0 }}
-            transition={{
-              duration: 2,
-              delay: shape.delay,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
+            className="particle absolute rounded-full"
             style={{
-              left: `${15 + i * 20}%`,
-              top: `${10 + i * 15}%`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${Math.random() * 4 + 1}px`,
+              height: `${Math.random() * 4 + 1}px`,
+              backgroundColor: isDark
+                ? `rgba(59,130,246,${Math.random() * 0.3 + 0.1})`
+                : `rgba(37,99,235,${Math.random() * 0.2 + 0.05})`,
             }}
+          />
+        ))}
+      </div>
+
+      {/* Floating tech icons */}
+      <div className="absolute inset-0 grid grid-cols-5 grid-rows-4 opacity-10">
+        {techIcons.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={i}
+              className={`tech-icon-${i} flex items-center justify-center`}
+            >
+              <Icon size={40} className={item.color} />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Floating icons */}
+      {floatingIcons.map((item, i) => {
+        const Icon = item.icon;
+        return (
+          <div
+            key={i}
+            className={`floating-icon-${i} absolute pointer-events-none`}
+            style={{ left: item.x, top: item.y }}
           >
-            <Icon className={`w-12 h-12 ${shape.color} opacity-20`} />
-          </motion.div>
+            <div className="relative">
+              <Icon
+                size={item.size}
+                className={`${isDark ? "text-blue-400/40" : "text-blue-600/30"} drop-shadow-lg`}
+              />
+              <div
+                className="absolute inset-0 blur-md"
+                style={{
+                  background: isDark
+                    ? "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)"
+                    : "radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%)",
+                }}
+              />
+            </div>
+          </div>
         );
       })}
-    </>
-  );
-}
 
-function ParticleBackground({ theme }) {
-  const particles = Array.from({ length: 20 });
-  
-  return (
-    <div className="absolute inset-0">
-      {particles.map((_, i) => (
-        <motion.div
-          key={i}
-          className={`absolute w-1 h-1 rounded-full ${
-            theme === "dark" ? "bg-blue-500/20" : "bg-blue-400/10"
-          }`}
-          animate={{
-            x: [0, Math.random() * 100],
-            y: [0, Math.random() * 100],
-            opacity: [0, 0.3, 0],
-          }}
-          transition={{
-            duration: 3 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-          }}
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+      {/* Main Content */}
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl w-full grid lg:grid-cols-2 gap-10 lg:gap-16 xl:gap-24 items-center pb-4">
+          {/* Text content - Left Column */}
+          <div className="flex flex-col justify-center text-center lg:text-left space-y-8 lg:space-y-10">
+            <div ref={titleRef} className="space-y-4">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-mono ${isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-600"}`}
+                >
+                  v-2.0
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-mono ${isDark ? "bg-purple-500/20 text-purple-300" : "bg-purple-100 text-purple-600"}`}
+                >
+                  Secure
+                </span>
+              </div>
+              <h1
+                className={`text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-mono leading-[0.9] tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                <span
+                  className={`relative inline-block ${isDark ? "text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400" : "text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600"}`}
+                >
+                  Bharat
+                </span>{" "}
+                <span className="relative">
+                  Docs
+                  <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" />
+                </span>
+              </h1>
+            </div>
 
-function HeroContent({ theme }) {
-  return (
-    <div className="flex flex-col items-center text-center lg:text-left lg:items-start space-y-8 lg:space-y-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-0">
-      
-      {/* Main Title */}
-      <div className="space-y-4">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="text-6xl sm:text-7xl lg:text-7xl xl:text-7xl font-bold leading-tight"
-        >
-          <span className="block">
-            <span className={`bg-gradient-to-r ${theme === "dark" ? "from-blue-400 to-blue-300" : "from-blue-600 to-blue-500"} bg-clip-text text-transparent`}>
-              Bharat
-            </span>
-            <span className={`${theme === "dark" ? "text-white" : "text-gray-900"} ml-1`}>
-              Docs
-            </span>
-          </span>
-        </motion.h1>
+            <p
+              ref={subtitleRef}
+              className={`text-lg font-mono sm:text-xl lg:text-2xl max-w-2xl mx-auto lg:mx-0 leading-relaxed ${isDark ? "text-gray-300" : "text-gray-600"}`}
+            >
+              Enterprise-grade platform for organizing, searching, and
+              collaborating on documents with intelligent AI assistance. Trusted
+              by research institutions, legal firms, and academic organizations
+              worldwide.
+            </p>
 
-        {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className={`text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl mx-auto lg:mx-0 ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
-        >
-          Enterprise-grade platform for organizing, searching, and collaborating on documents with intelligent AI assistance. Trusted by research institutions, legal firms, and academic organizations worldwide.
-        </motion.p>
-      </div>
-
-      {/* Action Buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full max-w-lg mx-auto lg:mx-0"
-      >
-        {/* Explore Documents */}
-        <Link href="/docs" className="flex-1">
-          <Button
-            size="lg"
-            className={`w-full px-6 py-6 sm:px-8 sm:py-6 text-base sm:text-lg font-semibold rounded-xl relative overflow-hidden group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-xl hover:shadow-blue-500/30 transition-all duration-300`}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 group-hover:scale-110 transition-transform" />
-            Explore Documents
-            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </Link>
-
-        {/* View Notes */}
-        <Link href="/notes" className="flex-1">
-          <Button
-            variant="outline"
-            size="lg"
-            className={`w-full px-6 py-6 sm:px-8 sm:py-6 text-base sm:text-lg font-semibold rounded-xl border-2 backdrop-blur-sm transition-all duration-300 group relative overflow-hidden ${theme === "dark" ? "border-gray-700 bg-gray-900/30 hover:border-emerald-500 hover:bg-gray-800/50 text-white" : "border-gray-300 bg-white hover:border-emerald-500 hover:bg-gray-50 text-gray-800"}`}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-emerald-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            <Notebook className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 group-hover:rotate-12 transition-transform" />
-            View Notes
-          </Button>
-        </Link>
-      </motion.div>
-    </div>
-  );
-}
-
-function DocumentVisualization({ theme, mousePosition }) {
-  return (
-    <div className="relative w-full h-[500px] perspective-1000">
-      {/* Main Document Card */}
-      <motion.div
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 rounded-2xl shadow-2xl"
-        animate={{
-          rotateY: mousePosition.x * 0.1 - 10,
-          rotateX: mousePosition.y * -0.1 + 10,
-        }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        style={{
-          background: theme === "dark" 
-            ? "linear-gradient(145deg, #1e293b, #0f172a)"
-            : "linear-gradient(145deg, #ffffff, #f8fafc)",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        {/* Document lines */}
-        <div className="absolute inset-6 space-y-4">
-          {[...Array(5)].map((_, i) => (
             <div
-              key={i}
-              className={`h-2 rounded-full ${theme === "dark" ? "bg-blue-500/20" : "bg-blue-400/10"}`}
-              style={{ width: `${80 - i * 10}%` }}
-            />
-          ))}
-        </div>
-        
-        {/* Document corner */}
-        <div className="absolute top-4 right-4">
-          <div className={`w-8 h-8 border-t-2 border-r-2 ${theme === "dark" ? "border-blue-500" : "border-blue-400"} rounded-tr-lg`} />
-        </div>
-      </motion.div>
+              ref={buttonsRef}
+              className="flex flex-col sm:flex-row gap-4 items-center justify-center lg:justify-start"
+            >
+              <Link href="/docs" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="group h-16 px-10 w-full sm:w-auto rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 text-white shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.03] transition-all duration-300 overflow-hidden relative"
+                >
+                  <span className="absolute inset-0 translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <BookOpen className="w-5 h-5 mr-2" />
+                  <span className="relative font-mono">Explore Docs</span>
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
 
-      {/* Floating Note Card */}
-      <motion.div
-        className="absolute top-20 left-20 w-48 h-56 rounded-xl shadow-xl"
-        animate={{
-          rotateY: mousePosition.x * 0.05,
-          rotateX: mousePosition.y * -0.05,
-          y: [0, -10, 0],
-        }}
-        transition={{
-          rotateY: { type: "spring", stiffness: 100 },
-          y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-        }}
-        style={{
-          background: theme === "dark" 
-            ? "linear-gradient(145deg, #064e3b, #022c22)"
-            : "linear-gradient(145deg, #d1fae5, #a7f3d0)",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        <div className="absolute inset-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`w-3 h-3 rounded-full ${theme === "dark" ? "bg-emerald-500" : "bg-emerald-400"}`} />
-            <div className={`w-20 h-2 rounded-full ${theme === "dark" ? "bg-emerald-500/30" : "bg-emerald-400/20"}`} />
+              <Link href="/notes" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className={`group h-16 px-10 w-full sm:w-auto rounded-2xl border-2 relative overflow-hidden ${isDark ? "border-white/20 text-white bg-white/5 hover:bg-white/10" : "border-gray-300 text-gray-800 hover:bg-gray-100"} hover:border-emerald-500 hover:text-emerald-600 transition-all duration-300`}
+                >
+                  <span className="absolute inset-0 border-2 border-emerald-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Notebook className="w-5 h-5 mr-2" />
+                  <span className="relative font-mono">Visit Notes</span>
+                </Button>
+              </Link>
+            </div>
           </div>
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className={`h-1.5 rounded-full mb-2 ${theme === "dark" ? "bg-emerald-500/20" : "bg-emerald-400/10"}`}
-              style={{ width: `${70 - i * 10}%` }}
-            />
-          ))}
-        </div>
-      </motion.div>
 
-      {/* Search Card */}
-      <motion.div
-        className="absolute bottom-20 right-20 w-56 h-40 rounded-xl shadow-xl"
-        animate={{
-          rotateY: mousePosition.x * 0.08,
-          rotateX: mousePosition.y * -0.08,
-          y: [0, 10, 0],
-        }}
-        transition={{
-          rotateY: { type: "spring", stiffness: 100 },
-          y: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 },
-        }}
-        style={{
-          background: theme === "dark" 
-            ? "linear-gradient(145deg, #1e3a8a, #1e40af)"
-            : "linear-gradient(145deg, #dbeafe, #bfdbfe)",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        <div className="absolute inset-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Search className={`w-4 h-4 ${theme === "dark" ? "text-blue-400" : "text-blue-500"}`} />
-            <div className={`w-32 h-2 rounded-full ${theme === "dark" ? "bg-blue-500/30" : "bg-blue-400/20"}`} />
-          </div>
-          <div className="space-y-2">
-            <div className={`h-1.5 rounded-full ${theme === "dark" ? "bg-blue-500/20" : "bg-blue-400/10"}`} style={{ width: "90%" }} />
-            <div className={`h-1.5 rounded-full ${theme === "dark" ? "bg-blue-500/20" : "bg-blue-400/10"}`} style={{ width: "70%" }} />
-            <div className={`h-1.5 rounded-full ${theme === "dark" ? "bg-blue-500/20" : "bg-blue-400/10"}`} style={{ width: "80%" }} />
+          {/* Terminal - Right Column */}
+          <div className="terminal-wrapper flex justify-center lg:justify-end">
+            <Terminal
+              className={`max-w-lg w-full ${isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}
+            >
+              <TypingAnimation className="text-emerald-500 font-mono">
+                $$ welcome to bharat - docs
+              </TypingAnimation>
+              <AnimatedSpan> ███▒▒▒▒▒▒▒ 30% LOADING</AnimatedSpan>
+              <AnimatedSpan> ██████████ 100% READY</AnimatedSpan>
+              <AnimatedSpan> Initializing ...</AnimatedSpan>
+
+              <TypingAnimation className="text-emerald-500 font-mono">
+                $$ npm help
+              </TypingAnimation>
+              <AnimatedSpan> # Documentation available at /docs</AnimatedSpan>
+              <AnimatedSpan> # Notes available at /notes</AnimatedSpan>
+              <AnimatedSpan> # Performance: Optimal</AnimatedSpan>
+              <TypingAnimation>
+                Success! Project initialization completed.
+              </TypingAnimation>
+            </Terminal>
           </div>
         </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function ScrollIndicator({ theme }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.5, duration: 1 }}
-      className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden lg:block"
-    >
-      <div className="flex flex-col items-center">
-        <span className={`text-sm mb-2 ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>
-          Scroll to explore
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 rounded-full border-2 border-blue-500 flex justify-center"
-        >
-          <div className="w-1 h-3 rounded-full bg-blue-500 mt-2" />
-        </motion.div>
       </div>
-    </motion.div>
+    </section>
   );
 }

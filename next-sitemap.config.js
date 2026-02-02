@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: "https://bharat-docs.vercel.app", 
+  siteUrl: "https://bhdocs.in", 
   generateRobotsTxt: true,
   changefreq: "daily",      
   priority: 0.7,            

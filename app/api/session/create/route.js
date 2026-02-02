@@ -5,7 +5,7 @@ import { createSession } from "@/server/session";
 
 const isProd = process.env.NODE_ENV === "production";
 const baseUrl = isProd
-  ? "https://bharat-docs.vercel.app"
+  ? "https://bhdocs.in"
   : "http://localhost:3000";
 
 export async function GET() {

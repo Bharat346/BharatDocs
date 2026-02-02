@@ -1,29 +1,26 @@
-import { Inter, Montserrat, Poppins } from "next/font/google";
+import { Open_Sans, Roboto } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
 import SessionInitializer from "@/lib/SessionInitializer";
 
-// Optimize font loading
-const inter = Inter({
-  subsets: ["latin"],
+// Optimize font loading with Open Sans as primary, Roboto as secondary
+const openSans = Open_Sans({
+  subsets: ["latin", "latin-ext"],
   display: "swap",
-  variable: "--font-inter",
-});
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-montserrat",
+  variable: "--font-open-sans",
   weight: ["300", "400", "500", "600", "700", "800"],
+  fallback: ["system-ui", "Arial", "sans-serif"],
 });
 
-const poppins = Poppins({
-  subsets: ["latin"],
+const roboto = Roboto({
+  subsets: ["latin", "latin-ext"],
   display: "swap",
-  variable: "--font-poppins",
-  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-roboto",
+  weight: ["300", "400", "500", "700"],
+  style: ["normal", "italic"],
+  fallback: ["system-ui", "Arial", "sans-serif"],
 });
 
 export const metadata = {
@@ -53,7 +50,7 @@ export const metadata = {
   creator: "Bharat Kumar",
   publisher: "Bharat Docs",
 
-  metadataBase: new URL("https://bharat-docs.com"),
+  metadataBase: new URL("https://bhdocs.in"),
 
   alternates: {
     canonical: "/",
@@ -63,7 +60,7 @@ export const metadata = {
     title: "Bharat Docs",
     description:
       "Organize, read, and explore your documents and notes with a clean, modern, and powerful documentation platform.",
-    url: "https://bharat-docs.com",
+    url: "https://bhdocs.in",
     siteName: "Bharat Docs",
     images: [
       {
@@ -83,7 +80,7 @@ export const metadata = {
     description:
       "A modern platform for organizing, reading, and exploring documents and notes.",
     images: ["/og-image.png"],
-    creator: "@bharat", // optional
+    creator: "@bharat",
   },
 
   robots: {
@@ -98,26 +95,34 @@ export const metadata = {
     },
   },
 
-  // icons: {
-  //   icon: "/favicon.ico",
-  //   shortcut: "/favicon-16x16.png",
-  //   apple: "/apple-touch-icon.png",
-  // },
-
   manifest: "/site.webmanifest",
-
   category: "technology",
 };
 
-
 export default function RootLayout({ children }) {
-  // const nonce = headers().get("X-Nonce");
   return (
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${montserrat.variable} ${poppins.variable}`}
+      className={`${openSans.variable} ${roboto.variable}`}
     >
+      <head>
+        {/* Preload critical fonts */}
+        <link
+          rel="preload"
+          href={openSans.variable}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href={roboto.variable}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="font-sans antialiased bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 min-h-screen">
         <ThemeProvider>
           <QueryProvider>
