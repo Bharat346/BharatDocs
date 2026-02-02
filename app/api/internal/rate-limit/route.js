@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import crypto from "crypto";
-import { redis } from "@/lib/redis";
+import { redis } from "@/server/redis";
 import { db } from "@/lib/db/index";
 import { rateLimits, securityEvents } from "@/lib/db/schema";
 
