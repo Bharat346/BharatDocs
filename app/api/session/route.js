@@ -3,7 +3,7 @@ import { createSession } from "@/server/session";
 
 export async function GET() {
     const session = createSession();
-    const res = NextResponse.redirect("http://localhost:3000");
+    const res = NextResponse.redirect("https://bharat-docs.vercel.app");
 
     res.cookies.set("web_session" , session , {
         httpOnly: true,
