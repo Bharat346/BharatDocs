@@ -3,7 +3,8 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
-import FingerprintProvider from "@/lib/FingerPrintProvider";
+import SessionInitializer from "@/lib/SessionInitializer";
+import { headers } from "next/headers";
 
 // Optimize font loading
 const inter = Inter({
@@ -109,7 +110,9 @@ export const metadata = {
   category: "technology",
 };
 
+
 export default function RootLayout({ children }) {
+  // const nonce = headers().get("X-Nonce");
   return (
     <html
       lang="en"
@@ -120,7 +123,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <QueryProvider>
             <NavBar />
-            <FingerprintProvider/>
+            <SessionInitializer />
             <main className="overflow-hidden">{children}</main>
           </QueryProvider>
         </ThemeProvider>

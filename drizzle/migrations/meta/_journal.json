@@ -50,6 +50,13 @@
       "when": 1769701567597,
       "tag": "0006_open_shard",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1769934342787,
+      "tag": "0007_purple_klaw",
+      "breakpoints": true
     }
   ]
 }

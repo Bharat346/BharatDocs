@@ -10,72 +10,87 @@ import {
   TrendingUp,
   AccessTime,
   DataUsage,
-  Public
+  Public,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { useThemeContext } from '@/components/ThemeProvider';
 
-
-const StatsCard = ({ title, value, change, icon, color, darkColor }) => (
+const StatsCard = ({
+  title,
+  value,
+  change,
+  icon,
+  color,
+  darkColor,
+  theme,
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
   >
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         height: '100%',
-        background: theme => theme.palette.mode === 'dark' 
-          ? `linear-gradient(135deg, ${darkColor}20 0%, transparent 100%)`
-          : `linear-gradient(135deg, ${color}10 0%, transparent 100%)`,
-        border: theme => `1px solid ${theme.palette.mode === 'dark' ? `${darkColor}30` : `${color}20`}`,
+        background:
+          theme === 'dark'
+            ? `linear-gradient(135deg, ${darkColor}20 0%, transparent 100%)`
+            : `linear-gradient(135deg, ${color}10 0%, transparent 100%)`,
+        border: `1px solid ${
+          theme === 'dark' ? `${darkColor}30` : `${color}20`
+        }`,
         position: 'relative',
         overflow: 'hidden',
         '&:hover': {
           transform: 'translateY(-2px)',
           transition: 'transform 0.2s',
-        }
+        },
       }}
     >
       <CardContent sx={{ position: 'relative', zIndex: 2 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
-            <Typography 
-              color="text.secondary" 
-              variant="body2" 
+            <Typography
+              color="text.secondary"
+              variant="body2"
               sx={{ mb: 1, fontWeight: 500 }}
             >
               {title}
             </Typography>
-            <Typography 
-              variant="h4" 
-              sx={{ 
+
+            <Typography
+              variant="h4"
+              sx={{
                 fontWeight: 700,
-                color: theme => theme.palette.mode === 'dark' ? darkColor : color
+                color: theme === 'dark' ? darkColor : color,
               }}
             >
               {typeof value === 'number' ? value.toLocaleString() : value}
             </Typography>
+
             {change !== undefined && (
               <Box display="flex" alignItems="center" mt={1}>
-                <TrendingUp 
-                  sx={{ 
+                <TrendingUp
+                  sx={{
                     fontSize: 14,
                     mr: 0.5,
-                    color: change >= 0 ? '#10b981' : '#ef4444'
-                  }} 
+                    color: change >= 0 ? '#10b981' : '#ef4444',
+                  }}
                 />
                 <Typography
                   variant="caption"
                   sx={{
                     color: change >= 0 ? '#10b981' : '#ef4444',
-                    fontWeight: 600
+                    fontWeight: 600,
                   }}
                 >
-                  {change >= 0 ? '+' : ''}{change}%
+                  {change >= 0 ? '+' : ''}
+                  {change}%
                 </Typography>
               </Box>
             )}
           </Box>
+
           <Box
             sx={{
               width: 48,
@@ -84,15 +99,15 @@ const StatsCard = ({ title, value, change, icon, color, darkColor }) => (
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: theme => theme.palette.mode === 'dark' 
-                ? `${darkColor}30`
-                : `${color}20`,
+              background:
+                theme === 'dark' ? `${darkColor}30` : `${color}20`,
             }}
           >
             {icon}
           </Box>
         </Box>
       </CardContent>
+
       <Box
         sx={{
           position: 'absolute',
@@ -101,9 +116,8 @@ const StatsCard = ({ title, value, change, icon, color, darkColor }) => (
           width: 80,
           height: 80,
           borderRadius: '50%',
-          background: theme => theme.palette.mode === 'dark' 
-            ? `${darkColor}10`
-            : `${color}10`,
+          background:
+            theme === 'dark' ? `${darkColor}10` : `${color}10`,
           zIndex: 1,
         }}
       />
@@ -111,8 +125,9 @@ const StatsCard = ({ title, value, change, icon, color, darkColor }) => (
   </motion.div>
 );
 
-
 export const StatsCards = ({ stats }) => {
+  const { theme } = useThemeContext();
+
   const cards = [
     {
       title: 'Security Events',
@@ -136,7 +151,7 @@ export const StatsCards = ({ stats }) => {
       darkColor: '#34d399',
     },
     {
-      title: 'Today\'s Events',
+      title: "Today's Events",
       value: stats.todayEvents,
       icon: <AccessTime sx={{ color: '#f59e0b' }} />,
       color: '#f59e0b',
@@ -179,8 +194,8 @@ export const StatsCards = ({ stats }) => {
         mb: 4,
       }}
     >
-      {cards.map((card, index) => (
-        <StatsCard key={card.title} {...card} />
+      {cards.map((card) => (
+        <StatsCard key={card.title} {...card} theme={theme} />
       ))}
     </Box>
   );

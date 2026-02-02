@@ -15,6 +15,7 @@ import {
   Alert,
   Snackbar,
   Paper,
+  alpha,
 } from '@mui/material';
 import {
   Refresh,
@@ -37,7 +38,6 @@ import {
 } from '@/components/admin/Charts';
 import { IPManagement } from '@/components/admin/IPManagement';
 import { LogsTable } from '@/components/admin/LogsTable';
-
 
 const TabPanel = ({ children, value, index }) => (
   <div hidden={value !== index}>
@@ -63,7 +63,7 @@ const postAction = async (action, data) => {
   });
   if (!res.ok) throw new Error('Failed to perform action');
   return res.json();
-};
+}; 
 
 export default function AdminLogsPage() {
   const [activeTab, setActiveTab] = useState(0);
@@ -73,8 +73,22 @@ export default function AdminLogsPage() {
     message: '',
     severity: 'success',
   });
+  const [theme, setTheme] = useState('light'); // Default to light theme
 
   const queryClient = useQueryClient();
+
+  // Detect theme from localStorage or system preference
+  useEffect(() => {
+    // Check localStorage for theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+  }, []);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-logs', timeRange],
@@ -140,6 +154,30 @@ export default function AdminLogsPage() {
     { label: 'Charts', icon: <Timeline /> },
   ];
 
+  // Theme-based styles
+  const themeStyles = {
+    light: {
+      background: 'linear-gradient(135deg, #1976d220 0%, transparent 100%)',
+      bgColor: 'background.default',
+      paperBg: '#ffffff',
+      textPrimary: 'text.primary',
+      textSecondary: 'text.secondary',
+      buttonVariant: 'contained',
+      tabIndicator: 'primary',
+    },
+    dark: {
+      background: 'linear-gradient(135deg, #90caf920 0%, transparent 100%)',
+      bgColor: '#121212',
+      paperBg: '#1e1e1e',
+      textPrimary: '#ffffff',
+      textSecondary: 'rgba(255, 255, 255, 0.7)',
+      buttonVariant: 'outlined',
+      tabIndicator: 'secondary',
+    },
+  };
+
+  const currentTheme = themeStyles[theme];
+
   if (isLoading) {
     return (
       <Box
@@ -150,13 +188,14 @@ export default function AdminLogsPage() {
           justifyContent: 'center',
           minHeight: '100vh',
           gap: 3,
+          bgcolor: currentTheme.bgColor,
         }}
       >
         <CircularProgress size={60} />
-        <Typography variant="h6" color="text.secondary">
+        <Typography variant="h6" color={currentTheme.textSecondary}>
           Loading Security Dashboard...
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color={currentTheme.textSecondary}>
           Initializing real-time monitoring systems
         </Typography>
       </Box>
@@ -165,11 +204,19 @@ export default function AdminLogsPage() {
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4, bgcolor: currentTheme.bgColor }}>
         <Alert
           severity="error"
           action={
-            <Button color="inherit" size="small" onClick={() => refetch()}>
+            <Button 
+              color="inherit" 
+              size="small" 
+              onClick={() => refetch()}
+              sx={{ 
+                color: theme === 'dark' ? '#fff' : 'inherit',
+                borderColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'inherit'
+              }}
+            >
               Retry
             </Button>
           }
@@ -192,7 +239,11 @@ export default function AdminLogsPage() {
   } = data?.data || {};
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      bgcolor: currentTheme.bgColor,
+      color: currentTheme.textPrimary,
+    }}>
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <motion.div
@@ -204,27 +255,56 @@ export default function AdminLogsPage() {
             sx={{
               p: 3,
               mb: 3,
-              background: theme =>
-                `linear-gradient(135deg, ${theme.palette.primary.dark}20 0%, transparent 100%)`,
+              background: currentTheme.background,
+              backgroundColor: currentTheme.paperBg,
+              border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+              boxShadow: theme === 'dark' 
+                ? '0 4px 20px rgba(0, 0, 0, 0.5)' 
+                : '0 4px 20px rgba(0, 0, 0, 0.1)',
             }}
           >
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Box>
-                <Typography variant="h4" fontWeight={800} gutterBottom>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={800} 
+                  gutterBottom
+                  color={currentTheme.textPrimary}
+                >
                   Security Dashboard
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" color={currentTheme.textSecondary}>
                   Real-time monitoring, threat detection, and IP management
                 </Typography>
               </Box>
               <Box display="flex" gap={1}>
                 <Tooltip title="Refresh Data">
-                  <IconButton onClick={() => refetch()} color="primary">
+                  <IconButton 
+                    onClick={() => refetch()} 
+                    sx={{ 
+                      color: theme === 'dark' ? '#90caf9' : 'primary.main',
+                      '&:hover': {
+                        backgroundColor: theme === 'dark' 
+                          ? 'rgba(144, 202, 249, 0.1)' 
+                          : 'rgba(25, 118, 210, 0.1)',
+                      }
+                    }}
+                  >
                     <Refresh />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Export Data">
-                  <IconButton onClick={handleExport} color="primary">
+                  <IconButton 
+                    onClick={handleExport}
+                    sx={{ 
+                      color: theme === 'dark' ? '#90caf9' : 'primary.main',
+                      '&:hover': {
+                        backgroundColor: theme === 'dark' 
+                          ? 'rgba(144, 202, 249, 0.1)' 
+                          : 'rgba(25, 118, 210, 0.1)',
+                      }
+                    }}
+                  >
                     <Download />
                   </IconButton>
                 </Tooltip>
@@ -235,9 +315,19 @@ export default function AdminLogsPage() {
               {['1d', '7d', '30d'].map(range => (
                 <Button
                   key={range}
-                  variant={timeRange === range ? 'contained' : 'outlined'}
+                  variant={timeRange === range ? 'contained' : currentTheme.buttonVariant}
                   size="small"
                   onClick={() => setTimeRange(range)}
+                  sx={{
+                    ...(theme === 'dark' && timeRange !== range && {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      '&:hover': {
+                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      }
+                    })
+                  }}
                 >
                   {range}
                 </Button>
@@ -252,11 +342,17 @@ export default function AdminLogsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
-          <StatsCards stats={{ ...stats, ...summary }} />
+          <StatsCards stats={{ ...stats, ...summary }} theme={theme} />
         </motion.div>
 
         {/* Tabs */}
-        <Paper sx={{ mb: 3 }}>
+        <Paper 
+          sx={{ 
+            mb: 3,
+            backgroundColor: currentTheme.paperBg,
+            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+          }}
+        >
           <Tabs
             value={activeTab}
             onChange={(_, newValue) => setActiveTab(newValue)}
@@ -265,6 +361,13 @@ export default function AdminLogsPage() {
             sx={{
               '& .MuiTab-root': {
                 minHeight: 64,
+                color: currentTheme.textSecondary,
+                '&.Mui-selected': {
+                  color: theme === 'dark' ? '#90caf9' : 'primary.main',
+                },
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: theme === 'dark' ? '#90caf9' : 'primary.main',
               },
             }}
           >
@@ -274,6 +377,13 @@ export default function AdminLogsPage() {
                 label={tab.label}
                 icon={tab.icon}
                 iconPosition="start"
+                sx={{
+                  '& .MuiSvgIcon-root': {
+                    color: activeTab === index 
+                      ? (theme === 'dark' ? '#90caf9' : 'primary.main')
+                      : currentTheme.textSecondary,
+                  }
+                }}
               />
             ))}
           </Tabs>
@@ -282,10 +392,10 @@ export default function AdminLogsPage() {
         {/* Tab Panels */}
         <TabPanel value={activeTab} index={0}>
           <Box display="grid" gridTemplateColumns={{ md: '1fr 1fr' }} gap={3}>
-            <HourlyChart data={hourlyStats} />
-            <SeverityPieChart events={securityEvents} />
-            <TopIPsChart data={topIPs} />
-            <TrendChart hourlyData={hourlyStats} />
+            <HourlyChart data={hourlyStats} theme={theme} />
+            <SeverityPieChart events={securityEvents} theme={theme} />
+            <TopIPsChart data={topIPs} theme={theme} />
+            <TrendChart hourlyData={hourlyStats} theme={theme} />
           </Box>
         </TabPanel>
 
@@ -303,6 +413,7 @@ export default function AdminLogsPage() {
               { key: 'method', label: 'Method' },
             ]}
             severityFilter
+            theme={theme}
           />
         </TabPanel>
 
@@ -319,6 +430,7 @@ export default function AdminLogsPage() {
               { key: 'statusCode', label: 'Status' },
               { key: 'country', label: 'Country' },
             ]}
+            theme={theme}
           />
         </TabPanel>
 
@@ -333,6 +445,7 @@ export default function AdminLogsPage() {
               { key: 'firstSeen', label: 'First Seen' },
               { key: 'userAgent', label: 'User Agent' },
             ]}
+            theme={theme}
           />
         </TabPanel>
 
@@ -342,19 +455,20 @@ export default function AdminLogsPage() {
             topIPs={topIPs}
             onBlockIP={handleBlockIP}
             onUnblockIP={handleUnblockIP}
+            theme={theme}
           />
         </TabPanel>
 
         <TabPanel value={activeTab} index={5}>
           <Box display="grid" gridTemplateColumns={{ md: '1fr 1fr' }} gap={3}>
             <Box>
-              <HourlyChart data={hourlyStats} />
+              <HourlyChart data={hourlyStats} theme={theme} />
             </Box>
             <Box>
-              <SeverityPieChart events={securityEvents} />
+              <SeverityPieChart events={securityEvents} theme={theme} />
             </Box>
             <Box gridColumn={{ md: 'span 2' }}>
-              <TrendChart hourlyData={hourlyStats} />
+              <TrendChart hourlyData={hourlyStats} theme={theme} />
             </Box>
           </Box>
         </TabPanel>
@@ -369,7 +483,11 @@ export default function AdminLogsPage() {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%',
+            backgroundColor: theme === 'dark' ? '#1e1e1e' : '#fff',
+            color: theme === 'dark' ? '#fff' : 'inherit',
+          }}
         >
           {snackbar.message}
         </Alert>
