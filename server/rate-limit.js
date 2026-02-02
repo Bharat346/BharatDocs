@@ -6,9 +6,9 @@ import crypto from "crypto";
 /* =========================
    CONFIG
 ========================= */
-const WINDOW_SECONDS = 60;        // 1 minute window
-const LIMIT = 60;                // 60 req / window
-const BLOCK_SECONDS = 60 * 10;    // 10 min hard block
+const WINDOW_SECONDS = 60; // 1 minute window
+const LIMIT = 30; // 100 req / window
+const BLOCK_SECONDS = 60 * 10; // 10 min hard block
 
 /* =========================
    HELPERS
@@ -19,8 +19,7 @@ function sha256(input) {
 
 function getIP(request) {
   return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
   );
 }
 
@@ -69,7 +68,7 @@ export async function rateLimitRequest(request) {
     // Slight TTL jitter to avoid hot-key sync
     await redis.expire(
       redisKey,
-      WINDOW_SECONDS + Math.floor(Math.random() * 3)
+      WINDOW_SECONDS + Math.floor(Math.random() * 3),
     );
   }
 

@@ -1,44 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySession } from "@/server/session";
-import { rateLimitRequest } from "./server/rate-limit";
-import { writeAccessLog } from "./server/access-log";
-import { getIPInfo } from "./server/ip-info";
-import { firewall } from "./server/firewall";
-import { withSecurityHeaders } from "./server/security-headers";
+import { writeAccessLog } from "@/server/access-log";
+import { getIPInfo } from "@/server/ip-info";
+import { firewall } from "@/server/firewall";
+import { withSecurityHeaders } from "@/server/security-headers";
 
+/* =========================
+   CONFIG
+========================= */
+const isProd = process.env.NODE_ENV === "production";
+const BASE_URL = isProd
+  ? "https://bharat-docs.vercel.app"
+  : "http://localhost:3000";
+
+const MAX_REDIRECTS = 2;
+
+const COOKIE_SESSION = "web_session";
+const COOKIE_VERIFIED = "session_verified";
+const COOKIE_REDIRECTS = "auth_redirects";
+
+/* =========================
+   HELPERS
+========================= */
 function getIP(request) {
   return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.ip ??
+    "unknown"
   );
 }
 
-const MAX_REDIRECTS = 2;
-const REDIRECT_COOKIE = "auth_redirects";
+async function verifySessionOnce(session) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/session/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session }),
+    });
 
+    if (!res.ok) return false;
+    const { valid } = await res.json();
+    return valid === true;
+  } catch {
+    return false;
+  }
+}
+
+/* =========================
+   MIDDLEWARE
+========================= */
 export async function proxy(request) {
   const start = Date.now();
   const { pathname } = request.nextUrl;
-  // console.log(request);
 
-  /* ---------- SKIP PUBLIC ---------- */
+  /* ---------- BYPASS STATIC & AUTH ---------- */
   if (
-    pathname.startsWith("/api/session") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon.ico") ||
-    pathname.startsWith("/public")
+    pathname.startsWith("/api/session") ||
+    pathname === "/favicon.ico"
   ) {
     return withSecurityHeaders(NextResponse.next());
   }
 
   const ip = getIP(request);
-  const ua = request.headers.get("user-agent");
-  const session = request.cookies.get("web_session")?.value;
+  const ua = request.headers.get("user-agent") ?? "unknown";
 
-  /* ---------- FIREWALL (FIRST LINE OF DEFENSE) ---------- */
-  const fwResponse = firewall(request);
-  if (fwResponse) {
+  /* ---------- FIREWALL ---------- */
+  const fw = firewall(request);
+  if (fw) {
     queueMicrotask(async () => {
-      const ipInfo = await getIPInfo(ip);
       await writeAccessLog({
         ipAddress: ip,
         userAgent: ua,
@@ -46,80 +75,83 @@ export async function proxy(request) {
         method: request.method,
         status: "blocked",
         responseTime: Date.now() - start,
-        ipInfo,
+        ipInfo: await getIPInfo(ip),
       });
     });
-
-    return withSecurityHeaders(fwResponse);
+    return withSecurityHeaders(fw);
   }
 
-  /* ---------- RATE LIMIT ---------- */
-  const rateLimitResult = await rateLimitRequest(request);
-  if (!rateLimitResult.allowed) {
-    queueMicrotask(async () => {
-      const ipInfo = await getIPInfo(ip);
-      await writeAccessLog({
-        ipAddress: ip,
-        userAgent: ua,
-        path: pathname,
-        method: request.method,
-        status: "rate_limited",
-        responseTime: Date.now() - start,
-        ipInfo,
-      });
-    });
-    return withSecurityHeaders(
-      new NextResponse("Rate limit exceeded", {
-        status: 429,
-        headers: {
-          "Retry-After": String(rateLimitResult.retryAfter),
-        },
-      }),
-    );
+  /* ---------- PAGE NAVIGATION ---------- */
+  const isHTML =
+    request.method === "GET" &&
+    request.headers.get("accept")?.includes("text/html");
+
+  if (isHTML) {
+    return withSecurityHeaders(NextResponse.next());
   }
 
-  /* ---------- VERIFY ---------- */
-  if (!session || !verifySession(session)) {
-    const redirectCount = Number(
-      request.cookies.get(REDIRECT_COOKIE)?.value ?? 0,
-    );
+  /* ---------- SESSION STATE ---------- */
+  const session = request.cookies.get(COOKIE_SESSION)?.value;
+  const verified = request.cookies.get(COOKIE_VERIFIED)?.value === "1";
 
-    if (redirectCount >= MAX_REDIRECTS) {
-      queueMicrotask(async () => {
-        const ipInfo = await getIPInfo(ip);
-        await writeAccessLog({
-          ipAddress: ip,
-          userAgent: ua,
-          path: pathname,
-          method: request.method,
-          status: "blocked",
-          responseTime: Date.now() - start,
-          ipInfo,
-        });
-      });
+  let sessionValid = verified;
 
+  /* ---------- VERIFY ONLY ONCE ---------- */
+  if (!verified && session) {
+    sessionValid = await verifySessionOnce(session);
+  }
+
+  /* ---------- UNAUTHORIZED ---------- */
+  if (!sessionValid) {
+    // APIs never redirect
+    if (pathname.startsWith("/api/")) {
+      return withSecurityHeaders(
+        new NextResponse("Unauthorized", { status: 401 })
+      );
+    }
+
+    const redirects =
+      Number(request.cookies.get(COOKIE_REDIRECTS)?.value ?? 0);
+
+    if (redirects >= MAX_REDIRECTS) {
       const res = new NextResponse("Unauthorized", { status: 401 });
-      res.cookies.delete(REDIRECT_COOKIE);
+      res.cookies.delete(COOKIE_REDIRECTS);
       return withSecurityHeaders(res);
     }
 
-    const url = request.nextUrl.clone();
-    url.pathname = "/api/session";
+    const res = NextResponse.redirect(
+      new URL("/api/session/create", BASE_URL)
+    );
 
-    const res = NextResponse.redirect(url);
-    res.cookies.set(REDIRECT_COOKIE, String(redirectCount + 1), {
+    res.cookies.set(COOKIE_REDIRECTS, String(redirects + 1), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
-      maxAge: 60 * 2, // 2 Minutes
+      maxAge: 120,
       path: "/",
     });
 
     return withSecurityHeaders(res);
   }
 
+  /* ---------- AUTH SUCCESS ---------- */
+  const res = NextResponse.next();
+
+  // Set verified flag ONCE
+  if (!verified) {
+    res.cookies.set(COOKIE_VERIFIED, "1", {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 24h trust window
+      path: "/",
+    });
+  }
+
+  res.cookies.delete(COOKIE_REDIRECTS);
+
+  /* ---------- LOG ---------- */
   queueMicrotask(async () => {
-    const ipInfo = await getIPInfo(ip);
     await writeAccessLog({
       ipAddress: ip,
       userAgent: ua,
@@ -127,24 +159,18 @@ export async function proxy(request) {
       method: request.method,
       status: "success",
       responseTime: Date.now() - start,
-      ipInfo,
+      ipInfo: await getIPInfo(ip),
     });
   });
-
-  // Authenticated
-  const res = NextResponse.next();
-  res.cookies.delete(REDIRECT_COOKIE);
 
   return withSecurityHeaders(res);
 }
 
+/* =========================
+   MATCHER
+========================= */
 export const config = {
   matcher: [
-    /*
-      Protect everything EXCEPT:
-      - static files
-      - api/session
-    */
-    "/((?!_next/static|_next/image|favicon.ico|api/session).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
