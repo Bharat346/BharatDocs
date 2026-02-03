@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import HeroSection from "@/components/HomePage/HeroSection";
-import FeaturesSection from "@/components/HomePage/FeaturesSection";
 import CTASection from "@/components/HomePage/CTASection";
-import { FEATURES } from "@/components/HomePage/data";
 import { useThemeContext } from "@/components/ThemeProvider";
 
 export default function HomePage() {
@@ -14,7 +12,6 @@ export default function HomePage() {
     <div className={`min-h-[90svh] lg:min-h-screen transition-all duration-300`}>
       
       <HeroSection theme={theme} />
-      <FeaturesSection theme={theme} features={FEATURES} />
       <CTASection theme={theme} />
 
       <GlobalStyles />

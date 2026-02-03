@@ -24,7 +24,7 @@ export function withSecurityHeaders(res) {
         "worker-src 'self' blob:",
 
         // PDF fetch (CRITICAL)
-        "connect-src 'self' https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app",
+        "connect-src 'self' blob: https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app",
 
         // Media inside PDFs (rare but safe)
         "media-src 'self' blob:",
@@ -47,7 +47,7 @@ export function withSecurityHeaders(res) {
         "img-src 'self' data: blob: https://*.vercel-storage.com",
         "font-src 'self' data:",
         "worker-src 'self' blob:",
-        "connect-src 'self' ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app",
+        "connect-src 'self' blob: ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app http:localhost:3000",
         "media-src 'self' blob:",
         "frame-src 'self' https://*.vercel-storage.com",
         "frame-ancestors 'self' https://*.vercel-storage.com",

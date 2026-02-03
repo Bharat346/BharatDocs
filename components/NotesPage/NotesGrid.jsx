@@ -143,7 +143,7 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
             <div className="flex-1">
                 <div className="flex justify-between">
                     <h3
-                        className={`font-medium text-sm truncate ${
+                        className={`font-mono text-sm truncate ${
                             theme === "dark"
                                 ? "text-white group-hover:text-blue-400"
                                 : "text-gray-900 group-hover:text-blue-600"
@@ -165,7 +165,7 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
                 </div>
 
                 <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full ${
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
                         isFolder
                             ? theme === "dark"
                                 ? "bg-blue-800/30 text-blue-400"

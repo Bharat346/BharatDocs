@@ -1,6 +1,7 @@
-// app/api/pdf/route.ts
+// app/api/pdf/route.js
 import { NextResponse } from "next/server";
 import { redis } from "@/server/redis";
+import { withSecurityHeaders } from "@/server/security-headers";
 
 export async function GET(req) {
   const url = new URL(req.url);
@@ -12,36 +13,48 @@ export async function GET(req) {
 
   const cacheKey = `pdf:meta:${file}`;
 
-  // 1️⃣ Check metadata cache
   let meta = await redis.get(cacheKey);
 
+  // 🔑 FIX: parse only if needed
   if (!meta) {
-    const pdfUrl = file; // Could be an external URL or S3/Vercel Storage
-
     meta = {
-      url: pdfUrl,
+      url: file,
       contentType: "application/pdf",
     };
 
-    // Cache metadata (not actual file) for 1 hour
     await redis.set(cacheKey, JSON.stringify(meta), { ex: 60 * 60 });
-  } else {
+  } else if (typeof meta === "string") {
     meta = JSON.parse(meta);
   }
+  // else: meta is already an object → leave it
 
-  // 2️⃣ Proxy the request with Range headers for streaming
   const upstream = await fetch(meta.url, {
     headers: {
-      Range: req.headers.get("range") ?? "",
+      Range: req.headers.get("range") ?? undefined,
     },
   });
 
-  return new NextResponse(upstream.body, {
+  const headers = new Headers();
+  headers.set("Content-Type", meta.contentType);
+  headers.set("Accept-Ranges", "bytes");
+
+  const contentRange = upstream.headers.get("content-range");
+  const contentLength = upstream.headers.get("content-length")
+
+  if (contentRange) {
+    headers.set("Content-Range", contentRange);
+  }
+  if(contentLength){
+    headers.set("Content-Length", contentLength);
+  }
+
+  let res =  new NextResponse(upstream.body, {
     status: upstream.status,
-    headers: {
-      "Content-Type": meta.contentType,
-      "Accept-Ranges": "bytes",
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
+    headers
   });
+
+  // res.headers.set("Cross-Origin-Embedder-Policy", "unsafe-none");
+  // res.headers.set("Cross-Origin-Resource-Policy", "cross-origin");
+
+  return withSecurityHeaders(res);
 }

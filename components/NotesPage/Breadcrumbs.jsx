@@ -62,7 +62,7 @@ export default function Breadcrumbs({
           const isEllipsis = item.isEllipsis;
           
           return (
-            <li key={`${item.slug}-${index}`} className="flex items-center gap-1">
+            <li key={`${item.slug}-${index}`} className="flex items-center gap-1 font-roboto">
               {/* Separator */}
               {index > 0 && (
                 <ChevronRight 
