@@ -20,7 +20,6 @@ export default function NotesGrid({
 
     const [starred, setStarred] = useState({});
     const [activePdf, setActivePdf] = useState(null);
-    const [navigating, setNavigating] = useState(false);
 
     /* ---------------- Load starred ---------------- */
     useEffect(() => {
@@ -71,7 +70,6 @@ export default function NotesGrid({
                         e.stopPropagation();
 
                         if (isFolder) {
-                            setNavigating(true);
                             router.push(
                                 `/notes/${[...slugArray, node.slug].join("/")}`
                             );
@@ -101,15 +99,6 @@ export default function NotesGrid({
                     );
                 })}
             </div>
-
-            {/* ================= ROUTE LOADING OVERLAY ================= */}
-            {navigating && (
-                <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="font-mono text-blue-400 animate-pulse">
-                        Opening folder…
-                    </div>
-                </div>
-            )}
 
             {/* ================= PDF OVERLAY ================= */}
             {activePdf && (
