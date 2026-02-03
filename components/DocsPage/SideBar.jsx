@@ -12,42 +12,12 @@ export default function Sidebar({
 }) {
   return (
     <aside
-      className={`h-full flex flex-col ${
+      className={`h-full pt-20 flex flex-col ${
         theme === "dark"
           ? "bg-zinc-900/95 border-zinc-800 backdrop-blur-sm shadow-xl"
           : "bg-white/95 border-gray-200 backdrop-blur-sm shadow-lg"
       } ${isMobile ? "w-full" : "w-72"}`}
     >
-      {/* Header */}
-      <div
-        className={`p-4 border-b shrink-0 ${
-          theme === "dark" ? "border-zinc-800" : "border-gray-200"
-        }`}
-      >
-        <button
-          onClick={onHomeClick}
-          className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 hover:scale-[0.98] active:scale-[0.97] ${
-            theme === "dark"
-              ? "hover:bg-zinc-800/60 text-zinc-300 hover:text-white"
-              : "hover:bg-gray-100/80 text-gray-700 hover:text-gray-900"
-          }`}
-        >
-          <div
-            className={`p-2 rounded-lg ${
-              theme === "dark"
-                ? "bg-zinc-800/60 text-blue-400"
-                : "bg-blue-50 text-blue-600"
-            }`}
-          >
-            <Home size={18} />
-          </div>
-          <div className="flex-1 text-left">
-            <div className="font-semibold text-sm">Documentation</div>
-            <div className="text-xs opacity-70">Browse all articles</div>
-          </div>
-        </button>
-      </div>
-
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {children.length === 0 ? (
@@ -82,7 +52,7 @@ export default function Sidebar({
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 group ${
                     isSelected
                       ? theme === "dark"
-                        ? "bg-blue-500/10 text-blue-400 shadow-inner shadow-blue-500/20"
+                        ? "text-blue-400"
                         : "bg-blue-100/50 text-blue-600 shadow-inner shadow-blue-300/20"
                       : theme === "dark"
                       ? "text-zinc-300 hover:bg-zinc-800/50 hover:text-white"
@@ -100,25 +70,12 @@ export default function Sidebar({
                         : "bg-gray-100 group-hover:bg-gray-200"
                     }`}
                   >
-                    {isFile ? <FileText size={16} /> : <BookOpen size={16} />}
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="text-sm font-medium truncate">
+                    <div className="text-sm font-roboto truncate">
                       {child.name}
                     </div>
-                    {child.description && (
-                      <div className="text-xs opacity-70 truncate mt-0.5">
-                        {child.description}
-                      </div>
-                    )}
                   </div>
-                  {isSelected && (
-                    <div
-                      className={`w-2 h-2 rounded-full animate-pulse ${
-                        theme === "dark" ? "bg-blue-400" : "bg-blue-500"
-                      }`}
-                    />
-                  )}
                 </button>
               );
             })}
@@ -135,7 +92,7 @@ export default function Sidebar({
         }`}
       >
         <div className="text-xs text-center">
-          Documentation Portal v1.0
+          Documentation Portal v2.0
         </div>
       </div>
     </aside>

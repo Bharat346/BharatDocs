@@ -28,7 +28,7 @@ export default function TableOfContent({
           theme === "dark" ? "border-zinc-800" : "border-gray-200"
         }`}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex lg:pt-0 pt-15 items-center gap-2">
           <div
             className={`p-2 rounded-lg ${
               theme === "dark"
@@ -38,7 +38,7 @@ export default function TableOfContent({
           >
             <Layers size={18} />
           </div>
-          <h3 className={`font-semibold text-sm ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>Table of Contents</h3>
+          <h3 className={`font-roboto text-sm ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>Table of Contents</h3>
         </div>
       </div>
 

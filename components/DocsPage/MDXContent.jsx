@@ -24,7 +24,11 @@ import "highlight.js/styles/github-dark.css";
 import "highlight.js/styles/github.css";
 import "./mdx-style.css";
 
-export default function MDXContent({ content, theme = "dark" , headingRefs = {} }) {
+export default function MDXContent({
+  content,
+  theme = "dark",
+  headingRefs = {},
+}) {
   const [copied, setCopied] = useState(null);
 
   if (!content) {
@@ -71,7 +75,7 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
       const id = props.children.toString().toLowerCase();
       return (
         <div className="relative group">
-          <h1 
+          <h1
             id={id}
             ref={(el) => {
               if (el && headingRefs.current) {
@@ -79,13 +83,13 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
               }
             }}
             className={`text-4xl font-bold mb-8 mt-12 pb-4 border-b ${
-              theme === "dark" 
-                ? "border-zinc-800 text-white" 
+              theme === "dark"
+                ? "border-zinc-800 text-white"
                 : "border-gray-200 text-gray-900"
             }`}
             {...props}
           />
-          <a 
+          <a
             href={`#${id}`}
             className={`absolute -left-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity ${
               theme === "dark" ? "text-zinc-500" : "text-gray-400"
@@ -96,13 +100,16 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
         </div>
       );
     },
-    
+
     h2: ({ node, ...props }) => {
-      console.log("props - children >>>>> ",props.children.toString().toLowerCase());
+      console.log(
+        "props - children >>>>> ",
+        props.children.toString().toLowerCase(),
+      );
       const id = props.children.toString().toLowerCase();
       return (
         <div className="relative group">
-          <h2 
+          <h2
             id={id}
             ref={(el) => {
               if (el && headingRefs.current) {
@@ -110,13 +117,13 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
               }
             }}
             className={`text-2xl font-bold mb-6 mt-10 pb-3 border-b ${
-              theme === "dark" 
-                ? "border-zinc-800 text-white" 
+              theme === "dark"
+                ? "border-zinc-800 text-white"
                 : "border-gray-200 text-gray-900"
             }`}
             {...props}
           />
-          <a 
+          <a
             href={`#${id}`}
             className={`absolute -left-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity ${
               theme === "dark" ? "text-zinc-500" : "text-gray-400"
@@ -127,12 +134,12 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
         </div>
       );
     },
-    
+
     h3: ({ node, ...props }) => {
       const id = props.children.toString().toLowerCase();
       return (
         <div className="relative group">
-          <h3 
+          <h3
             id={id}
             ref={(el) => {
               if (el && headingRefs.current) {
@@ -144,7 +151,7 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
             }`}
             {...props}
           />
-          <a 
+          <a
             href={`#${id}`}
             className={`absolute -left-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity ${
               theme === "dark" ? "text-zinc-500" : "text-gray-400"
@@ -155,11 +162,11 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
         </div>
       );
     },
-    
+
     h4: ({ node, ...props }) => {
-      const id = props.children.toString().toLowerCase().replace(/\s+/g, '-');
+      const id = props.children.toString().toLowerCase().replace(/\s+/g, "-");
       return (
-        <h4 
+        <h4
           id={id}
           ref={(el) => {
             if (el && headingRefs.current) {
@@ -168,8 +175,8 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
           }}
           className={`text-lg font-semibold mb-3 mt-6 ${
             theme === "dark" ? "text-zinc-200" : "text-gray-700"
-          }`} 
-          {...props} 
+          }`}
+          {...props}
         />
       );
     },
@@ -397,28 +404,51 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
     ),
 
     // Images
-    img: ({ node, ...props }) => (
-      <div className="my-8">
-        <img
-          {...props}
-          className={`rounded-xl max-w-full h-auto mx-auto border ${
-            theme === "dark"
-              ? "border-zinc-800 shadow-2xl"
+    img: ({ node, src, alt, ...props }) => {
+      const isDark = theme === "dark";
+
+      // Detect external images
+      const isExternal =
+        typeof src === "string" &&
+        (src.startsWith("http://") || src.startsWith("https://"));
+
+      // Proxy ONLY external images
+      const finalSrc = isExternal
+        ? `/api/image-proxy?url=${encodeURIComponent(src)}`
+        : src;
+
+      return (
+        <figure className="my-10">
+          <img
+            src={finalSrc}
+            alt={alt ?? ""}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className={`
+          mx-auto max-w-full h-auto rounded-xl border
+          transition-shadow duration-300
+          ${
+            isDark
+              ? "border-zinc-800 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
               : "border-gray-200 shadow-lg"
-          }`}
-          loading="lazy"
-        />
-        {props.alt && (
-          <p
-            className={`text-center mt-2 text-sm italic ${
-              theme === "dark" ? "text-zinc-500" : "text-gray-500"
-            }`}
-          >
-            {props.alt}
-          </p>
-        )}
-      </div>
-    ),
+          }
+        `}
+            {...props}
+          />
+
+          {alt && (
+            <figcaption
+              className={`mt-3 text-center text-sm italic ${
+                isDark ? "text-zinc-500" : "text-gray-500"
+              }`}
+            >
+              {alt}
+            </figcaption>
+          )}
+        </figure>
+      );
+    },
 
     // Custom alert/note boxes
     // Support for special syntax like :::note, :::warning, :::info
@@ -563,16 +593,6 @@ export default function MDXContent({ content, theme = "dark" , headingRefs = {} 
           </div>
           <div className="flex items-center gap-4">
             <span>Last updated: {new Date().toLocaleDateString()}</span>
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                theme === "dark"
-                  ? "hover:bg-zinc-800 text-zinc-300"
-                  : "hover:bg-gray-100 text-gray-700"
-              }`}
-            >
-              ↑ Back to top
-            </button>
           </div>
         </div>
       </div>

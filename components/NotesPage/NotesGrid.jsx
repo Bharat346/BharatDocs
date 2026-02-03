@@ -1,10 +1,10 @@
 // components/NotesGrid.tsx
 "use client";
 
-import Link from "next/link";
-import { Folder, FileText, Star, X } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Folder, FileText, Star } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { useThemeContext } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PDFViewer from "@/lib/PDF/pdfViewer";
@@ -16,9 +16,11 @@ export default function NotesGrid({
 }) {
     const { theme } = useThemeContext();
     const isMobile = useIsMobile();
+    const router = useRouter();
 
     const [starred, setStarred] = useState({});
     const [activePdf, setActivePdf] = useState(null);
+    const [navigating, setNavigating] = useState(false);
 
     /* ---------------- Load starred ---------------- */
     useEffect(() => {
@@ -64,12 +66,16 @@ export default function NotesGrid({
                     const isFolder = node.nodeType === "folder";
                     const pdfUrl = node.filePath || node.slug;
 
-                    const handleFileClick = (e) => {
+                    const handleClick = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
 
-                        if (!isFolder) {
-                            // always open inside the overlay
+                        if (isFolder) {
+                            setNavigating(true);
+                            router.push(
+                                `/notes/${[...slugArray, node.slug].join("/")}`
+                            );
+                        } else {
                             setActivePdf(pdfUrl);
                         }
                     };
@@ -77,40 +83,33 @@ export default function NotesGrid({
                     return (
                         <Card
                             key={node.nodeId}
+                            onClick={handleClick}
                             className={`p-4 rounded-2xl shadow-lg cursor-pointer transition ${
                                 theme === "dark"
                                     ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
                                     : "bg-white border-gray-200 hover:bg-gray-50"
                             }`}
                         >
-                            {isFolder ? (
-                                <Link
-                                    href={`/notes/${[...slugArray, node.slug].join("/")}`}
-                                    className="block"
-                                >
-                                    <ItemContent
-                                        node={node}
-                                        theme={theme}
-                                        isFolder
-                                        starred={starred}
-                                        toggleStar={toggleStar}
-                                    />
-                                </Link>
-                            ) : (
-                                <div onClick={handleFileClick}>
-                                    <ItemContent
-                                        node={node}
-                                        theme={theme}
-                                        isFolder={false}
-                                        starred={starred}
-                                        toggleStar={toggleStar}
-                                    />
-                                </div>
-                            )}
+                            <ItemContent
+                                node={node}
+                                theme={theme}
+                                isFolder={isFolder}
+                                starred={starred}
+                                toggleStar={toggleStar}
+                            />
                         </Card>
                     );
                 })}
             </div>
+
+            {/* ================= ROUTE LOADING OVERLAY ================= */}
+            {navigating && (
+                <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="font-mono text-blue-400 animate-pulse">
+                        Opening folder…
+                    </div>
+                </div>
+            )}
 
             {/* ================= PDF OVERLAY ================= */}
             {activePdf && (
@@ -122,7 +121,10 @@ export default function NotesGrid({
                                 : "border-gray-200 bg-white"
                         }`}
                     >
-                        <PDFViewer fileUrl={activePdf} onClose={() => setActivePdf(null)} />
+                        <PDFViewer
+                            fileUrl={activePdf}
+                            onClose={() => setActivePdf(null)}
+                        />
                     </div>
                 </div>
             )}
@@ -141,12 +143,12 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
             )}
 
             <div className="flex-1">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-start">
                     <h3
                         className={`font-mono text-sm truncate ${
                             theme === "dark"
-                                ? "text-white group-hover:text-blue-400"
-                                : "text-gray-900 group-hover:text-blue-600"
+                                ? "text-white"
+                                : "text-gray-900"
                         }`}
                     >
                         {node.name}

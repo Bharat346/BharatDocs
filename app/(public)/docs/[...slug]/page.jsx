@@ -1,45 +1,55 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useThemeContext } from "@/components/ThemeProvider";
+
 import Sidebar from "@/components/DocsPage/SideBar";
 import MainContent from "@/components/DocsPage/mainContent";
 import TableOfContent from "@/components/DocsPage/TableofContent";
 
+/* ================================
+   Data Fetchers
+================================ */
 const fetchChildren = async (slug) => {
-  const response = await fetch(`/api/docs?parentSlug=${slug}`);
-  if (!response.ok) throw new Error("Failed to fetch children");
-  return response.json();
+  const res = await fetch(`/api/docs?parentSlug=${slug}`);
+  if (!res.ok) throw new Error("Failed to fetch children");
+  return res.json();
 };
 
 const fetchMdxContent = async (filePath) => {
   if (!filePath) return null;
-  const response = await fetch(
-    `/api/github/content?url=${encodeURIComponent(filePath)}`,
+  const res = await fetch(
+    `/api/github/content?url=${encodeURIComponent(filePath)}`
   );
-  if (!response.ok) throw new Error("Failed to fetch MDX content");
-  return response.json();
+  if (!res.ok) throw new Error("Failed to fetch MDX content");
+  return res.json();
 };
 
+/* ================================
+   Page
+================================ */
 export default function DocsSlugPage() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useThemeContext();
+
   const currentSlug = pathname.split("/").pop() || "";
 
-  // State
+  /* ---------- State ---------- */
   const [selectedChild, setSelectedChild] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [tocOpen, setTocOpen] = useState(true);
   const [headings, setHeadings] = useState([]);
   const [activeHeadingId, setActiveHeadingId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const mainContentRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
 
-  // Fetch data
+  const mainContentRef = useRef(null);
+  const isScrollingRef = useRef(false);
+
+  /* ---------- Queries ---------- */
   const { data: children = [], isLoading: childrenLoading } = useQuery({
     queryKey: ["docs", "children", currentSlug],
     queryFn: () => fetchChildren(currentSlug),
@@ -54,144 +64,131 @@ export default function DocsSlugPage() {
   });
 
   const mdxContent = mdxData?.content || "";
+  const loading = childrenLoading || mdxLoading;
 
-  // Auto-select first document
+  /* ---------- Mount ---------- */
+  useEffect(() => setMounted(true), []);
+
+  /* ---------- Responsive ---------- */
   useEffect(() => {
-    if (children.length > 0 && !selectedChild) {
-      const firstMdx = children.find(
-        (child) =>
-          child.nodeType === "file" &&
-          (child.filePath?.includes(".mdx") || child.fileType === "mdx"),
-      );
-      const firstFile = children.find((child) => child.nodeType === "file");
-      setSelectedChild(firstMdx || firstFile || children[0]);
-    }
-  }, [children, selectedChild]);
+    if (!mounted) return;
 
-  // Set mounted state (client-side only)
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Check mobile (client-side only)
-  useEffect(() => {
-    if (!isMounted) return;
-
-    const checkMobile = () => {
+    const updateLayout = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      if (mobile) {
-        setSidebarOpen(false);
-        setTocOpen(false);
-      } else {
-        setSidebarOpen(true);
-        setTocOpen(true);
-      }
+      setSidebarOpen(!mobile);
+      setTocOpen(!mobile);
     };
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, [isMounted]);
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
+  }, [mounted]);
 
-  // Extract headings
+  /* ---------- Auto select first doc ---------- */
   useEffect(() => {
-    const extractHeadings = () => {
-      const elements = document.querySelectorAll(
-        "h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]",
-      );
-      const extracted = Array.from(elements).map((el) => ({
-        id: el.id,
-        text: el.textContent || "",
-        level: Number(el.tagName.replace("H", "")),
-      }));
-      setHeadings(extracted);
-    };
+    if (!children.length || selectedChild) return;
 
-    if (mdxContent) {
-      const timer = setTimeout(extractHeadings, 100);
-      return () => clearTimeout(timer);
-    }
+    const first =
+      children.find(
+        (c) =>
+          c.nodeType === "file" &&
+          (c.filePath?.endsWith(".mdx") || c.fileType === "mdx")
+      ) ||
+      children.find((c) => c.nodeType === "file") ||
+      children[0];
+
+    setSelectedChild(first);
+  }, [children, selectedChild]);
+
+  /* ---------- Extract headings ---------- */
+  useEffect(() => {
+    if (!mdxContent) return;
+
+    const timer = setTimeout(() => {
+      const nodes = document.querySelectorAll(
+        "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"
+      );
+
+      setHeadings(
+        Array.from(nodes).map((el) => ({
+          id: el.id,
+          text: el.textContent || "",
+          level: Number(el.tagName.replace("H", "")),
+        }))
+      );
+    }, 120);
+
+    return () => clearTimeout(timer);
   }, [mdxContent]);
 
-  // Intersection Observer for headings
+  /* ---------- Active heading observer ---------- */
   useEffect(() => {
     if (!headings.length || !mainContentRef.current) return;
 
     const observer = new IntersectionObserver(
-  (entries) => {
-    if (isScrollingRef.current) return; // ignore during programmatic scroll
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        setActiveHeadingId(entry.target.id);
+      (entries) => {
+        if (isScrollingRef.current) return;
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActiveHeadingId(e.target.id);
+        });
+      },
+      {
+        root: mainContentRef.current,
+        rootMargin: "-25% 0px -65% 0px",
+        threshold: 0.1,
       }
-    });
-  },
-  {
-    root: mainContentRef.current,
-    rootMargin: "-20% 0px -70% 0px",
-    threshold: 0.1,
-  }
-);
+    );
 
-
-    headings.forEach((heading) => {
-      const element = document.getElementById(heading.id);
-      if (element) observer.observe(element);
+    headings.forEach((h) => {
+      const el = document.getElementById(h.id);
+      if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
   }, [headings]);
 
-  // Handlers
+  /* ---------- Handlers ---------- */
+  const handleHeadingClick = (id) => {
+    const container = mainContentRef.current;
+    const el = document.getElementById(id);
+    if (!container || !el) return;
+
+    isScrollingRef.current = true;
+
+    const offset =
+      el.getBoundingClientRect().top -
+      container.getBoundingClientRect().top +
+      container.scrollTop -
+      80;
+
+    container.scrollTo({ top: offset, behavior: "smooth" });
+    setActiveHeadingId(id);
+
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 450);
+  };
+
   const handleChildSelect = (child) => {
     setSelectedChild(child);
     if (isMobile) setSidebarOpen(false);
   };
 
-  const isScrollingRef = useRef(false);
-
-const handleHeadingClick = (id) => {
-  const container = mainContentRef.current;
-  const element = document.getElementById(id);
-  if (!container || !element) return;
-
-  const containerTop = container.getBoundingClientRect().top;
-  const elementTop = element.getBoundingClientRect().top;
-
-  const scrollOffset = elementTop - containerTop + container.scrollTop - 80; // header offset
-
-  isScrollingRef.current = true; // disable observer updates
-
-  container.scrollTo({
-    top: scrollOffset,
-    behavior: "smooth",
-  });
-
-  setActiveHeadingId(id);
-
-  // Re-enable observer after scroll completes
-  const timeout = setTimeout(() => {
-    isScrollingRef.current = false;
-  }, 400); // roughly matches smooth scroll duration
-
-  return () => clearTimeout(timeout);
-};
-
-
   const handleHomeClick = () => router.push("/docs");
 
-  const loading = childrenLoading || mdxLoading;
-
-  // Render desktop layout by default, then adjust on client
+  /* ================================
+     Render
+  ================================ */
   return (
     <div
-      className={`min-h-screen ${theme === "dark" ? "bg-zinc-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${
+        theme === "dark" ? "bg-zinc-900" : "bg-gray-50"
+      }`}
     >
-
-      {/* Mobile Overlays - only render after mounting */}
-      {isMounted && isMobile && sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+      {/* Mobile Sidebar */}
+      {mounted && isMobile && sidebarOpen && (
+        <div className="fixed inset-0 z-40">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
@@ -203,14 +200,15 @@ const handleHeadingClick = (id) => {
               selectedChild={selectedChild}
               onChildSelect={handleChildSelect}
               onHomeClick={handleHomeClick}
-              isMobile={true}
+              isMobile
             />
           </div>
         </div>
       )}
 
-      {isMounted && isMobile && tocOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+      {/* Mobile TOC */}
+      {mounted && isMobile && tocOpen && (
+        <div className="fixed inset-0 z-40">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setTocOpen(false)}
@@ -221,14 +219,15 @@ const handleHeadingClick = (id) => {
               headings={headings}
               activeHeadingId={activeHeadingId}
               onHeadingClick={handleHeadingClick}
-              isMobile={true}
+              isMobile
             />
           </div>
         </div>
       )}
 
+      {/* Desktop Layout */}
       <div className="flex h-screen overflow-hidden">
-        {/* Desktop Sidebar - always render but conditionally show */}
+        {/* Sidebar */}
         <div
           className={`hidden lg:block transition-all duration-300 ${
             sidebarOpen ? "w-72" : "w-0"
@@ -245,24 +244,20 @@ const handleHeadingClick = (id) => {
           )}
         </div>
 
-        {/* Main Content */}
+        {/* Main */}
         <MainContent
-          theme={theme}
           ref={mainContentRef}
+          theme={theme}
           selectedChild={selectedChild}
           mdxContent={mdxContent}
           loading={loading}
-          headings={headings}
-          activeHeadingId={activeHeadingId}
           onHomeClick={handleHomeClick}
-          onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
+          onSidebarToggle={() => setSidebarOpen((v) => !v)}
           sidebarOpen={sidebarOpen}
-          onTocToggle={() => setTocOpen(!tocOpen)}
-          tocOpen={tocOpen}
-          isMobile={isMobile}
+          onTocToggle={() => setTocOpen((v) => !v)}
         />
 
-        {/* Desktop Table of Content - always render but conditionally show */}
+        {/* TOC */}
         <div
           className={`hidden lg:block transition-all duration-300 ${
             tocOpen ? "w-72" : "w-0"

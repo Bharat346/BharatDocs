@@ -15,7 +15,7 @@ export function withSecurityHeaders(res) {
         "style-src-attr 'unsafe-inline'",
 
         // Images (PDF renders images via canvas)
-        "img-src 'self' data: blob: https://*.vercel-storage.com",
+        "img-src 'self' data: blob: https://*.vercel-storage.com https://bhdocs.in https://github.com",
 
         // Fonts
         "font-src 'self' data:",
@@ -44,7 +44,7 @@ export function withSecurityHeaders(res) {
         "script-src-elem 'self' 'unsafe-inline'",
         "style-src 'self' 'unsafe-inline'",
         "style-src-attr 'unsafe-inline'",
-        "img-src 'self' data: blob: https://*.vercel-storage.com",
+        "img-src 'self' data: blob: https://* https://bhdocs.in https://github.com.vercel-storage.com",
         "font-src 'self' data:",
         "worker-src 'self' blob:",
         "connect-src 'self' blob: ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app http:localhost:3000",
