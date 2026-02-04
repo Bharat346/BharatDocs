@@ -1,131 +1,28 @@
-"use client";
+import DocsClient from "@/components/DocsPage/client/DocsClient";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { useThemeContext } from "@/components/ThemeProvider";
-
-import GridBackground from "@/components/GridBG";
-import StatsPanel from "@/components/DocsPage/statsPanel";
-import SearchBar from "@/components/DocsPage/searchBar";
-import CollectionsGrid from "@/components/DocsPage/collectionsGrid";
-import LoadingState from "@/components/DocsPage/LoadingState";
-import EmptyState from "@/components/DocsPage/EmptyState";
-
-/* ---------------- API fetcher ---------------- */
-const fetchDocs = async () => {
-  const response = await fetch("/api/docs?collection=Docs&parentSlug=");
-  if (!response.ok) {
-    throw new Error("Failed to fetch documents");
-  }
-  return response.json();
+export const metadata = {
+  title: "Documentation & Guides",
+  description:
+    "Explore curated developer documentation, guides, and PDFs for React, Next.js, System Design, APIs, and more on BH Docs.",
+  alternates: {
+    canonical: "https://bhdocs.in/docs",
+  },
+  openGraph: {
+    title: "Developer Documentation & Guides",
+    description:
+      "High-quality developer documentation, structured notes, and learning resources.",
+    url: "https://bhdocs.in/docs",
+    siteName: "BH Docs",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Developer Documentation & Guides",
+    description:
+      "Structured developer docs and guides for modern web development.",
+  },
 };
 
 export default function DocsPage() {
-  const router = useRouter();
-  const { theme } = useThemeContext();
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [navigating, setNavigating] = useState(false);
-
-  const { data: rootNodes = [], isLoading } = useQuery({
-    queryKey: ["docs", "root"],
-    queryFn: fetchDocs,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-  });
-
-  /* ---------------- Collections transform ---------------- */
-  const collections = useMemo(() => {
-    return rootNodes.map((root) => ({
-      id: root.nodeId,
-      name: root.name,
-      slug: root.slug,
-      nodeType: root.nodeType,
-      fileType: root.fileType,
-      updatedAt: root.updatedAt,
-      docs: [],
-      count: 0,
-    }));
-  }, [rootNodes]);
-
-  /* ---------------- Stats ---------------- */
-  const stats = useMemo(() => {
-    return {
-      totalDocs: rootNodes.length,
-      totalCollections: rootNodes.length,
-      recentDocs: rootNodes.filter((doc) => {
-        if (!doc.updatedAt) return false;
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        return new Date(doc.updatedAt) > sevenDaysAgo;
-      }).length,
-      pdfCount: rootNodes.filter((d) => d.fileType === "pdf").length,
-      folderCount: rootNodes.filter((d) => d.nodeType === "folder").length,
-      avgUpdateFrequency: "Weekly",
-    };
-  }, [rootNodes]);
-
-  /* ---------------- Folder click ---------------- */
-  const handleCollectionClick = (collection) => {
-    if (navigating) return; // prevent double-clicks
-    setNavigating(true);
-    router.push(`/docs/${collection.slug}`);
-  };
-
-  /* ---------------- Search ---------------- */
-  const filteredCollections = collections.filter((col) =>
-    col.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (isLoading) {
-    return <LoadingState theme={theme} />;
-  }
-
-  return (
-    <>
-      <GridBackground
-        variant="dots"
-        density="lg"
-        intensity="xs"
-        className="min-h-screen py-8"
-        gradient
-        blur
-      >
-        <div className="max-w-[90vw] mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left Panel */}
-          <StatsPanel theme={theme} stats={stats} />
-
-          {/* Right Panel */}
-          <div className="lg:col-span-4 space-y-8">
-            <SearchBar
-              theme={theme}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              filteredCount={filteredCollections.length}
-            />
-
-            {filteredCollections.length === 0 ? (
-              <EmptyState theme={theme} searchTerm={searchTerm} />
-            ) : (
-              <CollectionsGrid
-                theme={theme}
-                collections={filteredCollections}
-                onCollectionClick={handleCollectionClick}
-              />
-            )}
-          </div>
-        </div>
-      </GridBackground>
-
-      {/* ================= ROUTE LOADER ================= */}
-      {navigating && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="font-mono text-blue-400 animate-pulse">
-            Opening collection…
-          </div>
-        </div>
-      )}
-    </>
-  );
+  return <DocsClient />;
 }

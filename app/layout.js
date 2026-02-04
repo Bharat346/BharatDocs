@@ -24,17 +24,19 @@ const roboto = Roboto({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://bhdocs.in"),
   title: {
-    default: "Bharat Docs",
-    template: "%s | Bharat Docs",
+    default: "BH Docs – Developer Documentation & CS Notes",
+    template: "%s | BH Docs",
   },
 
   description:
-    "Bharat Docs is a modern platform for organizing, reading, and exploring documents and notes with speed, clarity, and collaboration in mind.",
+    "BH Docs is a modern platform for organizing, reading, and exploring documents and notes with speed, clarity, and collaboration in mind.",
 
-  applicationName: "Bharat Docs",
+  applicationName: "BH Docs",
 
   keywords: [
+    "BH Docs",
     "Bharat Docs",
     "Documentation Platform",
     "Notes App",
@@ -45,23 +47,21 @@ export const metadata = {
     "Technical Documentation",
   ],
 
-  authors: [{ name: "Bharat Kumar" }],
+  authors: [{ name: "Bharat Kumar" } , { name: "BH Docs" }],
 
   creator: "Bharat Kumar",
-  publisher: "Bharat Docs",
-
-  metadataBase: new URL("https://bhdocs.in"),
+  publisher: "BH Docs",
 
   alternates: {
     canonical: "/",
   },
 
   openGraph: {
-    title: "Bharat Docs",
+    title: "BH Docs – Developer Documentation & CS Notes",
     description:
       "Organize, read, and explore your documents and notes with a clean, modern, and powerful documentation platform.",
     url: "https://bhdocs.in",
-    siteName: "Bharat Docs",
+    siteName: "BH Docs",
     images: [
       {
         url: "/og-image.png",
@@ -76,7 +76,7 @@ export const metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Bharat Docs",
+    title: "BH Docs – Developer Documentation & CS Notes",
     description:
       "A modern platform for organizing, reading, and exploring documents and notes.",
     images: ["/og-image.png"],

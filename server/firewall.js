@@ -35,7 +35,6 @@ const BLOCKED_UA = [
   /dirb/i,
   /gobuster/i,
   /ffuf/i,
-  /headless/i,
   /phantom/i,
   /puppeteer/i,
   /selenium/i,
@@ -43,6 +42,19 @@ const BLOCKED_UA = [
   /zombie/i,
   /casper/i,
 ];
+
+const TRUSTED_BOTS = [
+  // Google
+  /googlebot/i,
+  /adsbot-google/i,
+  /mediapartners-google/i,
+  /google-inspectiontool/i,
+  //Bing
+  /bingbot/i,
+  /msnbot/i,
+  /slurp/i,
+];
+
 
 /* =========================
    ATTACK SIGNATURES
@@ -148,9 +160,16 @@ function hasMaliciousPayload(input) {
   return patterns.some((re) => re.test(input));
 }
 
-function isBrowserUA(ua) {
+function isTrustedBot(ua) {
   if (!ua) return false;
-  return !BLOCKED_UA.some((re) => re.test(ua));
+  return TRUSTED_BOTS.some((re) => re.test(ua));
+}
+
+function isAllowedUA(ua) {
+  if (!ua) return false;
+  if (isTrustedBot(ua)) return true;
+  if (BLOCKED_UA.some((re) => re.test(ua))) return false;
+  return true;
 }
 
 export function firewall(request) {
@@ -179,7 +198,7 @@ export function firewall(request) {
   }
 
   /* ---------- USER AGENT ---------- */
-  if (!isBrowserUA(ua)) {
+  if (!isAllowedUA(ua)) {
     return withSecurityHeaders(
       NextResponse.json(
         { error: "Non-browser client blocked" },

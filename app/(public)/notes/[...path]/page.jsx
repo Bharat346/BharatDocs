@@ -1,66 +1,69 @@
-"use client";
+import NotesPathClient from "@/components/NotesPage/NotesPathClient";
 
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import Breadcrumbs from "@/components/NotesPage/Breadcrumbs";
-import NotesGrid from "@/components/NotesPage/NotesGrid";
-import SEO from "@/components/SEO/SEO";
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
 
-// API fetcher function
-const fetchNotes = async (collectionName, parentSlug) => {
-  const apiUrl = `/api/notes?collection=${collectionName}${
-    parentSlug ? `&parentSlug=${parentSlug}` : ""
-  }`;
-  const response = await fetch(apiUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch notes (${response.status})`);
-  }
-  return response.json();
-};
+  const slugArray = Array.isArray(resolvedParams?.path)
+    ? resolvedParams.path
+    : [];
 
-export default function NotesPathPage() {
-  const params = useParams();
+  const lastSlug = slugArray.at(-1);
 
-  const slugArray = params?.path ?? [];
-  const lastSlug = slugArray.length ? slugArray[slugArray.length - 1] : null;
+  const title = lastSlug
+    ? `${lastSlug.toUpperCase()} Notes & PDFs`
+    : "Free CS Notes & Documentation";
 
-  const collectionName = "Notes";
+  const description = lastSlug
+    ? `Browse free ${lastSlug} notes, PDFs, and documentation for students and developers on BH Docs.`
+    : "Browse free computer science notes, PDFs, and developer documentation on BH Docs.";
 
-  const {
-    data: nodes = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["notes", collectionName, lastSlug || "root"],
-    queryFn: () => fetchNotes(collectionName, lastSlug),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 60 * 60 * 1000, // 1 hour cache
-    keepPreviousData: true,
-  });
+  const canonical =
+    "https://bhdocs.in/notes" +
+    (slugArray.length ? `/${slugArray.join("/")}` : "");
 
-  //Dynamic SEO values
-  const title = lastSlug ? `${lastSlug.toUpperCase()} | Notes` : "Notes";
-  const description = nodes.length
-    ? `Browse ${nodes.length} notes in ${lastSlug ?? "the collection"}.`
-    : "Explore notes in this collection.";
-  const url = `https://bhdocs.in/notes/${slugArray.join("/")}`;
+  return {
+    title,
+    description,
 
-  if (error) {
-    return (
-      <>
-      <SEO title="Notes | My App" description="Failed to load notes" url={url} />
-        <Breadcrumbs slugArray={slugArray} />
-        <div className="py-12 text-center text-red-500">{error.message}</div>
-      </>
-    );
-  }
+    keywords: [
+      "computer science notes",
+      "cs notes pdf",
+      "engineering notes",
+      "free programming notes",
+      lastSlug && `${lastSlug} notes`,
+      lastSlug && `${lastSlug} pdf`,
+      lastSlug && `${lastSlug} documentation`,
+    ].filter(Boolean),
 
-  return (
-    <div>
-      <SEO title={title} description={description} url={url} />
-      <Breadcrumbs slugArray={slugArray} />
-      <br />
-      <NotesGrid nodes={nodes} slugArray={slugArray} isLoading={isLoading} />
-    </div>
-  );
+    alternates: {
+      canonical,
+    },
+
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      siteName: "BH Docs",
+      type: "website",
+      images: [
+        {
+          url: "https://bhdocs.in/og/notes.png",
+          width: 1200,
+          height: 630,
+          alt: "BH Docs – Free Computer Science Notes",
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["https://bhdocs.in/og/notes.png"],
+    },
+  };
+}
+
+export default function NotesPathPage({ params }) {
+  return <NotesPathClient params={params} />;
 }
