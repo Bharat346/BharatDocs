@@ -137,7 +137,7 @@ export default function CTASection({ theme }) {
                   size="lg"
                   onClick={openEmail}
                   className="
-                    group w-full sm:w-auto px-9 py-6 rounded-2xl
+                    group w-full min-w-40 cursor-pointer sm:w-auto px-9 py-6 rounded-2xl
                     border-2 border-sky-400 text-sky-400 bg-transparent
                     hover:bg-sky-400 hover:text-neutral-900
                     transition-all duration-300
@@ -156,7 +156,7 @@ export default function CTASection({ theme }) {
                     size="lg"
                     variant="outline"
                     className="
-                      group w-full sm:w-auto px-9 py-6 rounded-2xl
+                      group w-full min-w-40 cursor-pointer sm:w-auto px-9 py-6 rounded-2xl
                       border-2 border-indigo-400 text-indigo-400 bg-transparent
                       hover:bg-indigo-400 hover:text-neutral-900
                       transition-all duration-300

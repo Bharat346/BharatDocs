@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withSecurityHeaders } from "./security-headers";
 
-const ALLOWED_ORIGINS = new Set([
-  "http://localhost:3000",
-  "https://bhdocs.in",
-]);
+const ALLOWED_ORIGINS = new Set(["http://localhost:3000", "https://bhdocs.in"]);
 
 const BLOCKED_UA = [
   /curl/i,
@@ -54,7 +51,6 @@ const TRUSTED_BOTS = [
   /msnbot/i,
   /slurp/i,
 ];
-
 
 /* =========================
    ATTACK SIGNATURES
@@ -173,28 +169,18 @@ function isAllowedUA(ua) {
 }
 
 export function firewall(request) {
-  const origin = request.headers.get("origin");
-  const referer = request.headers.get("referer");
   const ua = request.headers.get("user-agent");
   const url = request.nextUrl;
 
-  /* ---------- ORIGIN LOCK ---------- */
-  if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return withSecurityHeaders(
-      NextResponse.json(
-        { error: "Direct Access Not Allowed | Forbidden Origin" },
-        { status: 403 },
-      ),
-    );
-  }
+  // Enforce origin ONLY for state-changing requests
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    const origin = request.headers.get("origin");
 
-  if (referer && ![...ALLOWED_ORIGINS].some((o) => referer.startsWith(o))) {
-    return withSecurityHeaders(
-      NextResponse.json(
-        { error: "Invalid referer" },
-        { status: 403 }
-      )
-    );
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) {
+      return withSecurityHeaders(
+        NextResponse.json({ error: "Forbidden origin" }, { status: 403 }),
+      );
+    }
   }
 
   /* ---------- USER AGENT ---------- */
@@ -202,18 +188,15 @@ export function firewall(request) {
     return withSecurityHeaders(
       NextResponse.json(
         { error: "Non-browser client blocked" },
-        { status: 403 }
-      )
+        { status: 403 },
+      ),
     );
   }
 
   /* ---------- METHOD LOCK ---------- */
   if (!["GET", "POST", "PUT", "DELETE"].includes(request.method)) {
     return withSecurityHeaders(
-      NextResponse.json(
-        { error: "Method not allowed" },
-        { status: 405 }
-      )
+      NextResponse.json({ error: "Method not allowed" }, { status: 405 }),
     );
   }
 
@@ -224,8 +207,8 @@ export function firewall(request) {
     return withSecurityHeaders(
       NextResponse.json(
         { error: "Malicious request detected" },
-        { status: 403 }
-      )
+        { status: 403 },
+      ),
     );
   }
 

@@ -190,13 +190,12 @@ export default function HeroSection({ theme }) {
               <Link href="/docs">
                 <Button
                   size="lg"
-                  className="h-14 px-9 rounded-2xl border-2 border-sky-400 text-sky-400 bg-transparent
+                  className="h-14 min-w-40 px-9 rounded-2xl border-2 border-sky-400 text-sky-400 bg-transparent
                              hover:bg-sky-400 hover:text-neutral-900
                              transition-all duration-300"
                 >
                   <BookOpen className="mr-2 h-5 w-5" />
                   Explore Docs
-                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
 
@@ -204,7 +203,7 @@ export default function HeroSection({ theme }) {
               <Link href="/notes">
                 <Button
                   size="lg"
-                  className="h-14 px-9 rounded-2xl border-2 border-indigo-400 text-indigo-400 bg-transparent
+                  className="h-14 px-9 min-w-40 rounded-2xl border-2 border-indigo-400 text-indigo-400 bg-transparent
                              hover:bg-indigo-400 hover:text-neutral-900
                              transition-all duration-300"
                 >
