@@ -1,92 +1,130 @@
 "use client";
 
 import { useThemeContext } from "./ThemeProvider";
+import { useEffect, useState } from "react";
+
+const FLOAT_COUNT = 62;
 
 export default function GridBackground({
   children,
   className = "",
-  gridSize = 64,
-  strokeWidth = 1,
-  strokeOpacity = 0.1,
-  dotSize = 1,
-  dotOpacity = 0.15,
-  showGrid = true,
-  showDots = true,
-  animate = false,
+  dotSize = 1.1,
+  dotOpacity = 0.18,
+  spacing = 26,
+  animate = true,
 }) {
   const { theme } = useThemeContext();
+  const isDark = theme === "dark";
 
-  // Theme-based colors
-  const gridColor = theme === "dark" ? "#ffffff" : "#000000";
-  const dotColor = theme === "dark" ? "#ffffff" : "#000000";
-  const backgroundColor = theme === "dark" 
-    ? "rgba(10, 10, 10, 0.5)" 
-    : "rgba(255, 255, 255, 1)";
+  /* ---------- COLORS ---------- */
+  const baseBg = isDark ? "#0a0a0a" : "#ffffff";
+
+  const gridDotColor = isDark
+    ? `rgba(96,165,250,${dotOpacity})`
+    : `rgba(37,99,235,${dotOpacity})`;
+
+  const floatDotColor = isDark
+    ? "rgba(147,197,253,0.25)"
+    : "rgba(59,130,246,0.22)";
+
+  /* ---------- FLOATING DOTS (hydration-safe) ---------- */
+  const [floatDots, setFloatDots] = useState([]);
+
+  useEffect(() => {
+    const dots = Array.from({ length: FLOAT_COUNT }, (_, i) => {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 20 + Math.random() * 30;
+
+      return {
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        size: Math.random() * 3 + 1.5,
+        duration: 5 + Math.random() * 12,
+        delay: Math.random() * 6,
+        dx: Math.cos(angle) * distance,
+        dy: Math.sin(angle) * distance,
+      };
+    });
+
+    setFloatDots(dots);
+  }, []);
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
-      {/* Grid background */}
-      <div 
-        className="absolute inset-0 pointer-events-none transition-colors duration-300"
-        style={{ background: backgroundColor }}
-      >
-        {showGrid && (
-          <svg
-            className="absolute inset-0 w-full h-full transition-opacity duration-300"
-            style={{ 
-              opacity: strokeOpacity,
-              backgroundImage: `radial-gradient(${dotColor} ${dotSize}px, transparent ${dotSize}px)`,
-              backgroundSize: `${gridSize}px ${gridSize}px`,
-              animation: animate ? 'gridMove 20s linear infinite' : 'none',
-            }}
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern
-                id="grid"
-                width={gridSize}
-                height={gridSize}
-                patternUnits="userSpaceOnUse"
-              >
-                <path
-                  d={`M ${gridSize} 0 L 0 0 0 ${gridSize}`}
-                  fill="none"
-                  stroke={gridColor}
-                  strokeWidth={strokeWidth}
-                />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        )}
-        
-        {showDots && !showGrid && (
-          <div
-            className="absolute inset-0 transition-opacity duration-300"
-            style={{
-              opacity: dotOpacity,
-              backgroundImage: `radial-gradient(${dotColor} ${dotSize}px, transparent ${dotSize}px)`,
-              backgroundSize: `${gridSize}px ${gridSize}px`,
-              animation: animate ? 'gridMove 20s linear infinite' : 'none',
-            }}
-          />
-        )}
-      </div>
+    <div className={`relative w-full h-full overflow-hidden ${className}`}>
+      {/* ---------- BASE GRID ---------- */}
+      <div
+        className={`absolute inset-0 pointer-events-none ${
+          animate ? "grid-move" : ""
+        }`}
+        style={{
+          backgroundColor: baseBg,
+          backgroundImage: `radial-gradient(${gridDotColor} ${dotSize}px, transparent ${dotSize}px)`,
+          backgroundSize: `${spacing}px ${spacing}px`,
+        }}
+      />
 
-      {/* Content */}
-      <div className="relative z-10 h-full w-full">
-        {children}
-      </div>
+      {/* ---------- RANDOM FLOATING PARTICLES ---------- */}
+      {animate && (
+        <div className="absolute inset-0 pointer-events-none">
+          {floatDots.map((d) => (
+            <span
+              key={d.id}
+              className="absolute rounded-full floating-dot"
+              style={{
+                left: `${d.left}%`,
+                top: `${d.top}%`,
+                width: `${d.size}px`,
+                height: `${d.size}px`,
+                backgroundColor: floatDotColor,
+                animationDuration: `${d.duration}s`,
+                animationDelay: `${d.delay}s`,
+                "--dx": `${d.dx}px`,
+                "--dy": `${d.dy}px`,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* Animation keyframes */}
+      {/* ---------- CONTENT ---------- */}
+      <div className="relative z-10 w-full h-full">{children}</div>
+
+      {/* ---------- ANIMATIONS ---------- */}
       <style jsx>{`
         @keyframes gridMove {
+          from {
+            background-position: 0 0;
+          }
+          to {
+            background-position: ${spacing}px ${spacing}px;
+          }
+        }
+
+        @keyframes floatDot {
           0% {
-            background-position: 0px 0px;
+            transform: translate(0, 0);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translate(var(--dx), var(--dy));
+            opacity: 1;
           }
           100% {
-            background-position: ${gridSize}px ${gridSize}px;
+            transform: translate(0, 0);
+            opacity: 0.6;
           }
+        }
+
+        .grid-move {
+          animation: gridMove 24s linear infinite;
+        }
+
+        .floating-dot {
+          animation-name: floatDot;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
+          will-change: transform, opacity;
         }
       `}</style>
     </div>
