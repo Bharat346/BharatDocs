@@ -127,8 +127,8 @@ export default function CTASection({ theme }) {
                   ${isDark ? "text-neutral-300" : "text-neutral-600"}
                 `}
               >
-                Questions, ideas, or opportunities? I’d love to hear from you and
-                help you get the most out of Bharat Docs.
+                Questions, ideas, or opportunities? I’d love to hear from you
+                and help you get the most out of Bharat Docs.
               </p>
 
               {/* CTA Buttons */}

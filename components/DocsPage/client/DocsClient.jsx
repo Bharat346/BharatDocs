@@ -114,13 +114,13 @@ export default function DocsClient() {
         </div>
       </GridBackground>
 
-      {navigating && (
+      {/* {navigating && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="font-mono text-blue-400 animate-pulse">
             Opening collection…
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }

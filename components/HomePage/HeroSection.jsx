@@ -123,8 +123,7 @@ export default function HeroSection({ theme }) {
           isDark ? "opacity-[0.15]" : "opacity-[0.25]"
         }`}
         style={{
-          backgroundImage:
-            "radial-gradient(currentColor 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
           backgroundSize: "18px 18px",
           color: isDark ? "#38bdf8" : "#2563eb",
         }}
@@ -226,11 +225,11 @@ export default function HeroSection({ theme }) {
               <TypingAnimation className="text-emerald-400 font-mono">
                 $ welcome to bharat-docs
               </TypingAnimation>
-              <AnimatedSpan>   Initializing system……</AnimatedSpan>
-              <AnimatedSpan>   Docs loaded ✓</AnimatedSpan>
-              <AnimatedSpan>   visit /docs</AnimatedSpan>
-              <AnimatedSpan>   Notes indexed ✓</AnimatedSpan>
-              <AnimatedSpan>   visit /notes</AnimatedSpan>
+              <AnimatedSpan> Initializing system……</AnimatedSpan>
+              <AnimatedSpan> Docs loaded ✓</AnimatedSpan>
+              <AnimatedSpan> visit /docs</AnimatedSpan>
+              <AnimatedSpan> Notes indexed ✓</AnimatedSpan>
+              <AnimatedSpan> visit /notes</AnimatedSpan>
               <TypingAnimation className="text-emerald-400 font-mono">
                 $ Explore it
               </TypingAnimation>

@@ -1,5 +1,3 @@
-"use client";
-
 import { Layers } from "lucide-react";
 
 export default function TableOfContent({
@@ -10,6 +8,8 @@ export default function TableOfContent({
   className = "",
   isMobile = false,
 }) {
+  console.log(headings);
+
   const handleHeadingClick = (headingId) => {
     onHeadingClick?.(headingId);
   };
@@ -38,7 +38,11 @@ export default function TableOfContent({
           >
             <Layers size={18} />
           </div>
-          <h3 className={`font-roboto text-sm ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}>Table of Contents</h3>
+          <h3
+            className={`font-roboto text-sm ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
+          >
+            Table of Contents
+          </h3>
         </div>
       </div>
 
@@ -71,8 +75,8 @@ export default function TableOfContent({
                         ? "text-blue-400 font-medium"
                         : "text-blue-600 font-medium"
                       : theme === "dark"
-                      ? "text-white hover:text-blue-400"
-                      : "text-gray-700 hover:text-blue-600"
+                        ? "text-white hover:text-blue-400"
+                        : "text-gray-700 hover:text-blue-600"
                   }`}
                 >
                   {h.text}

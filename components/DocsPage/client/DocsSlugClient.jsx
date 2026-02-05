@@ -21,7 +21,7 @@ const fetchChildren = async (slug) => {
 const fetchMdxContent = async (filePath) => {
   if (!filePath) return null;
   const res = await fetch(
-    `/api/github/content?url=${encodeURIComponent(filePath)}`
+    `/api/github/content?url=${encodeURIComponent(filePath)}`,
   );
   if (!res.ok) throw new Error("Failed to fetch MDX content");
   return res.json();
@@ -92,7 +92,7 @@ export default function DocsSlugClient({ slug }) {
       children.find(
         (c) =>
           c.nodeType === "file" &&
-          (c.filePath?.endsWith(".mdx") || c.fileType === "mdx")
+          (c.filePath?.endsWith(".mdx") || c.fileType === "mdx"),
       ) ||
       children.find((c) => c.nodeType === "file") ||
       children[0];
@@ -102,21 +102,24 @@ export default function DocsSlugClient({ slug }) {
 
   /* ---------- Extract headings ---------- */
   useEffect(() => {
-    if (!mdxContent) return;
+    if (!mdxContent || !mainContentRef.current) return;
 
+    const container = mainContentRef.current;
+
+    // Small delay to let MDX render fully
     const timer = setTimeout(() => {
-      const nodes = document.querySelectorAll(
-        "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"
+      const nodes = container.querySelectorAll(
+        "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]",
       );
 
-      setHeadings(
-        Array.from(nodes).map((el) => ({
-          id: el.id,
-          text: el.textContent || "",
-          level: Number(el.tagName.replace("H", "")),
-        }))
-      );
-    }, 120);
+      const newHeadings = Array.from(nodes).map((el) => ({
+        id: el.id,
+        text: el.textContent || "",
+        level: Number(el.tagName.replace("H", "")),
+      }));
+
+      setHeadings(newHeadings);
+    }, 50); // smaller timeout works well
 
     return () => clearTimeout(timer);
   }, [mdxContent]);
@@ -136,7 +139,7 @@ export default function DocsSlugClient({ slug }) {
         root: mainContentRef.current,
         rootMargin: "-25% 0px -65% 0px",
         threshold: 0.1,
-      }
+      },
     );
 
     headings.forEach((h) => {

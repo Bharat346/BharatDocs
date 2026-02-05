@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useState, Suspense } from "react";
+import { forwardRef, useEffect, useState,useRef,Suspense } from "react";
 import {
   Home,
   ChevronLeft,
@@ -40,7 +40,6 @@ const MainContent = forwardRef(function MainContent(
   ref,
 ) {
   const [showScrollTop, setShowScrollTop] = useState(false);
-
   /* ---------------- Scroll Detection ---------------- */
   useEffect(() => {
     const el = ref?.current;
@@ -125,7 +124,7 @@ const MainContent = forwardRef(function MainContent(
           <div className="mx-auto min-w-[80%] max-w-6xl p-6">
             {mdxContent ? (
               <article className={`prose max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
-                <MDXContent content={mdxContent} theme={theme} />
+                <MDXContent content={mdxContent} theme={theme} headingRefs={ref} />
               </article>
             ) : (
               <LoadingState theme={theme} />

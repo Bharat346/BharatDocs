@@ -57,6 +57,13 @@
       "when": 1769934342787,
       "tag": "0007_purple_klaw",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1770282797130,
+      "tag": "0008_many_giant_man",
+      "breakpoints": true
     }
   ]
 }
