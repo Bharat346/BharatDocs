@@ -19,40 +19,10 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { motion } from "framer-motion";
 
-import MDXContent from "./MDXContent";
-import EmptyState from "./EmptyState";
-import LoadingState from "./LoadingState";
-
-/* ---------------------------------------------
-   Suspense Loader (Spinner Only)
---------------------------------------------- */
-export function DocumentSpinner({ theme }) {
-  const isDark = theme === "dark";
-
-  return (
-    <div className="flex flex-1 items-center justify-center py-24">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col items-center gap-4"
-      >
-        <Spinner
-          size="lg"
-          className={`animate-spin ${
-            isDark ? "border-white/70" : "border-black/70"
-          } border-t-transparent`}
-        />
-        <p className={`text-lg font-medium ${isDark ? "text-gray-200" : "text-gray-700"}`}>
-          Loading document…
-        </p>
-        <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-          Please wait a moment while we fetch your content.
-        </p>
-      </motion.div>
-    </div>
-  );
-}
+import MDXContent from "@/components/DocsPage/MDXContent";
+import EmptyState from "@/components/DocsPage/EmptyState";
+import LoadingState from "@/components/DocsPage/LoadingState";
+import DocsLoader from "@/components/DocsPage/DocsLoader";
 
 /* ---------------------------------------------
    MainContent Component
@@ -151,7 +121,7 @@ const MainContent = forwardRef(function MainContent(
 
       {/* ========== MAIN CONTENT ========== */}
       <main ref={ref} className="flex-1 overflow-y-auto pb-24">
-        <Suspense fallback={<DocumentSpinner theme={theme} />}>
+        <Suspense fallback={<DocsLoader theme={theme} />}>
           <div className="mx-auto min-w-[80%] max-w-6xl p-6">
             {mdxContent ? (
               <article className={`prose max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
