@@ -54,7 +54,7 @@ export default function Breadcrumbs({
   return (
     <nav 
       aria-label="Breadcrumb" 
-      className={`flex justify-start items-center gap-1 ${className}`}
+      className={`flex items-center gap-1 ${className}`}
     >
       <ol className="flex flex-wrap items-center gap-1 text-sm">
         {displayItems.map((item, index) => {

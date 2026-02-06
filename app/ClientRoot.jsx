@@ -1,0 +1,19 @@
+"use client";
+
+import NavBar from "@/components/NavBar";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import QueryProvider from "@/components/QueryProvider";
+import SessionInitializer from "@/lib/SessionInitializer";
+
+export default function ClientRoot({ children, nonce }) {
+  // nonce is safe to receive as a string
+  return (
+    <ThemeProvider>
+      <QueryProvider>
+        <NavBar />
+        <SessionInitializer />
+        <main>{children}</main>
+      </QueryProvider>
+    </ThemeProvider>
+  );
+}

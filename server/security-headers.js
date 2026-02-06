@@ -1,21 +1,24 @@
+function generateNonce() {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array); // Web - crypto
+  return btoa(String.fromCharCode(...array));
+}
+
 export function withSecurityHeaders(res) {
   const isProd = process.env.NODE_ENV === "production";
+  const nonce = generateNonce();
 
   const csp = isProd
     ? [
         // Base rule (MUST exist)
         "default-src 'self'",
 
-        // Scripts
-        "script-src 'self' 'unsafe-inline'",
-        "script-src-elem 'self' 'unsafe-inline'",
-
-        // Styles
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+        `script-src-elem 'self 'nonce-${nonce}' 'strict-dynamic'`,
         "style-src 'self' 'unsafe-inline'",
-        "style-src-attr 'unsafe-inline'",
 
         // Images (PDF renders images via canvas)
-        "img-src 'self' data: blob: https://*.vercel-storage.com https://bhdocs.in https://github.com",
+        "img-src 'self' data: blob:",
 
         // Fonts
         "font-src 'self' data:",
@@ -44,7 +47,7 @@ export function withSecurityHeaders(res) {
         "script-src-elem 'self' 'unsafe-inline'",
         "style-src 'self' 'unsafe-inline'",
         "style-src-attr 'unsafe-inline'",
-        "img-src 'self' data: blob: https://* https://bhdocs.in https://github.com.vercel-storage.com",
+        "img-src 'self' data: blob:",
         "font-src 'self' data:",
         "worker-src 'self' blob:",
         "connect-src 'self' blob: ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app http:localhost:3000",
@@ -62,6 +65,7 @@ export function withSecurityHeaders(res) {
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set("X-nonce" , nonce);
 
   res.headers.set(
     "Permissions-Policy",

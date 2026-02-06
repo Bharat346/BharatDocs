@@ -48,7 +48,7 @@ export default function NotesPathClient() {
 
   return (
     <div>
-      <Breadcrumbs slugArray={slugArray} />
+      <Breadcrumbs className="mt-1" slugArray={slugArray} />
       <br />
       <NotesGrid nodes={nodes} slugArray={slugArray} isLoading={isLoading} />
     </div>

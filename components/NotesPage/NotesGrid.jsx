@@ -57,7 +57,7 @@ export default function NotesGrid({
   return (
     <>
       {/* ================= GRID ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
         {nodes.map((node) => {
           const isFolder = node.nodeType === "folder";
           const pdfUrl = node.filePath || node.slug;
@@ -77,7 +77,7 @@ export default function NotesGrid({
             <Card
               key={node.nodeId}
               onClick={handleClick}
-              className={`p-4 rounded-2xl shadow-lg cursor-pointer transition ${
+              className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
                 theme === "dark"
                   ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
                   : "bg-white border-gray-200 hover:bg-gray-50"
