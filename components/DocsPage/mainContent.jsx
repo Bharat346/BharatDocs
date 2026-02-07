@@ -1,57 +1,42 @@
 "use client";
 
-import { forwardRef, useEffect, useState,useRef,Suspense } from "react";
+import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import Link from "next/link";
 import {
-  Home,
-  ChevronLeft,
-  ChevronRight,
-  Layers,
-  FileText,
   Calendar,
   Clock,
   ChevronUp,
+  Layers,
+  ChevronRight,
+  ChevronLeft,
+  Home,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
-import { motion } from "framer-motion";
-
-import MDXContent from "@/components/DocsPage/MDXContent";
 import EmptyState from "@/components/DocsPage/EmptyState";
-import LoadingState from "@/components/DocsPage/LoadingState";
 import DocsLoader from "@/components/DocsPage/DocsLoader";
+import { useScrollDetector } from "@/lib/utils/docsHelper";
 
-/* ---------------------------------------------
-   MainContent Component
---------------------------------------------- */
-const MainContent = forwardRef(function MainContent(
+// MDX renderer (client only)
+const MDXContent = dynamic(() => import("./MDXContent"), { ssr: false });
+
+const MainContent = function MainContent(
   {
     theme,
     selectedChild,
     mdxContent,
-    onHomeClick,
+    frontmatter,
     onSidebarToggle,
     sidebarOpen,
     onTocToggle,
-  },
-  ref,
+    scrollRef,
+  }
 ) {
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  /* ---------------- Scroll Detection ---------------- */
-  useEffect(() => {
-    const el = ref?.current;
-    if (!el) return;
+  /* ---------------- Scroll Container Ref ---------------- */
 
-    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
-    el.addEventListener("scroll", onScroll);
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [ref]);
-
-  const scrollToTop = () =>
-    ref?.current?.scrollTo({ top: 0, behavior: "smooth" });
+  const { showScrollTop, scrollToTop } = useScrollDetector(scrollRef, 300);
 
   /* ---------------- Metadata ---------------- */
   const metadata = selectedChild
@@ -70,47 +55,45 @@ const MainContent = forwardRef(function MainContent(
     : [];
 
   /* ---------------- Empty State ---------------- */
-  if (!selectedChild) {
-    return <EmptyState theme={theme} />
-  }
+  if (!selectedChild) return <EmptyState theme={theme} />;
 
-  /* ---------------- Render ---------------- */
   return (
     <div className="flex flex-col flex-1 min-w-0 relative">
-      {/* ========== HEADER ========== */}
+      {/* ---------------- HEADER ---------------- */}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="flex h-16 items-center justify-between px-4">
-          <div className={`flex items-center gap-2 min-w-0 ${theme === "dark" ? "text-white" : ""}`}>
+          <div
+            className={`flex items-center gap-2 min-w-0 ${
+              theme === "dark" ? "text-white" : ""
+            }`}
+          >
             <div className="flex items-center gap-0">
               <Button size="icon" variant="ghost" onClick={onSidebarToggle}>
                 {sidebarOpen ? <ChevronLeft /> : <ChevronRight />}
               </Button>
 
-              <Button
+              <Link
+                href="/docs"
                 size="icon"
                 variant="ghost"
-                onClick={onHomeClick}
                 className="hidden sm:flex"
               >
-                <Home />
-              </Button>
+                <Home size={20} />
+              </Link>
             </div>
 
             <div className="ml-2 min-w-0">
-              <h1 className="font-semibold truncate">{selectedChild.name}</h1>
-              {selectedChild.description && (
-                <p className="text-xs text-muted-foreground truncate">
-                  {selectedChild.description}
-                </p>
-              )}
+              <h1 className="font-semibold truncate">
+                {frontmatter?.title || selectedChild.name}
+              </h1>
             </div>
           </div>
 
           <Button
-            className={`${theme === "dark" ? "text-white" : ""}`}
             variant="secondary"
             size="sm"
             onClick={onTocToggle}
+            className={theme === "dark" ? "text-white" : ""}
           >
             <Layers className="mr-2 h-4 w-4" />
             Contents
@@ -118,22 +101,18 @@ const MainContent = forwardRef(function MainContent(
         </div>
       </header>
 
-      {/* ========== MAIN CONTENT ========== */}
-      <main ref={ref} className="flex-1 overflow-y-auto pb-24">
-        <Suspense fallback={<DocsLoader theme={theme} />}>
-          <div className="mx-auto min-w-[80%] max-w-6xl p-6">
-            {mdxContent ? (
-              <article className={`prose max-w-none ${theme === "dark" ? "prose-invert" : ""}`}>
-                <MDXContent content={mdxContent} theme={theme} headingRefs={ref} />
-              </article>
-            ) : (
-              <LoadingState theme={theme} />
-            )}
-
-            {metadata.length > 0 && (
-              <>
-                <Separator className="my-10" />
-                <div className="flex flex-wrap gap-2">
+      {/* ---------------- MAIN SCROLL AREA ---------------- */}
+      <main ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div className="mx-auto min-w-[80%] max-w-6xl p-6 pt-0">
+          {mdxContent ? (
+            <article
+              id="mdx-content-container"
+              className={`prose max-w-none ${
+                theme === "dark" ? "prose-invert" : ""
+              }`}
+            >
+              {metadata.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
                   {metadata.map((m, i) => (
                     <Badge key={i} variant="secondary">
                       <m.icon className="mr-1 h-3 w-3" />
@@ -141,23 +120,38 @@ const MainContent = forwardRef(function MainContent(
                     </Badge>
                   ))}
                 </div>
-              </>
-            )}
-          </div>
-        </Suspense>
+              )}
+
+              <MDXContent
+                content={mdxContent}
+                theme={theme}
+                // headingRefs={headingRefs}
+              />
+            </article>
+          ) : (
+            <DocsLoader theme={theme} />
+          )}
+        </div>
       </main>
 
-      {/* ========== SCROLL TO TOP BUTTON ========== */}
+      {/* ---------------- SCROLL TO TOP BUTTON ---------------- */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: showScrollTop ? 1 : 0, scale: showScrollTop ? 1 : 0.9 }}
+        animate={{
+          opacity: showScrollTop ? 1 : 0,
+          scale: showScrollTop ? 1 : 0.9,
+        }}
         transition={{ duration: 0.2 }}
-        className="fixed bottom-6 right-6 z-50"
+        className="fixed bottom-6 right-6 z-50 pointer-events-none"
       >
         <Button
           size="icon"
           onClick={scrollToTop}
-          className={`${theme === "dark" ? "bg-blue-600 text-white" : "bg-blue-500 text-white"} rounded-full shadow-lg`}
+          className={`pointer-events-auto rounded-full shadow-lg ${
+            theme === "dark"
+              ? "bg-blue-600 text-white"
+              : "bg-blue-500 text-white"
+          }`}
           aria-label="Scroll to top"
         >
           <ChevronUp className="w-5 h-5" />
@@ -165,6 +159,6 @@ const MainContent = forwardRef(function MainContent(
       </motion.div>
     </div>
   );
-});
+};
 
 export default MainContent;

@@ -563,17 +563,22 @@
 }
 
 /* === Selection Styling === */
+.mdx-content.dark-theme ::selection {
+  background-color: rgb(255, 146, 62);
+  color: rgb(0, 0, 0);
+}
+
 .mdx-content ::selection {
-  background-color: rgb(255, 255, 255);
-  color: black;
+  background-color: rgb(255, 146, 62);
+  color: rgb(255, 255, 255);
 }
 
 .mdx-content .heading-h1::selection,
 .mdx-content .heading-h2::selection,
 .mdx-content .heading-h3::selection,
 .mdx-content .heading-h4::selection {
-  background-color: rgb(255, 255, 255);
-  color: rgb(0, 0, 0);
+  background-color: rgb(255, 146, 62);
+  color: rgb(255, 255, 255);
 }
 
 /* === Animation Keyframes === */

@@ -1,89 +1,205 @@
-import { Layers } from "lucide-react";
+"use client";
+
+import { useEffect, useState, useRef, useMemo } from "react";
+import { Layers, ChevronDown } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import { useHeadingsFromRef } from "@/lib/utils/docsHelper";
+import { buildTocTree } from "@/lib/utils/buildTocTree";
 
 export default function TableOfContent({
   theme,
-  headings = [],
-  activeHeadingId = null,
-  onHeadingClick,
+  containerRef,
+  mdxContent,
   className = "",
   isMobile = false,
 }) {
-  console.log(headings);
+  const isDark = theme === "dark";
 
-  const handleHeadingClick = (headingId) => {
-    onHeadingClick?.(headingId);
+  /* ---------------- Headings ---------------- */
+  const headings = useHeadingsFromRef(containerRef, mdxContent);
+  const tree = useMemo(() => buildTocTree(headings), [headings]);
+
+  const [activeId, setActiveId] = useState(null);
+  const [openMap, setOpenMap] = useState({});
+  const isProgrammaticScroll = useRef(false);
+
+  /* ---------------- Auto expand ---------------- */
+  useEffect(() => {
+    if (!headings.length) return;
+
+    setOpenMap((prev) => {
+      const next = { ...prev };
+      for (const h of headings) {
+        if (h.level <= 2 && next[h.id] === undefined) {
+          next[h.id] = true;
+        }
+      }
+      return next;
+    });
+  }, [headings]);
+
+  /* ---------------- Active heading observer ---------------- */
+  useEffect(() => {
+    if (!headings.length) return;
+
+    const scrollRoot = isMobile ? null : containerRef?.current;
+    if (!scrollRoot && !isMobile) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isProgrammaticScroll.current) return;
+
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (visible[0]) {
+          setActiveId(visible[0].target.id);
+        }
+      },
+      {
+        root: scrollRoot,
+        rootMargin: "-20% 0px -65% 0px",
+        threshold: 0,
+      }
+    );
+
+    headings.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [headings, containerRef, isMobile]);
+
+  /* ---------------- Scroll logic (FIXED) ---------------- */
+  const scrollToHeading = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    isProgrammaticScroll.current = true;
+
+    if (isMobile) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollBy({ top: -80 });
+    } else {
+      const container = containerRef?.current;
+      if (!container) return;
+
+      const containerTop = container.getBoundingClientRect().top;
+      const elementTop = el.getBoundingClientRect().top;
+
+      const scrollOffset =
+        elementTop - containerTop + container.scrollTop - 80;
+
+      container.scrollTo({
+        top: scrollOffset,
+        behavior: "smooth",
+      });
+    }
+
+    setActiveId(id);
+    setTimeout(() => {
+      isProgrammaticScroll.current = false;
+    }, 450);
   };
 
+  /* ---------------- Render node ---------------- */
+  const renderNode = (node) => {
+    const open = openMap[node.id] ?? true;
+
+    return (
+      <div key={node.key} className="pl-3">
+        <Collapsible
+          open={open}
+          onOpenChange={(v) =>
+            setOpenMap((m) => ({ ...m, [node.id]: v }))
+          }
+        >
+          <div className="flex items-center gap-1">
+            {node.children.length > 0 && (
+              <CollapsibleTrigger className="p-1">
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 transition-transform",
+                    !open && "-rotate-90",
+                    isDark && "text-zinc-300"
+                  )}
+                />
+              </CollapsibleTrigger>
+            )}
+
+            <button
+              onClick={() => scrollToHeading(node.id)}
+              className={cn(
+                "py-1 text-sm truncate text-left",
+                activeId === node.id
+                  ? "text-blue-500 font-medium"
+                  : isDark
+                  ? "text-zinc-300 hover:text-blue-400"
+                  : "text-gray-700 hover:text-blue-600"
+              )}
+            >
+              {node.text}
+            </button>
+          </div>
+
+          {node.children.length > 0 && (
+            <CollapsibleContent className="ml-4 space-y-1">
+              {node.children.map(renderNode)}
+            </CollapsibleContent>
+          )}
+        </Collapsible>
+      </div>
+    );
+  };
+
+  /* ---------------- Render ---------------- */
   return (
     <aside
-      className={`h-full flex flex-col border-l ${
-        theme === "dark"
-          ? "bg-zinc-900/95 border-zinc-800 backdrop-blur-sm"
-          : "bg-white/95 border-gray-200 backdrop-blur-sm"
-      } ${isMobile ? "w-full" : ""} ${className}`}
+      className={cn(
+        "flex flex-col h-full border-l",
+        isDark
+          ? "bg-zinc-900/95 border-zinc-800"
+          : "bg-white/95 border-gray-200",
+        className
+      )}
     >
       {/* Header */}
-      <div
-        className={`p-4 border-b sticky top-0 z-10 ${
-          theme === "dark" ? "border-zinc-800" : "border-gray-200"
-        }`}
-      >
-        <div className="flex lg:pt-0 pt-15 items-center gap-2">
-          <div
-            className={`p-2 rounded-lg ${
-              theme === "dark"
-                ? "bg-zinc-800/50 text-blue-400"
-                : "bg-blue-50 text-blue-600"
-            }`}
-          >
+      <div className={
+        cn(
+          "p-4 sticky top-0 z-10",
+          isMobile && "pt-20"
+        )
+      }>
+        <div className="flex items-center gap-2 pt-2 pb-5">
+          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
           </div>
-          <h3
-            className={`font-roboto text-sm ${theme === "dark" ? "text-blue-400" : "text-blue-600"}`}
-          >
+          <h3 className="text-sm font-medium text-blue-500">
             Table of Contents
           </h3>
         </div>
       </div>
 
-      {/* Headings List */}
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      {/* Body */}
+      <div
+        className={cn(
+          "h-full",
+          !isMobile && "overflow-y-auto"
+        )}
+      >
         {headings.length === 0 ? (
-          <div className="text-center py-12 px-4">
-            <p
-              className={`text-sm ${
-                theme === "dark" ? "text-zinc-500" : "text-gray-500"
-              }`}
-            >
-              This document has no headings
-            </p>
-          </div>
+          <p className="text-sm text-center text-muted-foreground py-8">
+            This document has no headings
+          </p>
         ) : (
-          <nav className="flex flex-col">
-            {headings.map((h) => {
-              const isActive = h.id === activeHeadingId;
-              return (
-                <button
-                  key={h.id}
-                  onClick={() => handleHeadingClick(h.id)}
-                  style={{
-                    paddingLeft: `${(h.level - 1) * 16}px`,
-                  }}
-                  className={`text-left w-full py-2 rounded-md text-base transition-colors duration-200 ${
-                    isActive
-                      ? theme === "dark"
-                        ? "text-blue-400 font-medium"
-                        : "text-blue-600 font-medium"
-                      : theme === "dark"
-                        ? "text-white hover:text-blue-400"
-                        : "text-gray-700 hover:text-blue-600"
-                  }`}
-                >
-                  {h.text}
-                </button>
-              );
-            })}
-          </nav>
+          <nav className="space-y-1">{tree.map(renderNode)}</nav>
         )}
       </div>
     </aside>

@@ -1,28 +1,30 @@
 // components/NotesGrid.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import Link from "next/link";
 import { Folder, FileText, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useThemeContext } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
-import PDFViewer from "@/lib/PDF/pdfViewer";
+import dynamic from "next/dynamic";
 import NotesLoader from "@/components/NotesPage/NotesLoader";
 
-export default function NotesGrid({
-  nodes,
-  slugArray,
-  isLoading: parentLoading,
-}) {
+// Dynamically load PDF viewer
+const PDFViewer = dynamic(() => import("@/lib/PDF/pdfViewer"), { ssr: false });
+
+// ---------------- Global cache for folder nodes ----------------
+const folderCache = {};
+
+export default function NotesGrid({ nodes, slugArray, isLoading: parentLoading }) {
   const { theme } = useThemeContext();
   const isMobile = useIsMobile();
-  const router = useRouter();
+  console.log(nodes);
 
   const [starred, setStarred] = useState({});
   const [activePdf, setActivePdf] = useState(null);
 
-  /* ---------------- Load starred ---------------- */
+  /* ---------------- Load starred from localStorage ---------------- */
   useEffect(() => {
     const stored = localStorage.getItem("starred");
     if (stored) setStarred(JSON.parse(stored));
@@ -40,11 +42,8 @@ export default function NotesGrid({
     localStorage.setItem("starred", JSON.stringify(next));
   };
 
-  /* ---------------- Loading ---------------- */
-  if (parentLoading) {
-    return <NotesLoader />;
-  }
-  
+  /* ---------------- Loading / Empty ---------------- */
+  if (parentLoading) return <NotesLoader />;
   if (!nodes?.length)
     return (
       <div className="text-center py-12">
@@ -53,7 +52,10 @@ export default function NotesGrid({
       </div>
     );
 
-  /* ---------------- Render ---------------- */
+  /* ---------------- Cache current folder ---------------- */
+  const folderKey = slugArray.join("/") || "root";
+  folderCache[folderKey] = nodes;
+
   return (
     <>
       {/* ================= GRID ================= */}
@@ -62,21 +64,33 @@ export default function NotesGrid({
           const isFolder = node.nodeType === "folder";
           const pdfUrl = node.filePath || node.slug;
 
-          const handleClick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            if (isFolder) {
-              router.push(`/notes/${[...slugArray, node.slug].join("/")}`);
-            } else {
-              setActivePdf(pdfUrl);
-            }
-          };
-
-          return (
+          return isFolder ? (
+            <Link
+              key={node.nodeId}
+              href={`/notes/${[...slugArray, node.slug].join("/")}`}
+              prefetch={true}
+              className={`block`}
+            >
+              <Card
+                className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
+                  theme === "dark"
+                    ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
+                    : "bg-white border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                <ItemContent
+                  node={node}
+                  theme={theme}
+                  isFolder={true}
+                  starred={starred}
+                  toggleStar={toggleStar}
+                />
+              </Card>
+            </Link>
+          ) : (
             <Card
               key={node.nodeId}
-              onClick={handleClick}
+              onClick={() => setActivePdf(pdfUrl)}
               className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
                 theme === "dark"
                   ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
@@ -86,7 +100,7 @@ export default function NotesGrid({
               <ItemContent
                 node={node}
                 theme={theme}
-                isFolder={isFolder}
+                isFolder={false}
                 starred={starred}
                 toggleStar={toggleStar}
               />
@@ -105,7 +119,9 @@ export default function NotesGrid({
                 : "border-gray-200 bg-white"
             }`}
           >
-            <PDFViewer fileUrl={activePdf} onClose={() => setActivePdf(null)} />
+            <Suspense fallback={<NotesLoader />}>
+              <PDFViewer fileUrl={activePdf} onClose={() => setActivePdf(null)} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -162,3 +178,6 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
     </div>
   );
 }
+
+// ---------------- Export folder cache for global access ----------------
+export { folderCache };

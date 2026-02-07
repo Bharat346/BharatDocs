@@ -1,280 +1,211 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useRef, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useThemeContext } from "@/components/ThemeProvider";
-
 import Sidebar from "@/components/DocsPage/SideBar";
-import MainContent from "@/components/DocsPage/mainContent";
 import TableOfContent from "@/components/DocsPage/TableofContent";
+import { useQuery } from "@tanstack/react-query";
 
-/* ================================
-   Data Fetchers
-================================ */
+/* ---------- Dynamic ---------- */
+const MainContent = dynamic(
+  () => import("@/components/DocsPage/mainContent"),
+  { ssr: false }
+);
+
+/* ---------- Fetchers ---------- */
 const fetchChildren = async (slug) => {
   const res = await fetch(`/api/docs?parentSlug=${slug}`);
-  if (!res.ok) throw new Error("Failed to fetch children");
+  if (!res.ok) throw new Error("Failed");
   return res.json();
 };
 
 const fetchMdxContent = async (filePath) => {
   if (!filePath) return null;
   const res = await fetch(
-    `/api/github/content?url=${encodeURIComponent(filePath)}`,
+    `/api/github/content?url=${encodeURIComponent(filePath)}`
   );
-  if (!res.ok) throw new Error("Failed to fetch MDX content");
+  if (!res.ok) throw new Error("Failed");
   return res.json();
 };
 
-/* ================================
-   Page
-================================ */
+/* =================================
+   Docs Page
+================================= */
 export default function DocsSlugClient({ slug }) {
-  const router = useRouter();
   const { theme } = useThemeContext();
 
-  const currentSlug = slug;
-
-  /* ---------- State ---------- */
   const [selectedChild, setSelectedChild] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [tocOpen, setTocOpen] = useState(true);
-  const [headings, setHeadings] = useState([]);
-  const [activeHeadingId, setActiveHeadingId] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  const mainContentRef = useRef(null);
-  const isScrollingRef = useRef(false);
+  const scrollRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const tocRef = useRef(null);
 
   /* ---------- Queries ---------- */
-  const { data: children = [], isLoading: childrenLoading } = useQuery({
-    queryKey: ["docs", "children", currentSlug],
-    queryFn: () => fetchChildren(currentSlug),
+  const { data: children = [] } = useQuery({
+    queryKey: ["docs", slug],
+    queryFn: () => fetchChildren(slug),
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: mdxData, isLoading: mdxLoading } = useQuery({
+  const { data: mdxData } = useQuery({
     queryKey: ["mdx", selectedChild?.filePath],
     queryFn: () => fetchMdxContent(selectedChild?.filePath),
-    enabled: !!selectedChild?.filePath,
+    enabled: !!selectedChild,
     staleTime: 10 * 60 * 1000,
   });
 
-  const mdxContent = mdxData?.content || "";
-  const loading = childrenLoading || mdxLoading;
-
-  /* ---------- Mount ---------- */
-  useEffect(() => setMounted(true), []);
+  const mdxContent = mdxData?.content ?? "";
+  const frontmatter = mdxData?.frontmatter ?? {};
 
   /* ---------- Responsive ---------- */
   useEffect(() => {
-    if (!mounted) return;
-
-    const updateLayout = () => {
+    const update = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
       setSidebarOpen(!mobile);
       setTocOpen(!mobile);
     };
 
-    updateLayout();
-    window.addEventListener("resize", updateLayout);
-    return () => window.removeEventListener("resize", updateLayout);
-  }, [mounted]);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
-  /* ---------- Auto select first doc ---------- */
+  /* ---------- Auto select ---------- */
   useEffect(() => {
     if (!children.length || selectedChild) return;
-
-    const first =
-      children.find(
-        (c) =>
-          c.nodeType === "file" &&
-          (c.filePath?.endsWith(".mdx") || c.fileType === "mdx"),
-      ) ||
-      children.find((c) => c.nodeType === "file") ||
-      children[0];
-
-    setSelectedChild(first);
+    setSelectedChild(children[0]);
   }, [children, selectedChild]);
 
-  /* ---------- Extract headings ---------- */
-  useEffect(() => {
-    if (!mdxContent || !mainContentRef.current) return;
-
-    const container = mainContentRef.current;
-
-    // Small delay to let MDX render fully
-    const timer = setTimeout(() => {
-      const nodes = container.querySelectorAll(
-        "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]",
-      );
-
-      const newHeadings = Array.from(nodes).map((el) => ({
-        id: el.id,
-        text: el.textContent || "",
-        level: Number(el.tagName.replace("H", "")),
-      }));
-
-      setHeadings(newHeadings);
-    }, 50); // smaller timeout works well
-
-    return () => clearTimeout(timer);
-  }, [mdxContent]);
-
-  /* ---------- Active heading observer ---------- */
-  useEffect(() => {
-    if (!headings.length || !mainContentRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isScrollingRef.current) return;
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActiveHeadingId(e.target.id);
-        });
-      },
-      {
-        root: mainContentRef.current,
-        rootMargin: "-25% 0px -65% 0px",
-        threshold: 0.1,
-      },
-    );
-
-    headings.forEach((h) => {
-      const el = document.getElementById(h.id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [headings]);
-
-  /* ---------- Handlers ---------- */
-  const handleHeadingClick = (id) => {
-    const container = mainContentRef.current;
-    const el = document.getElementById(id);
-    if (!container || !el) return;
-
-    isScrollingRef.current = true;
-
-    const offset =
-      el.getBoundingClientRect().top -
-      container.getBoundingClientRect().top +
-      container.scrollTop -
-      80;
-
-    container.scrollTo({ top: offset, behavior: "smooth" });
-    setActiveHeadingId(id);
-
-    setTimeout(() => {
-      isScrollingRef.current = false;
-    }, 450);
-  };
-
+  /* ---------- FAST select ---------- */
   const handleChildSelect = (child) => {
     setSelectedChild(child);
-    if (isMobile) setSidebarOpen(false);
+
+    history.replaceState(
+      null,
+      "",
+      `/docs/${slug}?child=${child.slug}`
+    );
+
+    if (isMobile) {
+      setSidebarOpen(false);
+      setTocOpen(false);
+    }
   };
 
-  const handleHomeClick = () => router.push("/docs");
+  /* ---------- Click outside (mobile only) ---------- */
+  useEffect(() => {
+    if (!isMobile) return;
 
-  /* ================================
-     Render
-  ================================ */
+    const handleClick = (e) => {
+      const s = sidebarRef.current;
+      const t = tocRef.current;
+
+      if (
+        (s && s.contains(e.target)) ||
+        (t && t.contains(e.target))
+      ) {
+        return;
+      }
+
+      setSidebarOpen(false);
+      setTocOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("touchstart", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("touchstart", handleClick);
+    };
+  }, [isMobile]);
+
+  /* ================================= */
   return (
     <div
-      className={`min-h-screen ${
+      className={`h-dvh ${
         theme === "dark" ? "bg-zinc-900" : "bg-gray-50"
       }`}
     >
-      {/* Mobile Sidebar */}
-      {mounted && isMobile && sidebarOpen && (
-        <div className="fixed inset-0 z-40">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <div className="absolute inset-y-0 left-0 w-72 z-50">
-            <Sidebar
-              theme={theme}
-              children={children}
-              selectedChild={selectedChild}
-              onChildSelect={handleChildSelect}
-              onHomeClick={handleHomeClick}
-              isMobile
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Mobile TOC */}
-      {mounted && isMobile && tocOpen && (
-        <div className="fixed inset-0 z-40">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setTocOpen(false)}
-          />
-          <div className="absolute inset-y-0 right-0 w-72 z-50">
-            <TableOfContent
-              theme={theme}
-              headings={headings}
-              activeHeadingId={activeHeadingId}
-              onHeadingClick={handleHeadingClick}
-              isMobile
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Layout */}
-      <div className="flex h-screen overflow-hidden">
-        {/* Sidebar */}
-        <div
-          className={`hidden lg:block transition-all duration-300 ${
-            sidebarOpen ? "w-72" : "w-0"
-          }`}
+      <div className="flex h-full overflow-hidden relative">
+        {/* ---------- Sidebar ---------- */}
+        <Panel
+          open={sidebarOpen}
+          mobile={isMobile}
+          side="left"
+          panelRef={sidebarRef}
         >
-          {sidebarOpen && (
-            <Sidebar
-              theme={theme}
-              children={children}
-              selectedChild={selectedChild}
-              onChildSelect={handleChildSelect}
-              onHomeClick={handleHomeClick}
-            />
-          )}
-        </div>
+          <Sidebar
+            theme={theme}
+            children={children}
+            selectedChild={selectedChild}
+            onChildSelect={handleChildSelect}
+          />
+        </Panel>
 
-        {/* Main */}
-        <MainContent
-          ref={mainContentRef}
-          theme={theme}
-          selectedChild={selectedChild}
-          mdxContent={mdxContent}
-          loading={loading}
-          onHomeClick={handleHomeClick}
-          onSidebarToggle={() => setSidebarOpen((v) => !v)}
-          sidebarOpen={sidebarOpen}
-          onTocToggle={() => setTocOpen((v) => !v)}
-        />
+        {/* ---------- Main ---------- */}
+        <Suspense fallback={<div className="p-8">Loading…</div>}>
+          <MainContent
+            scrollRef={scrollRef}
+            theme={theme}
+            selectedChild={selectedChild}
+            mdxContent={mdxContent}
+            frontmatter={frontmatter}
+            onSidebarToggle={() => setSidebarOpen((v) => !v)}
+            onTocToggle={() => setTocOpen((v) => !v)}
+          />
+        </Suspense>
 
-        {/* TOC */}
-        <div
-          className={`hidden lg:block transition-all duration-300 ${
-            tocOpen ? "w-72" : "w-0"
-          }`}
+        {/* ---------- TOC ---------- */}
+        <Panel
+          open={tocOpen}
+          mobile={isMobile}
+          side="right"
+          panelRef={tocRef}
         >
-          {tocOpen && (
-            <TableOfContent
-              theme={theme}
-              headings={headings}
-              activeHeadingId={activeHeadingId}
-              onHeadingClick={handleHeadingClick}
-            />
-          )}
-        </div>
+          <TableOfContent
+            theme={theme}
+            mdxContent={mdxContent}
+            containerRef={scrollRef}
+            isMobile={isMobile}
+          />
+        </Panel>
       </div>
     </div>
+  );
+}
+
+/* =================================
+   Panel Component
+================================= */
+function Panel({ open, mobile, side, panelRef, children }) {
+  if (!open) return null;
+
+  /* ---------- Mobile Overlay ---------- */
+  if (mobile) {
+    return (
+      <div
+        ref={panelRef}
+        className={`fixed inset-y-0 ${
+          side === "right" ? "right-0" : "left-0"
+        } z-40 w-72 bg-background shadow-xl`}
+        role="dialog"
+        aria-modal="true"
+      >
+        {children}
+      </div>
+    );
+  }
+
+  /* ---------- Desktop ---------- */
+  return (
+    <aside className="hidden lg:block w-72 h-full">
+      {children}
+    </aside>
   );
 }
