@@ -15,8 +15,8 @@ import {
   Home,
 } from "lucide-react";
 
-import EmptyState from "@/components/DocsPage/EmptyState";
-import DocsLoader from "@/components/DocsPage/DocsLoader";
+import EmptyState from "@/components/DocsPage/shared/EmptyState";
+import DocsLoader from "@/components/DocsPage/shared/DocsLoader";
 import { useScrollDetector } from "@/lib/utils/docsHelper";
 
 // MDX renderer (client only)

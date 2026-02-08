@@ -1,0 +1,157 @@
+"use client";
+
+import { useState, useEffect, useRef, Suspense } from "react";
+import dynamic from "next/dynamic";
+import { useQuery } from "@tanstack/react-query";
+import { useThemeContext } from "@/components/ThemeProvider";
+import Sidebar from "@/components/DocsPage/shared/SideBar";
+import TableOfContent from "@/components/DocsPage/shared/TableofContent";
+import Panel from "./docs.slug.panel";
+import { fetchChildren, fetchMdxContent } from "@/components/DocsPage/lib/docs.api";
+
+/* ---------- Dynamic ---------- */
+const MainContent = dynamic(() => import("@/components/DocsPage/shared/mainContent"), { ssr: false });
+
+/* ---------- Helper: safe idle callback ---------- */
+const ric = typeof window !== "undefined" && window.requestIdleCallback
+  ? window.requestIdleCallback
+  : (cb) => setTimeout(cb, 200);
+
+/* =================================
+   Docs Page
+================================= */
+export default function DocsSlugClient({ slug }) {
+  const { theme } = useThemeContext();
+
+  /* ---------- State ---------- */
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const scrollRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const tocRef = useRef(null);
+
+  /* ---------- Queries ---------- */
+  const { data: children = [] , isError: childrenError } = useQuery({
+    queryKey: ["docs", slug],
+    queryFn: ({signal}) => fetchChildren(slug, signal),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  
+  const { data: mdxData , isError: mdxError } = useQuery({
+    queryKey: ["mdx", selectedChild?.filePath],
+    queryFn: ({signal}) => fetchMdxContent(selectedChild?.filePath, signal),
+    enabled: !!selectedChild,
+    staleTime: 10 * 60 * 1000,
+  });
+  
+  if (childrenError) return <div>Error loading docs</div>;
+  if (mdxError) return <div>Error loading mdx content</div>;
+
+  const mdxContent = mdxData?.content ?? "";
+  const frontmatter = mdxData?.frontmatter ?? {};
+
+  /* ---------- Responsive ---------- */
+  useEffect(() => {
+    const update = () => {
+      queueMicrotask(() => {
+        const mobile = window.innerWidth < 1024;
+        setIsMobile(mobile);
+        setSidebarOpen(!mobile);
+        setTocOpen(!mobile);
+      });
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  /* ---------- Auto select first child ---------- */
+  useEffect(() => {
+    if (!children.length || selectedChild) return;
+    ric(() => setSelectedChild(children[0]));
+  }, [children, selectedChild]);
+
+  /* ---------- Handle child selection ---------- */
+  const handleChildSelect = (child) => {
+    queueMicrotask(() => setSelectedChild(child));
+
+    history.replaceState(null, "", `/docs/${slug}?child=${child.slug}`);
+
+    if (isMobile) {
+      ric(() => {
+        setSidebarOpen(false);
+        setTocOpen(false);
+      });
+    }
+  };
+
+  /* ---------- Click outside (mobile) ---------- */
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const handleClick = (e) => {
+      const s = sidebarRef.current;
+      const t = tocRef.current;
+
+      if ((s && s.contains(e.target)) || (t && t.contains(e.target))) return;
+
+      ric(() => {
+        setSidebarOpen(false);
+        setTocOpen(false);
+      });
+    };
+
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("touchstart", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("touchstart", handleClick);
+    };
+  }, [isMobile]);
+
+  /* ---------- Render ---------- */
+  return (
+    <div className={`h-dvh ${theme === "dark" ? "bg-zinc-900" : "bg-gray-50"}`}>
+      <div className="flex h-full overflow-hidden relative">
+        {/* Sidebar */}
+        <Panel open={sidebarOpen} mobile={isMobile} side="left" panelRef={sidebarRef}>
+          <Sidebar
+            theme={theme}
+            children={children}
+            selectedChild={selectedChild}
+            onChildSelect={handleChildSelect}
+          />
+        </Panel>
+
+        {/* Main Content */}
+        <Suspense fallback={<div className="p-8">Loading…</div>}>
+          <MainContent
+            scrollRef={scrollRef}
+            theme={theme}
+            selectedChild={selectedChild}
+            mdxContent={mdxContent}
+            frontmatter={frontmatter}
+            onSidebarToggle={() => setSidebarOpen((v) => !v)}
+            onTocToggle={() => setTocOpen((v) => !v)}
+          />
+        </Suspense>
+
+        {/* TOC */}
+        <Panel open={tocOpen} mobile={isMobile} side="right" panelRef={tocRef}>
+          <TableOfContent
+            theme={theme}
+            mdxContent={mdxContent}
+            containerRef={scrollRef}
+            isMobile={isMobile}
+          />
+        </Panel>
+      </div>
+    </div>
+  );
+}

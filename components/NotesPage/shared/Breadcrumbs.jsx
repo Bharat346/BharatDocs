@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
-import { useThemeContext } from "../ThemeProvider";
+import { useThemeContext } from "@/components/ThemeProvider";
 
 export default function Breadcrumbs({
   slugArray = [],

@@ -1,4 +1,4 @@
-import DocsClient from "@/components/DocsPage/client/DocsClient";
+import DocsClient from "@/components/DocsPage/client/docs.iclient";
 
 export const metadata = {
   title: "Documentation & Guides",

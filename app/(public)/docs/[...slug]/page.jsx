@@ -1,4 +1,4 @@
-import DocsSlugClient from "@/components/DocsPage/client/DocsSlugClient";
+import DocsSlugClient from "@/components/DocsPage/client/docs.slug.client";
 
 /* ---------------- Dynamic SEO ---------------- */
 export async function generateMetadata({ params }) {

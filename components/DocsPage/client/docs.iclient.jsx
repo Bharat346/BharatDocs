@@ -1,35 +1,31 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useThemeContext } from "@/components/ThemeProvider";
 
 import GridBackground from "@/components/GridBG";
-import StatsPanel from "@/components/DocsPage/statsPanel";
-import SearchBar from "@/components/DocsPage/searchBar";
-import CollectionsGrid from "@/components/DocsPage/collectionsGrid";
-import EmptyState from "@/components/DocsPage/EmptyState";
-import DocsLoader from "../DocsLoader";
+import StatsPanel from "@/components/DocsPage/shared/statsPanel";
+import SearchBar from "@/components/DocsPage/shared/searchBar";
+import CollectionsGrid from "@/components/DocsPage/shared/collectionsGrid";
+import EmptyState from "@/components/DocsPage/shared/EmptyState";
+import DocsLoader from "@/components/DocsPage/shared/DocsLoader";
 
-/* ---------------- API fetcher ---------------- */
-const fetchDocs = async () => {
-  const res = await fetch("/api/docs?collection=Docs&parentSlug=");
-  if (!res.ok) throw new Error("Failed to fetch documents");
-  return res.json();
-};
+import { fetchDocs } from "@/components/DocsPage/lib/docs.api.js";
 
 export default function DocsClient() {
   const { theme } = useThemeContext();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: rootNodes = [], isLoading } = useQuery({
+  /* ---------------- React Query with AbortController ---------------- */
+  const { data: rootNodes = [], isLoading, isError } = useQuery({
     queryKey: ["docs", "root"],
-    queryFn: fetchDocs,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
+    queryFn: ({ signal }) => fetchDocs(signal), // pass AbortSignal
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 30 * 60 * 1000, // 30 minutes
   });
 
-  /* ---------------- Collections ---------------- */
+  /* ---------------- Collections (memoized) ---------------- */
   const collections = useMemo(
     () =>
       rootNodes.map((root) => ({
@@ -43,7 +39,7 @@ export default function DocsClient() {
     [rootNodes]
   );
 
-  /* ---------------- Stats ---------------- */
+  /* ---------------- Stats (memoized) ---------------- */
   const stats = useMemo(() => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -60,7 +56,7 @@ export default function DocsClient() {
     };
   }, [rootNodes]);
 
-  /* ---------------- Search ---------------- */
+  /* ---------------- Filtered collections (memoized) ---------------- */
   const filteredCollections = useMemo(
     () =>
       collections.filter((c) =>
@@ -70,6 +66,7 @@ export default function DocsClient() {
   );
 
   if (isLoading) return <DocsLoader theme={theme} />;
+  if (isError) return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
     <GridBackground
@@ -94,10 +91,7 @@ export default function DocsClient() {
           {filteredCollections.length === 0 ? (
             <EmptyState theme={theme} searchTerm={searchTerm} />
           ) : (
-            <CollectionsGrid
-              theme={theme}
-              collections={filteredCollections}
-            />
+            <CollectionsGrid theme={theme} collections={filteredCollections} />
           )}
         </div>
       </div>

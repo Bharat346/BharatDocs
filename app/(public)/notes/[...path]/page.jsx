@@ -1,4 +1,4 @@
-import NotesPathClient from "@/components/NotesPage/NotesPathClient";
+import NotesPathClient from "@/components/NotesPage/client/notes.path.client";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

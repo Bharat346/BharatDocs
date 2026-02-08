@@ -8,10 +8,10 @@ import { Card } from "@/components/ui/card";
 import { useThemeContext } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import dynamic from "next/dynamic";
-import NotesLoader from "@/components/NotesPage/NotesLoader";
+import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
 
 // Dynamically load PDF viewer
-const PDFViewer = dynamic(() => import("@/lib/PDF/pdfViewer"), { ssr: false });
+const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), { ssr: false });
 
 // ---------------- Global cache for folder nodes ----------------
 const folderCache = {};

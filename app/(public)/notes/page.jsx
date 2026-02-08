@@ -1,4 +1,4 @@
-import NotesClient from "@/components/NotesPage/NotesClient";
+import NotesClient from "@/components/NotesPage/client/notes.iclient";
 
 export const metadata = {
   title: "Notes & Documentation",
