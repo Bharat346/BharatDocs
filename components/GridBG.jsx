@@ -1,9 +1,12 @@
 "use client";
 
 import { useThemeContext } from "./ThemeProvider";
-import { useEffect, useState } from "react";
-
-const FLOAT_COUNT = 62;
+import { useEffect, useMemo, useState } from "react";
+import {
+  allowHeavyAnimations,
+  getNetworkTier,
+  getDeviceMemoryTier,
+} from "@/lib/network/network.config";
 
 export default function GridBackground({
   children,
@@ -16,7 +19,43 @@ export default function GridBackground({
   const { theme } = useThemeContext();
   const isDark = theme === "dark";
 
-  /* ---------- COLORS ---------- */
+  /* ----------------------------------
+     PERFORMANCE DECISION (ONCE)
+  ----------------------------------- */
+
+  const animationPolicy = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    if (!animate) return false;
+
+    // Accessibility first
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return false;
+
+    if (!allowHeavyAnimations()) return false;
+
+    return true;
+  }, [animate]);
+
+  /* ----------------------------------
+     DYNAMIC FLOAT COUNT
+  ----------------------------------- */
+
+  const floatCount = useMemo(() => {
+    if (!animationPolicy) return 0;
+
+    const networkTier = getNetworkTier();
+    const memoryTier = getDeviceMemoryTier();
+
+    if (networkTier === "moderate") return 24;
+    if (memoryTier === "mid") return 32;
+
+    return 62; // full effect
+  }, [animationPolicy]);
+
+  /* ----------------------------------
+     COLORS
+  ----------------------------------- */
+
   const baseBg = isDark ? "#0a0a0a" : "#ffffff";
 
   const gridDotColor = isDark
@@ -27,11 +66,16 @@ export default function GridBackground({
     ? "rgba(147,197,253,0.25)"
     : "rgba(59,130,246,0.22)";
 
-  /* ---------- FLOATING DOTS (hydration-safe) ---------- */
+  /* ----------------------------------
+     FLOATING DOTS
+  ----------------------------------- */
+
   const [floatDots, setFloatDots] = useState([]);
 
   useEffect(() => {
-    const dots = Array.from({ length: FLOAT_COUNT }, (_, i) => {
+    if (!animationPolicy) return;
+
+    const dots = Array.from({ length: floatCount }, (_, i) => {
       const angle = Math.random() * Math.PI * 2;
       const distance = 20 + Math.random() * 30;
 
@@ -40,22 +84,45 @@ export default function GridBackground({
         left: Math.random() * 100,
         top: Math.random() * 100,
         size: Math.random() * 3 + 1.5,
-        duration: 5 + Math.random() * 12,
-        delay: Math.random() * 6,
+        duration: 6 + Math.random() * 10,
+        delay: Math.random() * 5,
         dx: Math.cos(angle) * distance,
         dy: Math.sin(angle) * distance,
       };
     });
 
     setFloatDots(dots);
-  }, []);
+  }, [animationPolicy, floatCount]);
+
+  /* ----------------------------------
+     PAUSE WHEN TAB HIDDEN
+  ----------------------------------- */
+
+  useEffect(() => {
+    if (!animationPolicy) return;
+
+    const handleVisibility = () => {
+      document.documentElement.style.setProperty(
+        "--animation-state",
+        document.hidden ? "paused" : "running"
+      );
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, [animationPolicy]);
+
+  /* ----------------------------------
+     RENDER
+  ----------------------------------- */
 
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* ---------- BASE GRID ---------- */}
+      {/* Base Grid */}
       <div
         className={`absolute inset-0 pointer-events-none ${
-          animate ? "grid-move" : ""
+          animationPolicy ? "grid-move" : ""
         }`}
         style={{
           backgroundColor: baseBg,
@@ -64,8 +131,8 @@ export default function GridBackground({
         }}
       />
 
-      {/* ---------- RANDOM FLOATING PARTICLES ---------- */}
-      {animate && (
+      {/* Floating Dots */}
+      {animationPolicy && floatDots.length > 0 && (
         <div className="absolute inset-0 pointer-events-none">
           {floatDots.map((d) => (
             <span
@@ -87,10 +154,9 @@ export default function GridBackground({
         </div>
       )}
 
-      {/* ---------- CONTENT ---------- */}
+      {/* Content */}
       <div className="relative z-10 w-full h-full">{children}</div>
 
-      {/* ---------- ANIMATIONS ---------- */}
       <style jsx>{`
         @keyframes gridMove {
           from {
@@ -118,13 +184,14 @@ export default function GridBackground({
 
         .grid-move {
           animation: gridMove 24s linear infinite;
+          animation-play-state: var(--animation-state, running);
         }
 
         .floating-dot {
           animation-name: floatDot;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
-          will-change: transform, opacity;
+          animation-play-state: var(--animation-state, running);
         }
       `}</style>
     </div>

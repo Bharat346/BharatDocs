@@ -3,6 +3,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import {shouldPrefetch} from "@/lib/network/network.config";
 import { Folder, FileText, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useThemeContext } from "@/components/ThemeProvider";
@@ -68,7 +69,7 @@ export default function NotesGrid({ nodes, slugArray, isLoading: parentLoading }
             <Link
               key={node.nodeId}
               href={`/notes/${[...slugArray, node.slug].join("/")}`}
-              prefetch={true}
+              prefetch={shouldPrefetch()}
               className={`block`}
             >
               <Card

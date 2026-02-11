@@ -5,12 +5,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Terminal,
-  TypingAnimation,
-  AnimatedSpan,
-} from "@/components/ui/terminal";
 import { ArrowRight, BookOpen, Notebook } from "lucide-react";
+import CTASection from "./CTASection";
+
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -44,7 +42,7 @@ export default function HeroSection({ theme }) {
     }));
 
     setParticles(generated);
-  }, [isDark]);
+  }, []);
 
   /* ------------------------------
      GSAP animations
@@ -109,134 +107,136 @@ export default function HeroSection({ theme }) {
   }, [particles]);
 
   return (
-    <section
-      ref={containerRef}
-      className={`relative min-h-screen overflow-hidden ${
-        isDark ? "bg-neutral-950" : "bg-white"
-      }`}
-    >
-      {/* ------------------------------
-          DOTTED BACKGROUND ACCENTS
-      ------------------------------ */}
-      <div
-        className={`absolute inset-0 pointer-events-none ${
-          isDark ? "opacity-[0.15]" : "opacity-[0.25]"
+    <>
+      <section
+        ref={containerRef}
+        className={`relative min-h-screen flex items-center justify-center overflow-hidden ${
+          isDark ? "bg-neutral-950" : "bg-white"
         }`}
-        style={{
-          backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
-          backgroundSize: "18px 18px",
-          color: isDark ? "#38bdf8" : "#2563eb",
-        }}
-      />
+      >
+        {/* Background Grid */}
+        <div
+          className={`absolute inset-0 pointer-events-none ${
+            isDark ? "opacity-[0.15]" : "opacity-[0.25]"
+          }`}
+          style={{
+            backgroundImage:
+              "radial-gradient(currentColor 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+            color: isDark ? "#38bdf8" : "#2563eb",
+          }}
+        />
 
-      {/* ------------------------------
-          PARTICLES
-      ------------------------------ */}
-      <div ref={particlesRef} className="absolute inset-0">
-        {particles.map((p) => (
-          <div
-            key={p.id}
-            className="particle absolute rounded-full"
-            style={{
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              backgroundColor: isDark
-                ? `rgba(56,189,248,${p.opacity})`
-                : `rgba(37,99,235,${p.opacity})`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ------------------------------
-          MAIN CONTENT
-      ------------------------------ */}
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-6 pt-8 sm:pb-20">
-        <div className="mx-auto grid max-w-7xl lg:grid-cols-2 gap-14 items-center">
-          {/* LEFT */}
-          <div className="space-y-10 text-center lg:text-left">
-            <div ref={titleRef}>
-              <h1
-                className={`font-mono text-5xl sm:text-6xl xl:text-7xl tracking-tight ${
-                  isDark ? "text-white" : "text-neutral-900"
-                }`}
-              >
-                <span className="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">
-                  Bharat
-                </span>{" "}
-                Docs
-              </h1>
-            </div>
-
-            <p
-              ref={subtitleRef}
-              className={`max-w-2xl mx-auto lg:mx-0 font-mono text-lg sm:text-xl leading-relaxed ${
-                isDark ? "text-neutral-300" : "text-neutral-600"
-              }`}
-            >
-              A focused platform for documentation and notes — built for speed,
-              clarity, and long-term knowledge retention.
-            </p>
-
-            {/* BUTTONS */}
+        {/* Floating Particles */}
+        <div ref={particlesRef} className="absolute inset-0">
+          {particles.map((p) => (
             <div
-              ref={buttonsRef}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-            >
-              {/* Docs */}
-              <Link href="/docs">
-                <Button
-                  size="lg"
-                  className="h-14 min-w-40 px-9 rounded-2xl border-2 border-sky-400 text-sky-400 bg-transparent
-                             hover:bg-sky-400 hover:text-neutral-900
-                             transition-all duration-300"
-                >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Explore Docs
-                </Button>
-              </Link>
+              key={p.id}
+              className="particle absolute rounded-full"
+              style={{
+                left: `${p.left}%`,
+                top: `${p.top}%`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                backgroundColor: isDark
+                  ? `rgba(56,189,248,${p.opacity})`
+                  : `rgba(37,99,235,${p.opacity})`,
+              }}
+            />
+          ))}
+        </div>
 
-              {/* Notes */}
-              <Link href="/notes">
-                <Button
-                  size="lg"
-                  className="h-14 px-9 min-w-40 rounded-2xl border-2 border-indigo-400 text-indigo-400 bg-transparent
-                             hover:bg-indigo-400 hover:text-neutral-900
-                             transition-all duration-300"
-                >
-                  <Notebook className="mr-2 h-5 w-5" />
-                  Visit Notes
-                </Button>
-              </Link>
-            </div>
+        {/* CONTENT WRAPPER */}
+        <div className="relative z-10 w-full max-w-6xl px-6 text-center">
+          {/* Badge */}
+          <div
+            ref={subtitleRef}
+            className={`inline-block mb-6 px-4 py-1.5 rounded-full border text-sm font-mono ${
+              isDark
+                ? "border-sky-400/30 text-sky-400"
+                : "border-indigo-400/40 text-indigo-600"
+            }`}
+          >
+            Built for focused learning
           </div>
 
-          {/* RIGHT – TERMINAL */}
-          <div className="flex justify-center lg:justify-end">
-            <Terminal
-              className={`max-w-lg w-full ${
-                isDark
-                  ? "bg-neutral-900 text-white"
-                  : "bg-gray-100 text-neutral-900"
+          {/* Title */}
+          <div ref={titleRef}>
+            <h1
+              className={`font-mono text-5xl sm:text-6xl md:text-7xl xl:text-8xl tracking-tight leading-tight ${
+                isDark ? "text-white" : "text-neutral-900"
               }`}
             >
-              <TypingAnimation className="text-emerald-400 font-mono">
-                $ welcome to bharat-docs
-              </TypingAnimation>
-              <AnimatedSpan> Initializing system……</AnimatedSpan>
-              <AnimatedSpan> Docs loaded ✓</AnimatedSpan>
-              <AnimatedSpan> visit /docs</AnimatedSpan>
-              <AnimatedSpan> Notes indexed ✓</AnimatedSpan>
-              <AnimatedSpan> visit /notes</AnimatedSpan>
-              <TypingAnimation className="text-emerald-400 font-mono">
-                $ Explore it
-              </TypingAnimation>
-            </Terminal>
+              <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Bharat Docs
+              </span>
+            </h1>
+          </div>
+
+          {/* Subtitle */}
+          <p
+            className={`mt-8 max-w-3xl mx-auto text-lg sm:text-xl leading-relaxed font-mono ${
+              isDark ? "text-neutral-300" : "text-neutral-600"
+            }`}
+          >
+            A performance-first documentation and knowledge system designed for
+            clarity, structure, and long-term retention. Minimal interface.
+            Maximum cognitive focus.
+          </p>
+
+          {/* Feature Pills */}
+          <div className="mt-10 flex flex-wrap justify-center gap-4 text-sm font-mono">
+            <span className="px-4 py-2 rounded-full border border-sky-400/30 text-sky-400">
+              ⚡ Ultra Fast
+            </span>
+            <span className="px-4 py-2 rounded-full border border-indigo-400/30 text-indigo-400">
+              📚 Structured Notes
+            </span>
+            <span className="px-4 py-2 rounded-full border border-purple-400/30 text-purple-400">
+              🎯 Focus Optimized
+            </span>
+          </div>
+
+          {/* Buttons */}
+          <div
+            ref={buttonsRef}
+            className="mt-12 flex flex-col sm:flex-row gap-5 justify-center"
+          >
+            <Link href="/docs" prefetch={shouldPrefetch()}>
+              <Button
+                size="lg"
+                className="h-14 min-w-44 px-10 rounded-2xl border-2 border-sky-400 text-sky-400 bg-transparent
+                       hover:bg-sky-400 hover:text-neutral-900 transition-all duration-300"
+              >
+                <BookOpen className="mr-2 h-5 w-5" />
+                Explore Docs
+              </Button>
+            </Link>
+
+            <Link href="/notes" prefetch={shouldPrefetch()}>
+              <Button
+                size="lg"
+                className="h-14 min-w-44 px-10 rounded-2xl border-2 border-indigo-400 text-indigo-400 bg-transparent
+                       hover:bg-indigo-400 hover:text-neutral-900 transition-all duration-300"
+              >
+                <Notebook className="mr-2 h-5 w-5" />
+                Visit Notes
+              </Button>
+            </Link>
+          </div>
+
+          {/* Micro credibility section */}
+          <div
+            className={`mt-16 text-sm font-mono ${
+              isDark ? "text-neutral-500" : "text-neutral-400"
+            }`}
+          >
+            Designed for deep work • No distractions • Optimized for slow
+            networks
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <CTASection />
+    </>
   );
 }

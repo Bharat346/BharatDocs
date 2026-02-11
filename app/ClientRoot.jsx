@@ -1,6 +1,6 @@
 "use client";
 
-import NavBar from "@/components/NavBar";
+import NavBar from "@/components/navbar/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
 import SessionInitializer from "@/lib/SessionInitializer";
@@ -12,7 +12,7 @@ export default function ClientRoot({ children, nonce }) {
       <QueryProvider>
         <NavBar />
         <SessionInitializer />
-        <main>{children}</main>
+        <main className="mt-15">{children}</main>
       </QueryProvider>
     </ThemeProvider>
   );

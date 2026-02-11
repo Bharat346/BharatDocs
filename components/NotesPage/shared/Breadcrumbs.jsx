@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { useThemeContext } from "@/components/ThemeProvider";
+import {shouldPrefetch} from "@/lib/network/network.config";
+
 
 export default function Breadcrumbs({
   slugArray = [],
@@ -77,19 +79,20 @@ export default function Breadcrumbs({
               {isEllipsis ? (
                 <Link
                   href={item.path}
+                  prefetch={shouldPrefetch()}
                   className={`px-1.5 transition-colors duration-200 ${
                     theme === "dark" 
                       ? "text-zinc-500 hover:text-zinc-300" 
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                   title="Click to expand"
-                  prefetch={false}
                 >
                   …
                 </Link>
               ) : (
                 <Link
                   href={item.path}
+                  prefetch={shouldPrefetch()}
                   className={`transition-all duration-200 truncate max-w-[160px] capitalize hover:underline underline-offset-2 ${
                     isLast 
                       ? `font-medium ${
@@ -104,7 +107,6 @@ export default function Breadcrumbs({
                         }`
                   }`}
                   title={item.label}
-                  prefetch={false}
                   aria-current={isLast ? "page" : undefined}
                 >
                   {item.slug === "home" ? (

@@ -12,8 +12,6 @@ export default function HomePage() {
     <div className={`min-h-[90svh] lg:min-h-screen transition-all duration-300`}>
       
       <HeroSection theme={theme} />
-      <CTASection theme={theme} />
-
       <GlobalStyles />
     </div>
   );

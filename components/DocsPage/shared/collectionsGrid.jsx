@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Folder, ChevronRight, Calendar } from "lucide-react";
+import {shouldPrefetch} from "@/lib/network/network.config";
 
 export default function CollectionsGrid({ theme, collections }) {
   return (
@@ -26,7 +27,7 @@ function CollectionCard({ theme, collection }) {
   return (
     <Link
       href={`/docs/${collection.slug}`}
-      prefetch
+      prefetch={shouldPrefetch()}
       className="group block focus:outline-none"
     >
       <article

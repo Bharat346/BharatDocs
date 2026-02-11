@@ -19,6 +19,9 @@ import EmptyState from "@/components/DocsPage/shared/EmptyState";
 import DocsLoader from "@/components/DocsPage/shared/DocsLoader";
 import { useScrollDetector } from "@/lib/utils/docsHelper";
 
+import {shouldPrefetch} from "@/lib/network/network.config";
+
+
 // MDX renderer (client only)
 const MDXContent = dynamic(() => import("./MDXContent"), { ssr: false });
 
@@ -77,6 +80,7 @@ const MainContent = function MainContent(
                 size="icon"
                 variant="ghost"
                 className="hidden sm:flex"
+                prefetch={shouldPrefetch()}
               >
                 <Home size={20} />
               </Link>
