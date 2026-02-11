@@ -26,16 +26,17 @@ export default function NavBar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 ${
-        isScrolled
-          ? theme === "dark"
-            ? "bg-black/60 border-b border-gray-800 backdrop-blur-xl py-0"
-            : "bg-white/60 border-b border-gray-200 backdrop-blur-xl py-0"
-          : theme === "dark"
-            ? "bg-black border-b border-transparent py-2"
-            : "bg-white border-b border-transparent py-2"
-      }`}
-    >
+  className={`fixed top-0 left-0 right-0 z-150 transition-all duration-300 ${
+    theme === "dark"
+      ? isScrolled
+        ? "bg-black backdrop-blur-xl py-0"
+        : "bg-black backdrop-blur-xl py-2"
+      : isScrolled
+        ? "bg-white backdrop-blur-xl py-0"
+        : "bg-white backdrop-blur-xl py-2"
+  }`}
+>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center gap-10">
           <NavLogo theme={theme} />
