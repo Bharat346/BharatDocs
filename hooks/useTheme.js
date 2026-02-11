@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 export function useTheme() {
-  let th = localStorage.getItem("theme");
-  const [theme, setTheme] = useState(th || "light"); 
+  const [theme, setTheme] = useState("light"); 
   const [mounted, setMounted] = useState(false);
 
+  // Initialize theme in browser
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     const resolved = stored === "dark" ? "dark" : "light";
