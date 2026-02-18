@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { useThemeContext } from "@/components/ThemeProvider";
-import {shouldPrefetch} from "@/lib/network/network.config";
-
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 export default function Breadcrumbs({
   slugArray = [],
@@ -15,7 +14,7 @@ export default function Breadcrumbs({
   className = "",
 }) {
   const { theme } = useThemeContext();
-  
+
   if (slugArray.length === 0 && !showHome) {
     return null;
   }
@@ -38,14 +37,14 @@ export default function Breadcrumbs({
   if (shouldTruncate) {
     const keepFirst = showHome ? 2 : 1;
     const keepLast = maxItems - keepFirst - 1;
-    
+
     displayItems = [
       ...allItems.slice(0, keepFirst),
-      { 
-        slug: "ellipsis", 
-        label: "…", 
+      {
+        slug: "ellipsis",
+        label: "…",
         isEllipsis: true,
-        path: allItems[allItems.length - keepLast - 1]?.path || basePath
+        path: allItems[allItems.length - keepLast - 1]?.path || basePath,
       },
       ...allItems.slice(-keepLast),
     ];
@@ -54,24 +53,27 @@ export default function Breadcrumbs({
   }
 
   return (
-    <nav 
-      aria-label="Breadcrumb" 
+    <nav
+      aria-label="Breadcrumb"
       className={`flex items-center gap-1 ${className}`}
     >
       <ol className="flex flex-wrap items-center gap-1 text-sm">
         {displayItems.map((item, index) => {
           const isLast = index === displayItems.length - 1;
           const isEllipsis = item.isEllipsis;
-          
+
           return (
-            <li key={`${item.slug}-${index}`} className="flex items-center gap-1 font-roboto">
+            <li
+              key={`${item.slug}-${index}`}
+              className="flex items-center gap-1 font-roboto"
+            >
               {/* Separator */}
               {index > 0 && (
-                <ChevronRight 
+                <ChevronRight
                   className={`h-3.5 w-3.5 flex-shrink-0 transition-colors duration-200 ${
                     theme === "dark" ? "text-zinc-500" : "text-gray-400"
                   }`}
-                  aria-hidden="true" 
+                  aria-hidden="true"
                 />
               )}
 
@@ -81,8 +83,8 @@ export default function Breadcrumbs({
                   href={item.path}
                   prefetch={shouldPrefetch()}
                   className={`px-1.5 transition-colors duration-200 ${
-                    theme === "dark" 
-                      ? "text-zinc-500 hover:text-zinc-300" 
+                    theme === "dark"
+                      ? "text-zinc-500 hover:text-zinc-300"
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                   title="Click to expand"
@@ -94,15 +96,13 @@ export default function Breadcrumbs({
                   href={item.path}
                   prefetch={shouldPrefetch()}
                   className={`transition-all duration-200 truncate max-w-[160px] capitalize hover:underline underline-offset-2 ${
-                    isLast 
+                    isLast
                       ? `font-medium ${
-                          theme === "dark" 
-                            ? "text-zinc-100" 
-                            : "text-gray-900"
-                        }` 
+                          theme === "dark" ? "text-zinc-100" : "text-gray-900"
+                        }`
                       : `${
-                          theme === "dark" 
-                            ? "text-zinc-400 hover:text-zinc-100" 
+                          theme === "dark"
+                            ? "text-zinc-400 hover:text-zinc-100"
                             : "text-gray-500 hover:text-gray-800"
                         }`
                   }`}
@@ -110,12 +110,13 @@ export default function Breadcrumbs({
                   aria-current={isLast ? "page" : undefined}
                 >
                   {item.slug === "home" ? (
-                    <Home className={`h-3.5 w-3.5 ${
-                      theme === "dark" 
-                        ? "text-zinc-400 hover:text-zinc-100" 
-                        : "text-gray-500 hover:text-gray-800"
-                    } transition-colors duration-200`} 
-                      aria-label="Home" 
+                    <Home
+                      className={`h-3.5 w-3.5 ${
+                        theme === "dark"
+                          ? "text-zinc-400 hover:text-zinc-100"
+                          : "text-gray-500 hover:text-gray-800"
+                      } transition-colors duration-200`}
+                      aria-label="Home"
                     />
                   ) : (
                     item.label
@@ -129,10 +130,10 @@ export default function Breadcrumbs({
 
       {/* Count badge when truncated */}
       {shouldTruncate && (
-        <span 
+        <span
           className={`ml-2 text-xs px-1.5 py-0.5 rounded transition-colors duration-200 ${
-            theme === "dark" 
-              ? "text-zinc-500 bg-zinc-800/50" 
+            theme === "dark"
+              ? "text-zinc-500 bg-zinc-800/50"
               : "text-gray-500 bg-gray-200"
           }`}
           title={`${allItems.length} total segments`}

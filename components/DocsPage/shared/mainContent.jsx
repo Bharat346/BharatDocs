@@ -19,24 +19,21 @@ import EmptyState from "@/components/DocsPage/shared/EmptyState";
 import DocsLoader from "@/components/DocsPage/shared/DocsLoader";
 import { useScrollDetector } from "@/lib/utils/docsHelper";
 
-import {shouldPrefetch} from "@/lib/network/network.config";
-
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 // MDX renderer (client only)
 const MDXContent = dynamic(() => import("./MDXContent"), { ssr: false });
 
-const MainContent = function MainContent(
-  {
-    theme,
-    selectedChild,
-    mdxContent,
-    frontmatter,
-    onSidebarToggle,
-    sidebarOpen,
-    onTocToggle,
-    scrollRef,
-  }
-) {
+const MainContent = function MainContent({
+  theme,
+  selectedChild,
+  mdxContent,
+  frontmatter,
+  onSidebarToggle,
+  sidebarOpen,
+  onTocToggle,
+  scrollRef,
+}) {
   /* ---------------- Scroll Container Ref ---------------- */
 
   const { showScrollTop, scrollToTop } = useScrollDetector(scrollRef, 300);

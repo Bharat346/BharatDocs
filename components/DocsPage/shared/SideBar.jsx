@@ -55,8 +55,8 @@ export default function Sidebar({
                         ? "text-blue-400"
                         : "bg-blue-100/50 text-blue-600 shadow-inner shadow-blue-300/20"
                       : theme === "dark"
-                      ? "text-zinc-300 hover:bg-zinc-800/50 hover:text-white"
-                      : "text-gray-700 hover:bg-gray-100/70 hover:text-gray-900"
+                        ? "text-zinc-300 hover:bg-zinc-800/50 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-100/70 hover:text-gray-900"
                   }`}
                 >
                   <div
@@ -66,11 +66,10 @@ export default function Sidebar({
                           ? "bg-blue-500/20"
                           : "bg-blue-100"
                         : theme === "dark"
-                        ? "bg-zinc-800/50 group-hover:bg-zinc-700/50"
-                        : "bg-gray-100 group-hover:bg-gray-200"
+                          ? "bg-zinc-800/50 group-hover:bg-zinc-700/50"
+                          : "bg-gray-100 group-hover:bg-gray-200"
                     }`}
-                  >
-                  </div>
+                  ></div>
                   <div className="flex-1 text-left min-w-0">
                     <div className="text-sm font-roboto truncate">
                       {child.name}
@@ -91,9 +90,7 @@ export default function Sidebar({
             : "border-gray-200 text-gray-500"
         }`}
       >
-        <div className="text-xs text-center">
-          Documentation Portal v2.0
-        </div>
+        <div className="text-xs text-center">Documentation Portal v2.0</div>
       </div>
     </aside>
   );

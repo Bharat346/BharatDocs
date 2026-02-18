@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {shouldPrefetch} from "@/lib/network/network.config";
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 export default function NavItem({
   item,
@@ -37,6 +37,9 @@ export default function NavItem({
       <Link
         href={item.href}
         prefetch={shouldPrefetch()}
+        target={item.external ? "_blank" : undefined}
+        rel={item.external ? "noopener noreferrer" : undefined}
+        suppressHydrationWarning
         className={`group relative px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 font-mono transition-all duration-300 ${
           theme === "dark"
             ? "text-gray-300 hover:text-white hover:bg-gray-800/50"

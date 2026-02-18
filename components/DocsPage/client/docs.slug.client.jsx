@@ -7,15 +7,22 @@ import { useThemeContext } from "@/components/ThemeProvider";
 import Sidebar from "@/components/DocsPage/shared/SideBar";
 import TableOfContent from "@/components/DocsPage/shared/TableofContent";
 import Panel from "./docs.slug.panel";
-import { fetchChildren, fetchMdxContent } from "@/components/DocsPage/lib/docs.api";
+import {
+  fetchChildren,
+  fetchMdxContent,
+} from "@/components/DocsPage/lib/docs.api";
 
 /* ---------- Dynamic ---------- */
-const MainContent = dynamic(() => import("@/components/DocsPage/shared/mainContent"), { ssr: false });
+const MainContent = dynamic(
+  () => import("@/components/DocsPage/shared/mainContent"),
+  { ssr: false },
+);
 
 /* ---------- Helper: safe idle callback ---------- */
-const ric = typeof window !== "undefined" && window.requestIdleCallback
-  ? window.requestIdleCallback
-  : (cb) => setTimeout(cb, 200);
+const ric =
+  typeof window !== "undefined" && window.requestIdleCallback
+    ? window.requestIdleCallback
+    : (cb) => setTimeout(cb, 200);
 
 /* =================================
    Docs Page
@@ -34,20 +41,19 @@ export default function DocsSlugClient({ slug }) {
   const tocRef = useRef(null);
 
   /* ---------- Queries ---------- */
-  const { data: children = [] , isError: childrenError } = useQuery({
+  const { data: children = [], isError: childrenError } = useQuery({
     queryKey: ["docs", slug],
-    queryFn: ({signal}) => fetchChildren(slug, signal),
+    queryFn: ({ signal }) => fetchChildren(slug, signal),
     staleTime: 5 * 60 * 1000,
   });
 
-  
-  const { data: mdxData , isError: mdxError } = useQuery({
+  const { data: mdxData, isError: mdxError } = useQuery({
     queryKey: ["mdx", selectedChild?.filePath],
-    queryFn: ({signal}) => fetchMdxContent(selectedChild?.filePath, signal),
+    queryFn: ({ signal }) => fetchMdxContent(selectedChild?.filePath, signal),
     enabled: !!selectedChild,
     staleTime: 10 * 60 * 1000,
   });
-  
+
   if (childrenError) return <div>Error loading docs</div>;
   if (mdxError) return <div>Error loading mdx content</div>;
 
@@ -120,7 +126,12 @@ export default function DocsSlugClient({ slug }) {
     <div className={`h-dvh ${theme === "dark" ? "bg-zinc-900" : "bg-gray-50"}`}>
       <div className="flex h-full overflow-hidden relative">
         {/* Sidebar */}
-        <Panel open={sidebarOpen} mobile={isMobile} side="left" panelRef={sidebarRef}>
+        <Panel
+          open={sidebarOpen}
+          mobile={isMobile}
+          side="left"
+          panelRef={sidebarRef}
+        >
           <Sidebar
             theme={theme}
             children={children}

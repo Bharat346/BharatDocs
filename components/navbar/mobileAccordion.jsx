@@ -3,8 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import {shouldPrefetch} from "@/lib/network/network.config";
-
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 export default function MobileAccordion({
   item,
@@ -24,6 +23,9 @@ export default function MobileAccordion({
           href={item.href}
           onClick={closeMobile}
           prefetch={shouldPrefetch()}
+          target={item.external ? "_blank" : undefined}
+          rel={item.external ? "noopener noreferrer" : undefined}
+          suppressHydrationWarning
           className={`flex-1 flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-mono transition-all ${
             theme === "dark"
               ? "text-gray-300 hover:bg-black/50 hover:text-white"
@@ -37,6 +39,7 @@ export default function MobileAccordion({
         {(hasChildren || hasStructure) && (
           <button
             onClick={() => toggle(item.label)}
+            suppressHydrationWarning
             className={`p-2 rounded-lg transition-colors ${
               theme === "dark"
                 ? "hover:bg-gray-800/50 text-gray-400"

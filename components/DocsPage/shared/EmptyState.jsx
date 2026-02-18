@@ -27,11 +27,7 @@ export default function EmptyState({ theme, searchTerm }) {
       <div
         className={`
           mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl
-          ${
-            isDark
-              ? "bg-zinc-800 text-blue-400"
-              : "bg-blue-50 text-blue-600"
-          }
+          ${isDark ? "bg-zinc-800 text-blue-400" : "bg-blue-50 text-blue-600"}
         `}
       >
         {isSearch ? <Search size={22} /> : <FileText size={22} />}

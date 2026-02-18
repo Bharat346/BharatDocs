@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { Maximize2, Info } from "lucide-react";
 
 const ZOOM_LEVELS = [50, 75, 100, 125, 150];
 
-export default function PDFToolbar({
+function PDFToolbar({
   currentPage,
   totalPages,
   scale,
   onFit,
   onHelp,
   onJumpToPage,
-  onZoomChange, // NEW
+  onZoomChange,
   theme,
 }) {
   const [pageInput, setPageInput] = useState(String(currentPage + 1));
@@ -122,7 +122,11 @@ export default function PDFToolbar({
         `}
       >
         {ZOOM_LEVELS.map((z) => (
-          <option key={z} value={z} className={`text-sm ${isDark ? "bg-black/70" : "bg-white/70"}`}>
+          <option
+            key={z}
+            value={z}
+            className={`text-sm ${isDark ? "bg-black/70" : "bg-white/70"}`}
+          >
             {z}%
           </option>
         ))}
@@ -157,3 +161,5 @@ export default function PDFToolbar({
     </div>
   );
 }
+
+export default memo(PDFToolbar);

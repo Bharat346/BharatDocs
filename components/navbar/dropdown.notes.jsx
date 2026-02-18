@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
-import {shouldPrefetch} from "@/lib/network/network.config";
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 export default function DropdownNotes({ structure, theme }) {
   return (
     <div
+      suppressHydrationWarning
       className={`relative w-[600px] rounded-xl border shadow-2xl ${
         theme === "dark"
           ? "bg-black/100 border-gray-800 shadow-blue-900/10"
@@ -23,6 +24,7 @@ export default function DropdownNotes({ structure, theme }) {
                 />
               )}
               <h3
+                suppressHydrationWarning
                 className={`text-sm font-bold uppercase tracking-wider ${
                   theme === "dark" ? "text-gray-400" : "text-gray-500"
                 }`}
@@ -36,6 +38,7 @@ export default function DropdownNotes({ structure, theme }) {
                   key={subject.name}
                   href={subject.href}
                   prefetch={shouldPrefetch()}
+                  suppressHydrationWarning
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                     theme === "dark"
                       ? "text-gray-300 hover:bg-gray-800 hover:text-white"

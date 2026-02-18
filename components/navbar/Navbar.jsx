@@ -9,7 +9,7 @@ import NavMobile from "./nav.mobile";
 import { Menu, X, Sun, Moon } from "lucide-react";
 
 export default function NavBar() {
-  const { theme, toggleTheme } = useThemeContext();
+  const { theme, toggleTheme, mounted } = useThemeContext();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -26,17 +26,17 @@ export default function NavBar() {
 
   return (
     <nav
-  className={`fixed top-0 left-0 right-0 z-150 transition-all duration-300 ${
-    theme === "dark"
-      ? isScrolled
-        ? "bg-black backdrop-blur-xl py-0"
-        : "bg-black backdrop-blur-xl py-2"
-      : isScrolled
-        ? "bg-white backdrop-blur-xl py-0"
-        : "bg-white backdrop-blur-xl py-2"
-  }`}
->
-
+      suppressHydrationWarning
+      className={`fixed top-0 left-0 right-0 z-150 transition-all duration-300 ${
+        theme === "dark"
+          ? isScrolled
+            ? "bg-black backdrop-blur-xl py-0"
+            : "bg-black backdrop-blur-xl py-2"
+          : isScrolled
+            ? "bg-white backdrop-blur-xl py-0"
+            : "bg-white backdrop-blur-xl py-2"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center gap-10">
           <NavLogo theme={theme} />
@@ -51,16 +51,21 @@ export default function NavBar() {
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
+            suppressHydrationWarning
             className={`p-2 rounded-lg transition-colors ${
               theme === "dark"
                 ? "hover:bg-gray-800 text-yellow-400"
                 : "hover:bg-gray-100 text-gray-600"
             }`}
           >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5" />
+            {mounted ? (
+              theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )
             ) : (
-              <Moon className="h-5 w-5" />
+              <div className="h-5 w-5" /> // Placeholder
             )}
           </button>
 

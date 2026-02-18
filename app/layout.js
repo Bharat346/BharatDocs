@@ -12,6 +12,26 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          id="theme-init"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `
+        (function() {
+          try {
+            const stored = localStorage.getItem("theme");
+            const theme = stored === "dark" ? "dark" : "light";
+            if (theme === "dark") {
+              document.documentElement.classList.add("dark");
+            }
+          } catch (e) {}
+        })();
+      `,
+          }}
+        />
+      </head>
+
       <body>
         {/* 🔒 CSP-safe inline script */}
         <Script

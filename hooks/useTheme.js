@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 
 export function useTheme() {
-  const [theme, setTheme] = useState("light"); 
+  const [theme, setTheme] = useState("light");
+
   const [mounted, setMounted] = useState(false);
 
   // Initialize theme in browser
@@ -17,7 +18,7 @@ export function useTheme() {
   }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => {
+    setTheme((prev) => {
       const next = prev === "light" ? "dark" : "light";
       localStorage.setItem("theme", next);
       document.documentElement.classList.toggle("dark", next === "dark");

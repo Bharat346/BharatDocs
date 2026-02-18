@@ -38,7 +38,7 @@ export default function CTASection() {
     const email = "bharat030406@gmail.com";
     const subject = encodeURIComponent("Project Inquiry");
     const body = encodeURIComponent(
-      "Hi Bharat,\n\nI would like to discuss a project with you.\n\nThanks!"
+      "Hi Bharat,\n\nI would like to discuss a project with you.\n\nThanks!",
     );
 
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
@@ -137,8 +137,8 @@ export default function CTASection() {
                   isDark ? "text-neutral-300" : "text-neutral-600"
                 }`}
               >
-                Have an idea, a system to optimize, or a product to build?
-                Let’s collaborate and create something engineered for performance,
+                Have an idea, a system to optimize, or a product to build? Let’s
+                collaborate and create something engineered for performance,
                 clarity, and long-term value.
               </p>
 
@@ -183,7 +183,8 @@ export default function CTASection() {
                 }`}
               >
                 <p className="text-center text-xs uppercase tracking-[0.3em] text-neutral-500 font-mono">
-                  Bharat • Full Stack Engineer • React • Next.js • Systems Design
+                  Bharat • Full Stack Engineer • React • Next.js • Systems
+                  Design
                 </p>
               </div>
             </div>

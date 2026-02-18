@@ -8,9 +8,7 @@ export default function LoadingState({ theme }) {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Spinner
-        className={`h-10 w-10 ${
-          isDark ? "text-blue-500" : "text-blue-600"
-        }`}
+        className={`h-10 w-10 ${isDark ? "text-blue-500" : "text-blue-600"}`}
       />
     </div>
   );

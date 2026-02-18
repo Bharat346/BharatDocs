@@ -19,12 +19,14 @@ export default function GridBackground({
   const { theme } = useThemeContext();
   const isDark = theme === "dark";
 
-  /* ----------------------------------
-     PERFORMANCE DECISION (ONCE)
-  ----------------------------------- */
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const animationPolicy = useMemo(() => {
-    if (typeof window === "undefined") return false;
+    if (!mounted) return false;
     if (!animate) return false;
 
     // Accessibility first
@@ -34,7 +36,7 @@ export default function GridBackground({
     if (!allowHeavyAnimations()) return false;
 
     return true;
-  }, [animate]);
+  }, [mounted, animate]);
 
   /* ----------------------------------
      DYNAMIC FLOAT COUNT
@@ -104,7 +106,7 @@ export default function GridBackground({
     const handleVisibility = () => {
       document.documentElement.style.setProperty(
         "--animation-state",
-        document.hidden ? "paused" : "running"
+        document.hidden ? "paused" : "running",
       );
     };
 

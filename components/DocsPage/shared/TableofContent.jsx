@@ -66,7 +66,7 @@ export default function TableOfContent({
         root: scrollRoot,
         rootMargin: "-20% 0px -65% 0px",
         threshold: 0,
-      }
+      },
     );
 
     headings.forEach(({ id }) => {
@@ -94,8 +94,7 @@ export default function TableOfContent({
       const containerTop = container.getBoundingClientRect().top;
       const elementTop = el.getBoundingClientRect().top;
 
-      const scrollOffset =
-        elementTop - containerTop + container.scrollTop - 80;
+      const scrollOffset = elementTop - containerTop + container.scrollTop - 80;
 
       container.scrollTo({
         top: scrollOffset,
@@ -117,9 +116,7 @@ export default function TableOfContent({
       <div key={node.key} className="pl-3">
         <Collapsible
           open={open}
-          onOpenChange={(v) =>
-            setOpenMap((m) => ({ ...m, [node.id]: v }))
-          }
+          onOpenChange={(v) => setOpenMap((m) => ({ ...m, [node.id]: v }))}
         >
           <div className="flex items-center gap-1">
             {node.children.length > 0 && (
@@ -128,7 +125,7 @@ export default function TableOfContent({
                   className={cn(
                     "h-3 w-3 transition-transform",
                     !open && "-rotate-90",
-                    isDark && "text-zinc-300"
+                    isDark && "text-zinc-300",
                   )}
                 />
               </CollapsibleTrigger>
@@ -141,8 +138,8 @@ export default function TableOfContent({
                 activeId === node.id
                   ? "text-blue-500 font-medium"
                   : isDark
-                  ? "text-zinc-300 hover:text-blue-400"
-                  : "text-gray-700 hover:text-blue-600"
+                    ? "text-zinc-300 hover:text-blue-400"
+                    : "text-gray-700 hover:text-blue-600",
               )}
             >
               {node.text}
@@ -167,16 +164,11 @@ export default function TableOfContent({
         isDark
           ? "bg-zinc-900/95 border-zinc-800"
           : "bg-white/95 border-gray-200",
-        className
+        className,
       )}
     >
       {/* Header */}
-      <div className={
-        cn(
-          "p-4 sticky top-0 z-10",
-          isMobile && "pt-20"
-        )
-      }>
+      <div className={cn("p-4 sticky top-0 z-10", isMobile && "pt-20")}>
         <div className="flex items-center gap-2 pt-2 pb-5">
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
@@ -188,12 +180,7 @@ export default function TableOfContent({
       </div>
 
       {/* Body */}
-      <div
-        className={cn(
-          "h-full",
-          !isMobile && "overflow-y-auto"
-        )}
-      >
+      <div className={cn("h-full", !isMobile && "overflow-y-auto")}>
         {headings.length === 0 ? (
           <p className="text-sm text-center text-muted-foreground py-8">
             This document has no headings

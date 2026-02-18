@@ -1,7 +1,7 @@
 // app/admin/logs/page.jsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Box,
   Tabs,
@@ -16,7 +16,7 @@ import {
   Snackbar,
   Paper,
   alpha,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Refresh,
   Download,
@@ -26,153 +26,150 @@ import {
   People,
   Block,
   DataUsage,
-} from '@mui/icons-material';
-import { motion } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { StatsCards } from '@/components/admin/StatsCards';
+} from "@mui/icons-material";
+import { motion } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { StatsCards } from "@/components/admin/StatsCards";
 import {
   HourlyChart,
   SeverityPieChart,
   TopIPsChart,
   TrendChart,
-} from '@/components/admin/Charts';
-import { IPManagement } from '@/components/admin/IPManagement';
-import { LogsTable } from '@/components/admin/LogsTable';
+} from "@/components/admin/Charts";
+import { IPManagement } from "@/components/admin/IPManagement";
+import { LogsTable } from "@/components/admin/LogsTable";
 
 const TabPanel = ({ children, value, index }) => (
   <div hidden={value !== index}>
-    {value === index && (
-      <Box sx={{ pt: 3 }}>
-        {children}
-      </Box>
-    )}
+    {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
   </div>
 );
 
-const fetchLogs = async (timeRange = '7d') => {
+const fetchLogs = async (timeRange = "7d") => {
   const res = await fetch(`/api/admin/logs?timeRange=${timeRange}`);
-  if (!res.ok) throw new Error('Failed to fetch logs');
+  if (!res.ok) throw new Error("Failed to fetch logs");
   return res.json();
 };
 
 const postAction = async (action, data) => {
-  const res = await fetch('/api/admin/logs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const res = await fetch("/api/admin/logs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, data }),
   });
-  if (!res.ok) throw new Error('Failed to perform action');
+  if (!res.ok) throw new Error("Failed to perform action");
   return res.json();
-}; 
+};
 
 export default function AdminLogsPage() {
   const [activeTab, setActiveTab] = useState(0);
-  const [timeRange, setTimeRange] = useState('7d');
+  const [timeRange, setTimeRange] = useState("7d");
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
-  const [theme, setTheme] = useState('light'); // Default to light theme
+  const [theme, setTheme] = useState("light");
 
   const queryClient = useQueryClient();
 
   // Detect theme from localStorage or system preference
   useEffect(() => {
     // Check localStorage for theme preference
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       setTheme(savedTheme);
     } else {
       // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['admin-logs', timeRange],
+    queryKey: ["admin-logs", timeRange],
     queryFn: () => fetchLogs(timeRange),
     refetchInterval: 60000, // Auto-refresh every 60 seconds
   });
 
   const mutation = useMutation({
-    mutationFn: ({ action, data }) =>
-      postAction(action, data),
+    mutationFn: ({ action, data }) => postAction(action, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-logs'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-logs"] });
     },
   });
 
   const handleBlockIP = async (ip, duration, reason) => {
     await mutation.mutateAsync({
-      action: 'blockIP',
+      action: "blockIP",
       data: { ip, duration, reason },
     });
     setSnackbar({
       open: true,
       message: `Successfully blocked ${ip}`,
-      severity: 'success',
+      severity: "success",
     });
   };
 
   const handleUnblockIP = async (ip) => {
     await mutation.mutateAsync({
-      action: 'unblockIP',
+      action: "unblockIP",
       data: { ip },
     });
     setSnackbar({
       open: true,
       message: `Successfully unblocked ${ip}`,
-      severity: 'success',
+      severity: "success",
     });
   };
 
   const handleClearLogs = async (type, days) => {
     await mutation.mutateAsync({
-      action: 'clearLogs',
+      action: "clearLogs",
       data: { type, days },
     });
     setSnackbar({
       open: true,
       message: `Cleared logs older than ${days} days`,
-      severity: 'success',
+      severity: "success",
     });
   };
 
   const handleExport = () => {
     // Export functionality
-    console.log('Exporting data...');
+    console.log("Exporting data...");
   };
 
   const tabs = [
-    { label: 'Overview', icon: <DataUsage /> },
-    { label: 'Security Events', icon: <Security /> },
-    { label: 'Access Logs', icon: <Timeline /> },
-    { label: 'Visitors', icon: <People /> },
-    { label: 'IP Management', icon: <Block /> },
-    { label: 'Charts', icon: <Timeline /> },
+    { label: "Overview", icon: <DataUsage /> },
+    { label: "Security Events", icon: <Security /> },
+    { label: "Access Logs", icon: <Timeline /> },
+    { label: "Visitors", icon: <People /> },
+    { label: "IP Management", icon: <Block /> },
+    { label: "Charts", icon: <Timeline /> },
   ];
 
   // Theme-based styles
   const themeStyles = {
     light: {
-      background: 'linear-gradient(135deg, #1976d220 0%, transparent 100%)',
-      bgColor: 'background.default',
-      paperBg: '#ffffff',
-      textPrimary: 'text.primary',
-      textSecondary: 'text.secondary',
-      buttonVariant: 'contained',
-      tabIndicator: 'primary',
+      background: "linear-gradient(135deg, #1976d220 0%, transparent 100%)",
+      bgColor: "background.default",
+      paperBg: "#ffffff",
+      textPrimary: "text.primary",
+      textSecondary: "text.secondary",
+      buttonVariant: "contained",
+      tabIndicator: "primary",
     },
     dark: {
-      background: 'linear-gradient(135deg, #90caf920 0%, transparent 100%)',
-      bgColor: '#121212',
-      paperBg: '#1e1e1e',
-      textPrimary: '#ffffff',
-      textSecondary: 'rgba(255, 255, 255, 0.7)',
-      buttonVariant: 'outlined',
-      tabIndicator: 'secondary',
+      background: "linear-gradient(135deg, #90caf920 0%, transparent 100%)",
+      bgColor: "#121212",
+      paperBg: "#1e1e1e",
+      textPrimary: "#ffffff",
+      textSecondary: "rgba(255, 255, 255, 0.7)",
+      buttonVariant: "outlined",
+      tabIndicator: "secondary",
     },
   };
 
@@ -182,11 +179,11 @@ export default function AdminLogsPage() {
     return (
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
           gap: 3,
           bgcolor: currentTheme.bgColor,
         }}
@@ -208,13 +205,14 @@ export default function AdminLogsPage() {
         <Alert
           severity="error"
           action={
-            <Button 
-              color="inherit" 
-              size="small" 
+            <Button
+              color="inherit"
+              size="small"
               onClick={() => refetch()}
-              sx={{ 
-                color: theme === 'dark' ? '#fff' : 'inherit',
-                borderColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'inherit'
+              sx={{
+                color: theme === "dark" ? "#fff" : "inherit",
+                borderColor:
+                  theme === "dark" ? "rgba(255, 255, 255, 0.3)" : "inherit",
               }}
             >
               Retry
@@ -239,11 +237,13 @@ export default function AdminLogsPage() {
   } = data?.data || {};
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      bgcolor: currentTheme.bgColor,
-      color: currentTheme.textPrimary,
-    }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: currentTheme.bgColor,
+        color: currentTheme.textPrimary,
+      }}
+    >
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <motion.div
@@ -257,17 +257,26 @@ export default function AdminLogsPage() {
               mb: 3,
               background: currentTheme.background,
               backgroundColor: currentTheme.paperBg,
-              border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
-              boxShadow: theme === 'dark' 
-                ? '0 4px 20px rgba(0, 0, 0, 0.5)' 
-                : '0 4px 20px rgba(0, 0, 0, 0.1)',
+              border:
+                theme === "dark"
+                  ? "1px solid rgba(255, 255, 255, 0.1)"
+                  : "none",
+              boxShadow:
+                theme === "dark"
+                  ? "0 4px 20px rgba(0, 0, 0, 0.5)"
+                  : "0 4px 20px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
               <Box>
-                <Typography 
-                  variant="h4" 
-                  fontWeight={800} 
+                <Typography
+                  variant="h4"
+                  fontWeight={800}
                   gutterBottom
                   color={currentTheme.textPrimary}
                 >
@@ -279,30 +288,32 @@ export default function AdminLogsPage() {
               </Box>
               <Box display="flex" gap={1}>
                 <Tooltip title="Refresh Data">
-                  <IconButton 
-                    onClick={() => refetch()} 
-                    sx={{ 
-                      color: theme === 'dark' ? '#90caf9' : 'primary.main',
-                      '&:hover': {
-                        backgroundColor: theme === 'dark' 
-                          ? 'rgba(144, 202, 249, 0.1)' 
-                          : 'rgba(25, 118, 210, 0.1)',
-                      }
+                  <IconButton
+                    onClick={() => refetch()}
+                    sx={{
+                      color: theme === "dark" ? "#90caf9" : "primary.main",
+                      "&:hover": {
+                        backgroundColor:
+                          theme === "dark"
+                            ? "rgba(144, 202, 249, 0.1)"
+                            : "rgba(25, 118, 210, 0.1)",
+                      },
                     }}
                   >
                     <Refresh />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Export Data">
-                  <IconButton 
+                  <IconButton
                     onClick={handleExport}
-                    sx={{ 
-                      color: theme === 'dark' ? '#90caf9' : 'primary.main',
-                      '&:hover': {
-                        backgroundColor: theme === 'dark' 
-                          ? 'rgba(144, 202, 249, 0.1)' 
-                          : 'rgba(25, 118, 210, 0.1)',
-                      }
+                    sx={{
+                      color: theme === "dark" ? "#90caf9" : "primary.main",
+                      "&:hover": {
+                        backgroundColor:
+                          theme === "dark"
+                            ? "rgba(144, 202, 249, 0.1)"
+                            : "rgba(25, 118, 210, 0.1)",
+                      },
                     }}
                   >
                     <Download />
@@ -312,21 +323,26 @@ export default function AdminLogsPage() {
             </Box>
 
             <Box display="flex" gap={1}>
-              {['1d', '7d', '30d'].map(range => (
+              {["1d", "7d", "30d"].map((range) => (
                 <Button
                   key={range}
-                  variant={timeRange === range ? 'contained' : currentTheme.buttonVariant}
+                  variant={
+                    timeRange === range
+                      ? "contained"
+                      : currentTheme.buttonVariant
+                  }
                   size="small"
                   onClick={() => setTimeRange(range)}
                   sx={{
-                    ...(theme === 'dark' && timeRange !== range && {
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
-                      '&:hover': {
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      }
-                    })
+                    ...(theme === "dark" &&
+                      timeRange !== range && {
+                        color: "rgba(255, 255, 255, 0.7)",
+                        borderColor: "rgba(255, 255, 255, 0.3)",
+                        "&:hover": {
+                          borderColor: "rgba(255, 255, 255, 0.5)",
+                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        },
+                      }),
                   }}
                 >
                   {range}
@@ -346,11 +362,12 @@ export default function AdminLogsPage() {
         </motion.div>
 
         {/* Tabs */}
-        <Paper 
-          sx={{ 
+        <Paper
+          sx={{
             mb: 3,
             backgroundColor: currentTheme.paperBg,
-            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+            border:
+              theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
           }}
         >
           <Tabs
@@ -359,15 +376,15 @@ export default function AdminLogsPage() {
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-              '& .MuiTab-root': {
+              "& .MuiTab-root": {
                 minHeight: 64,
                 color: currentTheme.textSecondary,
-                '&.Mui-selected': {
-                  color: theme === 'dark' ? '#90caf9' : 'primary.main',
+                "&.Mui-selected": {
+                  color: theme === "dark" ? "#90caf9" : "primary.main",
                 },
               },
-              '& .MuiTabs-indicator': {
-                backgroundColor: theme === 'dark' ? '#90caf9' : 'primary.main',
+              "& .MuiTabs-indicator": {
+                backgroundColor: theme === "dark" ? "#90caf9" : "primary.main",
               },
             }}
           >
@@ -378,11 +395,14 @@ export default function AdminLogsPage() {
                 icon={tab.icon}
                 iconPosition="start"
                 sx={{
-                  '& .MuiSvgIcon-root': {
-                    color: activeTab === index 
-                      ? (theme === 'dark' ? '#90caf9' : 'primary.main')
-                      : currentTheme.textSecondary,
-                  }
+                  "& .MuiSvgIcon-root": {
+                    color:
+                      activeTab === index
+                        ? theme === "dark"
+                          ? "#90caf9"
+                          : "primary.main"
+                        : currentTheme.textSecondary,
+                  },
                 }}
               />
             ))}
@@ -391,7 +411,7 @@ export default function AdminLogsPage() {
 
         {/* Tab Panels */}
         <TabPanel value={activeTab} index={0}>
-          <Box display="grid" gridTemplateColumns={{ md: '1fr 1fr' }} gap={3}>
+          <Box display="grid" gridTemplateColumns={{ md: "1fr 1fr" }} gap={3}>
             <HourlyChart data={hourlyStats} theme={theme} />
             <SeverityPieChart events={securityEvents} theme={theme} />
             <TopIPsChart data={topIPs} theme={theme} />
@@ -405,12 +425,12 @@ export default function AdminLogsPage() {
             logs={securityEvents}
             type="security"
             columns={[
-              { key: 'createdAt', label: 'Time' },
-              { key: 'event', label: 'Event' },
-              { key: 'severity', label: 'Severity' },
-              { key: 'ipAddress', label: 'IP Address' },
-              { key: 'path', label: 'Path' },
-              { key: 'method', label: 'Method' },
+              { key: "createdAt", label: "Time" },
+              { key: "event", label: "Event" },
+              { key: "severity", label: "Severity" },
+              { key: "ipAddress", label: "IP Address" },
+              { key: "path", label: "Path" },
+              { key: "method", label: "Method" },
             ]}
             severityFilter
             theme={theme}
@@ -423,12 +443,12 @@ export default function AdminLogsPage() {
             logs={accessLogs}
             type="access"
             columns={[
-              { key: 'accessedAt', label: 'Time' },
-              { key: 'ipAddress', label: 'IP Address' },
-              { key: 'path', label: 'Path' },
-              { key: 'method', label: 'Method' },
-              { key: 'statusCode', label: 'Status' },
-              { key: 'country', label: 'Country' },
+              { key: "accessedAt", label: "Time" },
+              { key: "ipAddress", label: "IP Address" },
+              { key: "path", label: "Path" },
+              { key: "method", label: "Method" },
+              { key: "statusCode", label: "Status" },
+              { key: "country", label: "Country" },
             ]}
             theme={theme}
           />
@@ -440,10 +460,10 @@ export default function AdminLogsPage() {
             logs={visitors}
             type="visitors"
             columns={[
-              { key: 'username', label: 'Username' },
-              { key: 'lastSeen', label: 'Last Seen' },
-              { key: 'firstSeen', label: 'First Seen' },
-              { key: 'userAgent', label: 'User Agent' },
+              { key: "username", label: "Username" },
+              { key: "lastSeen", label: "Last Seen" },
+              { key: "firstSeen", label: "First Seen" },
+              { key: "userAgent", label: "User Agent" },
             ]}
             theme={theme}
           />
@@ -460,14 +480,14 @@ export default function AdminLogsPage() {
         </TabPanel>
 
         <TabPanel value={activeTab} index={5}>
-          <Box display="grid" gridTemplateColumns={{ md: '1fr 1fr' }} gap={3}>
+          <Box display="grid" gridTemplateColumns={{ md: "1fr 1fr" }} gap={3}>
             <Box>
               <HourlyChart data={hourlyStats} theme={theme} />
             </Box>
             <Box>
               <SeverityPieChart events={securityEvents} theme={theme} />
             </Box>
-            <Box gridColumn={{ md: 'span 2' }}>
+            <Box gridColumn={{ md: "span 2" }}>
               <TrendChart hourlyData={hourlyStats} theme={theme} />
             </Box>
           </Box>
@@ -478,15 +498,15 @@ export default function AdminLogsPage() {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ 
-            width: '100%',
-            backgroundColor: theme === 'dark' ? '#1e1e1e' : '#fff',
-            color: theme === 'dark' ? '#fff' : 'inherit',
+          sx={{
+            width: "100%",
+            backgroundColor: theme === "dark" ? "#1e1e1e" : "#fff",
+            color: theme === "dark" ? "#fff" : "inherit",
           }}
         >
           {snackbar.message}

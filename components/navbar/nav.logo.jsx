@@ -2,11 +2,15 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import {shouldPrefetch} from "@/lib/network/network.config";
+import { shouldPrefetch } from "@/lib/network/network.config";
 
 export default function NavLogo({ theme }) {
   return (
-    <Link href="/" prefetch={shouldPrefetch()} className="flex items-center gap-3 group">
+    <Link
+      href="/"
+      prefetch={shouldPrefetch()}
+      className="flex items-center gap-3 group"
+    >
       <motion.div
         whileHover={{ rotate: 360 }}
         transition={{ duration: 0.6 }}
@@ -15,6 +19,7 @@ export default function NavLogo({ theme }) {
         <BookOpen className="h-6 w-6 text-white" />
       </motion.div>
       <span
+        suppressHydrationWarning
         className={`font-mono text-xl bg-clip-text text-transparent bg-gradient-to-r ${
           theme === "dark"
             ? "from-white to-gray-300"

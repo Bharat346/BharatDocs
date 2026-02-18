@@ -3,7 +3,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import {shouldPrefetch} from "@/lib/network/network.config";
+import { shouldPrefetch } from "@/lib/network/network.config";
 import { Folder, FileText, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useThemeContext } from "@/components/ThemeProvider";
@@ -12,12 +12,18 @@ import dynamic from "next/dynamic";
 import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
 
 // Dynamically load PDF viewer
-const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), { ssr: false });
+const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), {
+  ssr: false,
+});
 
 // ---------------- Global cache for folder nodes ----------------
 const folderCache = {};
 
-export default function NotesGrid({ nodes, slugArray, isLoading: parentLoading }) {
+export default function NotesGrid({
+  nodes,
+  slugArray,
+  isLoading: parentLoading,
+}) {
   const { theme } = useThemeContext();
   const isMobile = useIsMobile();
   console.log(nodes);
@@ -121,7 +127,10 @@ export default function NotesGrid({ nodes, slugArray, isLoading: parentLoading }
             }`}
           >
             <Suspense fallback={<NotesLoader />}>
-              <PDFViewer fileUrl={activePdf} onClose={() => setActivePdf(null)} />
+              <PDFViewer
+                fileUrl={activePdf}
+                onClose={() => setActivePdf(null)}
+              />
             </Suspense>
           </div>
         </div>
