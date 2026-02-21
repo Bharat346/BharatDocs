@@ -50,7 +50,7 @@ export function withSecurityHeaders(res) {
         "img-src 'self' data: blob:",
         "font-src 'self' data:",
         "worker-src 'self' blob:",
-        "connect-src 'self' blob: ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app http:localhost:3000",
+        "connect-src 'self' blob: ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app http://localhost:3000",
         "media-src 'self' blob:",
         "frame-src 'self' https://*.vercel-storage.com",
         "frame-ancestors 'self' https://*.vercel-storage.com",
@@ -65,7 +65,7 @@ export function withSecurityHeaders(res) {
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.headers.set("X-nonce" , nonce);
+  res.headers.set("X-nonce", nonce);
 
   res.headers.set(
     "Permissions-Policy",
@@ -87,8 +87,8 @@ export function withSecurityHeaders(res) {
   }
 
   res.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  res.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-  res.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  res.headers.set("Cross-Origin-Embedder-Policy", "unsafe-none");
+  res.headers.set("Cross-Origin-Resource-Policy", "cross-origin");
 
   return res;
 }
