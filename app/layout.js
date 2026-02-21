@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
         />
       </head>
 
-      <body>
+      <body className="min-h-screen overflow-hidden">
         {/* 🔒 CSP-safe inline script */}
         <Script
           id="csp-nonce"

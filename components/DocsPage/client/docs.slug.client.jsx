@@ -124,7 +124,7 @@ export default function DocsSlugClient({ slug }) {
   /* ---------- Render ---------- */
   return (
     <div className={`h-dvh ${theme === "dark" ? "bg-zinc-900" : "bg-gray-50"}`}>
-      <div className="flex h-full overflow-hidden relative">
+      <div className="flex h-full relative">
         {/* Sidebar */}
         <Panel
           open={sidebarOpen}

@@ -1,7 +1,7 @@
 // components/admin/LogsTable.jsx
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -19,7 +19,7 @@ import {
   Paper,
   TablePagination,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search,
   FilterList,
@@ -29,8 +29,8 @@ import {
   Security,
   Public,
   CalendarToday,
-} from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const LogsTable = ({
   title,
@@ -39,43 +39,43 @@ export const LogsTable = ({
   columns,
   severityFilter = false,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedSeverity, setSelectedSeverity] = useState('all');
+  const [selectedSeverity, setSelectedSeverity] = useState("all");
 
-  const filteredLogs = logs.filter(log => {
-    const matchesSearch = Object.values(log).some(value =>
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredLogs = logs.filter((log) => {
+    const matchesSearch = Object.values(log).some((value) =>
+      String(value).toLowerCase().includes(searchTerm.toLowerCase()),
     );
-    
-    if (severityFilter && selectedSeverity !== 'all') {
+
+    if (severityFilter && selectedSeverity !== "all") {
       return matchesSearch && log.severity === selectedSeverity;
     }
-    
+
     return matchesSearch;
   });
 
   const paginatedLogs = filteredLogs.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   const severityColors = {
-    critical: 'error',
-    high: 'warning',
-    medium: 'info',
-    low: 'primary',
-    info: 'default',
+    critical: "error",
+    high: "warning",
+    medium: "info",
+    low: "primary",
+    info: "default",
   };
 
   const getSeverityIcon = (severity) => {
     switch (severity) {
-      case 'critical':
+      case "critical":
         return <Cancel fontSize="small" />;
-      case 'high':
+      case "high":
         return <Warning fontSize="small" />;
-      case 'medium':
+      case "medium":
         return <Warning fontSize="small" />;
       default:
         return <CheckCircle fontSize="small" />;
@@ -90,7 +90,12 @@ export const LogsTable = ({
     >
       <Card>
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+          >
             <Typography variant="h6" fontWeight={600}>
               {title} ({filteredLogs.length})
             </Typography>
@@ -101,22 +106,36 @@ export const LogsTable = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
-                  startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
+                  startAdornment: (
+                    <Search sx={{ mr: 1, color: "text.secondary" }} />
+                  ),
                 }}
               />
               {severityFilter && (
                 <Box display="flex" gap={0.5}>
-                  {['all', 'critical', 'high', 'medium', 'low', 'info'].map(severity => (
-                    <Chip
-                      key={severity}
-                      label={severity}
-                      size="small"
-                      color={selectedSeverity === severity ? severityColors[severity] : 'default'}
-                      variant={selectedSeverity === severity ? 'filled' : 'outlined'}
-                      onClick={() => setSelectedSeverity(severity)}
-                      icon={severity !== 'all' ? getSeverityIcon(severity) : undefined}
-                    />
-                  ))}
+                  {["all", "critical", "high", "medium", "low", "info"].map(
+                    (severity) => (
+                      <Chip
+                        key={severity}
+                        label={severity}
+                        size="small"
+                        color={
+                          selectedSeverity === severity
+                            ? severityColors[severity]
+                            : "default"
+                        }
+                        variant={
+                          selectedSeverity === severity ? "filled" : "outlined"
+                        }
+                        onClick={() => setSelectedSeverity(severity)}
+                        icon={
+                          severity !== "all"
+                            ? getSeverityIcon(severity)
+                            : undefined
+                        }
+                      />
+                    ),
+                  )}
                 </Box>
               )}
             </Box>
@@ -126,7 +145,7 @@ export const LogsTable = ({
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {columns.map(column => (
+                  {columns.map((column) => (
                     <TableCell key={column.key} sx={{ fontWeight: 600 }}>
                       {column.label}
                     </TableCell>
@@ -141,42 +160,48 @@ export const LogsTable = ({
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      whileHover={{ backgroundColor: 'var(--mui-palette-action-hover)' }}
+                      whileHover={{
+                        backgroundColor: "var(--mui-palette-action-hover)",
+                      }}
                     >
-                      {columns.map(column => (
+                      {columns.map((column) => (
                         <TableCell key={column.key}>
-                          {column.render 
-                            ? column.render(log[column.key], log)
-                            : column.key === 'severity'
-                            ? (
-                              <Chip
-                                label={log[column.key]}
-                                size="small"
-                                color={severityColors[log[column.key]]}
-                                icon={getSeverityIcon(log[column.key])}
-                              />
-                            )
-                            : column.key === 'createdAt' || column.key === 'accessedAt' || column.key === 'lastSeen'
-                            ? new Date(log[column.key]).toLocaleString()
-                            : column.key === 'ipAddress'
-                            ? (
-                              <Box display="flex" alignItems="center" gap={1}>
-                                <Public fontSize="small" />
-                                <Typography variant="body2" fontFamily="monospace">
-                                  {log[column.key]}
-                                </Typography>
-                              </Box>
-                            )
-                            : column.key === 'userAgent'
-                            ? (
-                              <Tooltip title={log[column.key]}>
-                                <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
-                                  {log[column.key]}
-                                </Typography>
-                              </Tooltip>
-                            )
-                            : String(log[column.key] || '')
-                          }
+                          {column.render ? (
+                            column.render(log[column.key], log)
+                          ) : column.key === "severity" ? (
+                            <Chip
+                              label={log[column.key]}
+                              size="small"
+                              color={severityColors[log[column.key]]}
+                              icon={getSeverityIcon(log[column.key])}
+                            />
+                          ) : column.key === "createdAt" ||
+                            column.key === "accessedAt" ||
+                            column.key === "lastSeen" ? (
+                            new Date(log[column.key]).toLocaleString()
+                          ) : column.key === "ipAddress" ? (
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <Public fontSize="small" />
+                              <Typography
+                                variant="body2"
+                                fontFamily="monospace"
+                              >
+                                {log[column.key]}
+                              </Typography>
+                            </Box>
+                          ) : column.key === "userAgent" ? (
+                            <Tooltip title={log[column.key]}>
+                              <Typography
+                                variant="body2"
+                                noWrap
+                                sx={{ maxWidth: 200 }}
+                              >
+                                {log[column.key]}
+                              </Typography>
+                            </Tooltip>
+                          ) : (
+                            String(log[column.key] || "")
+                          )}
                         </TableCell>
                       ))}
                     </motion.tr>
@@ -184,9 +209,15 @@ export const LogsTable = ({
                 </AnimatePresence>
                 {paginatedLogs.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={columns.length} align="center" sx={{ py: 4 }}>
+                    <TableCell
+                      colSpan={columns.length}
+                      align="center"
+                      sx={{ py: 4 }}
+                    >
                       <Box textAlign="center">
-                        <Search sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                        <Search
+                          sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
+                        />
                         <Typography color="text.secondary">
                           No {title.toLowerCase()} found
                         </Typography>

@@ -69,18 +69,24 @@ export default function DocsClient() {
   if (isError) return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
+  <div className="h-screen overflow-hidden">
     <GridBackground
       variant="dots"
       density="lg"
       intensity="xs"
-      className="min-h-screen py-8"
+      className="h-full"
       gradient
       blur
     >
-      <div className="max-w-[90vw] mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <StatsPanel theme={theme} stats={stats} />
+      <div className="max-w-[90vw] h-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 py-8 mt-20">
+        
+        {/* Left Panel (static) */}
+        <div className="lg:col-span-1 hidden lg:block">
+          <StatsPanel theme={theme} stats={stats} />
+        </div>
 
-        <div className="lg:col-span-4 space-y-8">
+        {/* Right Panel (scrollable) */}
+        <div className="lg:col-span-4 space-y-8 overflow-y-auto pr-4">
           <SearchBar
             theme={theme}
             searchTerm={searchTerm}
@@ -96,5 +102,6 @@ export default function DocsClient() {
         </div>
       </div>
     </GridBackground>
-  );
+  </div>
+);
 }

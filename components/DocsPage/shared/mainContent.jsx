@@ -58,7 +58,7 @@ const MainContent = function MainContent({
   if (!selectedChild) return <EmptyState theme={theme} />;
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 relative">
+    <div className="flex flex-col flex-1 min-w-0 relative mt-15">
       {/* ---------------- HEADER ---------------- */}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="flex h-16 items-center justify-between px-4">

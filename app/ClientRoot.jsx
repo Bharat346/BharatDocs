@@ -12,7 +12,7 @@ export default function ClientRoot({ children, nonce }) {
       <QueryProvider>
         <NavBar />
         <SessionInitializer />
-        <main className="mt-15">{children}</main>
+        <main>{children}</main>
       </QueryProvider>
     </ThemeProvider>
   );

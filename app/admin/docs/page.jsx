@@ -9,7 +9,7 @@ import { FileConfiguration } from "@/components/admin/FileConfiguration";
 
 export default function AdminDocsPage() {
   const { theme, mounted } = useThemeContext();
-  
+
   const {
     form,
     folders,
@@ -46,14 +46,16 @@ export default function AdminDocsPage() {
   };
 
   const inputClasses = `w-full mt-1 px-4 py-2 rounded-lg border transition-colors ${
-    theme === 'dark' 
-      ? 'bg-gray-800 border-gray-700 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
-      : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+    theme === "dark"
+      ? "bg-gray-800 border-gray-700 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
   }`;
 
   return (
     <div className="min-h-screen p-4 md:p-6">
-      <div className={`max-w-2xl mx-auto rounded-xl border p-6 space-y-6 shadow-lg ${themeClasses[theme]}`}>
+      <div
+        className={`max-w-2xl mx-auto rounded-xl border p-6 space-y-6 shadow-lg ${themeClasses[theme]}`}
+      >
         <header>
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-2">
             Create Node
@@ -61,15 +63,25 @@ export default function AdminDocsPage() {
           <p className="text-sm opacity-75">
             Create a new folder, document, or note in your collection
           </p>
-          <div className={`mt-2 px-3 py-1 rounded-full text-xs inline-flex items-center gap-1 ${
-            form.category === "docs" 
-              ? theme === 'dark' ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'
-              : theme === 'dark' ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-700'
-          }`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${
-              form.category === "docs" ? 'bg-blue-500' : 'bg-green-500'
-            }`}></div>
-            Currently creating in: <span className="font-medium capitalize">{form.category}</span> collection
+          <div
+            className={`mt-2 px-3 py-1 rounded-full text-xs inline-flex items-center gap-1 ${
+              form.category === "docs"
+                ? theme === "dark"
+                  ? "bg-blue-900/30 text-blue-300"
+                  : "bg-blue-100 text-blue-700"
+                : theme === "dark"
+                  ? "bg-green-900/30 text-green-300"
+                  : "bg-green-100 text-green-700"
+            }`}
+          >
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                form.category === "docs" ? "bg-blue-500" : "bg-green-500"
+              }`}
+            ></div>
+            Currently creating in:{" "}
+            <span className="font-medium capitalize">{form.category}</span>{" "}
+            collection
           </div>
         </header>
 
@@ -77,10 +89,10 @@ export default function AdminDocsPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Category Selection */}
-          <CategorySelector 
-            category={form.category} 
-            onChange={handleCategoryChange} 
-            theme={theme} 
+          <CategorySelector
+            category={form.category}
+            onChange={handleCategoryChange}
+            theme={theme}
           />
 
           {/* Basic Information Section */}
@@ -88,12 +100,10 @@ export default function AdminDocsPage() {
             <h3 className="text-lg font-medium border-b pb-2">
               Basic Information
             </h3>
-            
+
             {/* NAME */}
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Name *
-              </label>
+              <label className="block text-sm font-medium mb-1">Name *</label>
               <input
                 className={inputClasses}
                 placeholder="Enter node name"
@@ -106,9 +116,7 @@ export default function AdminDocsPage() {
 
             {/* SLUG */}
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Slug
-              </label>
+              <label className="block text-sm font-medium mb-1">Slug</label>
               <div className="space-y-2">
                 <input
                   className={inputClasses}
@@ -119,10 +127,9 @@ export default function AdminDocsPage() {
                   required={isFileType}
                 />
                 <p className="text-xs opacity-75">
-                  {isFileType 
+                  {isFileType
                     ? "Required for files. Auto-generated from name."
-                    : "Optional for folders. Auto-generated from name."
-                  }
+                    : "Optional for folders. Auto-generated from name."}
                 </p>
               </div>
             </div>
@@ -140,7 +147,7 @@ export default function AdminDocsPage() {
                   onChange={(e) => handleNodeTypeChange(e.target.value)}
                   disabled={loading}
                 >
-                  {availableNodeTypes.map(type => (
+                  {availableNodeTypes.map((type) => (
                     <option key={type.value} value={type.value}>
                       {type.label}
                     </option>
@@ -174,11 +181,13 @@ export default function AdminDocsPage() {
                 </select>
                 {folders.length === 0 ? (
                   <p className="text-xs opacity-75 mt-1">
-                    No folders exist in the {form.category} collection yet. This will be created at the root level.
+                    No folders exist in the {form.category} collection yet. This
+                    will be created at the root level.
                   </p>
                 ) : (
                   <p className="text-xs opacity-75 mt-1">
-                    {folders.length} folder{folders.length !== 1 ? 's' : ''} available in {form.category} collection
+                    {folders.length} folder{folders.length !== 1 ? "s" : ""}{" "}
+                    available in {form.category} collection
                   </p>
                 )}
               </div>
@@ -200,10 +209,8 @@ export default function AdminDocsPage() {
 
           {/* Settings Section */}
           <div className="space-y-5">
-            <h3 className="text-lg font-medium border-b pb-2">
-              Settings
-            </h3>
-            
+            <h3 className="text-lg font-medium border-b pb-2">Settings</h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* ORDER */}
               <div>
@@ -221,16 +228,17 @@ export default function AdminDocsPage() {
                     step="1"
                   />
                   <div className="flex items-center gap-2 text-sm">
-                    <div className={`w-2 h-2 rounded-full ${
-                      form.orderIndex === nextOrderIndex 
-                        ? 'bg-green-500' 
-                        : 'bg-yellow-500'
-                    }`}></div>
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        form.orderIndex === nextOrderIndex
+                          ? "bg-green-500"
+                          : "bg-yellow-500"
+                      }`}
+                    ></div>
                     <span className="opacity-75">
-                      {form.orderIndex === nextOrderIndex 
+                      {form.orderIndex === nextOrderIndex
                         ? `Auto-calculated position (${form.orderIndex})`
-                        : `Manually set to ${form.orderIndex} (Auto suggests ${nextOrderIndex})`
-                      }
+                        : `Manually set to ${form.orderIndex} (Auto suggests ${nextOrderIndex})`}
                     </span>
                   </div>
                 </div>
@@ -241,16 +249,18 @@ export default function AdminDocsPage() {
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
-                    className={`w-4 h-4 rounded ${theme === 'dark' ? 'accent-blue-500' : ''}`}
+                    className={`w-4 h-4 rounded ${theme === "dark" ? "accent-blue-500" : ""}`}
                     checked={form.isPublished}
-                    onChange={(e) => handleInputChange("isPublished", e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("isPublished", e.target.checked)
+                    }
                     disabled={loading}
                   />
                   <div>
                     <span className="font-medium">Published</span>
                     <p className="text-xs opacity-75 mt-1">
-                      {form.isPublished 
-                        ? "Visible to users" 
+                      {form.isPublished
+                        ? "Visible to users"
                         : "Hidden from users"}
                     </p>
                   </div>
@@ -271,12 +281,12 @@ export default function AdminDocsPage() {
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : form.category === "docs"
-                  ? theme === 'dark'
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-blue-500 hover:bg-blue-600 text-white"
-                  : theme === 'dark'
-                  ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-green-500 hover:bg-green-600 text-white"
+                    ? theme === "dark"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-blue-500 hover:bg-blue-600 text-white"
+                    : theme === "dark"
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-green-500 hover:bg-green-600 text-white"
               }`}
             >
               {loading ? (
@@ -288,7 +298,7 @@ export default function AdminDocsPage() {
                 `Create ${form.category === "docs" ? "Document" : "Note"} ${form.nodeType === "folder" ? "Folder" : "File"}`
               )}
             </button>
-            
+
             {loading && (
               <p className="mt-2 text-sm text-center opacity-75">
                 Creating {form.nodeType} in {form.category} collection...

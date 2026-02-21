@@ -1,16 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import HeroSection from "@/components/HomePage/HeroSection";
-import CTASection from "@/components/HomePage/CTASection";
 import { useThemeContext } from "@/components/ThemeProvider";
 
 export default function HomePage() {
-  const { theme , mounted } = useThemeContext();
+  const { theme } = useThemeContext();
 
   return (
-    <div className={`min-h-[90svh] lg:min-h-screen transition-all duration-300`}>
-      
+    <div className={`min-h-screen transition-all duration-300 overflow-hidden`}>
       <HeroSection theme={theme} />
       <GlobalStyles />
     </div>
