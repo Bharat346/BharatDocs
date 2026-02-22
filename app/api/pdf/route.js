@@ -70,9 +70,13 @@ export async function GET(req) {
       });
     }
 
+    // 🚀 CONGESTION CONTROL & PROGRESSIVE RENDERING
+    // The client (pdf.viewer.js) now sends variable Range requests based on network tier.
+    // We strictly maintain 'nosniff' to ensure the browser processes the stream as it arrives.
     const headers = new Headers();
     headers.set("Content-Type", meta.contentType);
     headers.set("Accept-Ranges", "bytes");
+    headers.set("X-Content-Type-Options", "nosniff");
     headers.set(
       "Cache-Control",
       `public, s-maxage=${SEVEN_DAYS_IN_SECONDS}, stale-while-revalidate=86400, max-age=0`,
@@ -84,6 +88,7 @@ export async function GET(req) {
     if (contentRange) headers.set("Content-Range", contentRange);
     if (contentLength) headers.set("Content-Length", contentLength);
 
+    // upstream.body is a ReadableStream which enables progressive page rendering in the PDF.js worker
     let res = new NextResponse(upstream.body, {
       status: upstream.status,
       headers,
