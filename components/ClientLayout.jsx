@@ -11,7 +11,7 @@ export default function ClientLayout({ children }) {
   return (
     <>
       <NavBar />
-      <main className="overflow-hidden">{children}</main>
+      <main>{children}</main>
     </>
   );
 }

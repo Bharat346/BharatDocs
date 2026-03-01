@@ -26,7 +26,6 @@ export default function NotesGrid({
 }) {
   const { theme } = useThemeContext();
   const isMobile = useIsMobile();
-  console.log(nodes);
 
   const [starred, setStarred] = useState({});
   const [activePdf, setActivePdf] = useState(null);

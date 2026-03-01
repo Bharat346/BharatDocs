@@ -67,7 +67,7 @@ export default function NavItem({
 
         {/* underline animation */}
         <span
-          className={`absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-300 ${
+          className={`absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 rounded-full bg-blue-500 transition-all duration-300 ${
             isActive ? "w-8" : "group-hover:w-8"
           }`}
         />

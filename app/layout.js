@@ -2,8 +2,16 @@
 import "./globals.css";
 import Script from "next/script";
 import { headers } from "next/headers";
+import { Inter } from "next/font/google";
 
 import ClientRoot from "./ClientRoot";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export default function RootLayout({ children }) {
   // Server-only: get headers as object
@@ -11,7 +19,7 @@ export default function RootLayout({ children }) {
   const nonce = h["x-nonce"] ?? ""; // <- no .get()
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <script
           id="theme-init"
@@ -32,7 +40,7 @@ export default function RootLayout({ children }) {
         />
       </head>
 
-      <body className="min-h-screen overflow-hidden">
+      <body className="min-h-screen">
         {/* 🔒 CSP-safe inline script */}
         <Script
           id="csp-nonce"

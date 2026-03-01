@@ -345,8 +345,8 @@ const processHtmlContent = (html, theme, headingRefs = {}) => {
     wrapper.className = cn(
       "mdx-blockquote-wrapper prose-blockquote",
       theme === "dark"
-        ? "bg-gradient(145deg, #1f2937, #101b32ff) text-zinc-300 border-l-2 border-blue-500"
-        : "bg-gradient(145deg, #ffffff, #f3f4f6) text-gray-700 border-l-2 border-blue-600",
+        ? "bg-[#1a1f2e] text-zinc-300 border-l-2 border-blue-500"
+        : "bg-[#f9fafb] text-gray-700 border-l-2 border-blue-600",
     );
 
     // Add quote icon
@@ -461,9 +461,7 @@ const processHtmlContent = (html, theme, headingRefs = {}) => {
     hr.className = cn(
       hr.className,
       "my-12 border-0 h-px prose-hr",
-      theme === "dark"
-        ? "bg-gradient-to-r from-transparent via-zinc-700 to-transparent"
-        : "bg-gradient-to-r from-transparent via-gray-300 to-transparent",
+      theme === "dark" ? "bg-zinc-700" : "bg-gray-300",
     );
   });
 

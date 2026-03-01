@@ -6,61 +6,82 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === Base Tokens === */
+:root {
+  --font-body:
+    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono:
+    "SF Mono", Monaco, "Cascadia Code", "Fira Code", "JetBrains Mono",
+    "Roboto Mono", monospace;
+
+  /* Light theme colors */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-accent: #f59e0b;
+
+  /* Transition speed */
+  --theme-speed: 250ms;
+}
+
+/* Dark mode tokens */
+.dark {
+  --color-bg: #0a0a0a;
+  --color-bg-secondary: #111111;
+  --color-text: #f3f4f6;
+  --color-text-secondary: #9ca3af;
+  --color-border: #1f2937;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93c5fd;
+  --color-accent: #fbbf24;
+}
+
+/* === Global Reset & Base === */
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-body);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition:
+    background-color var(--theme-speed) ease,
+    color var(--theme-speed) ease;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Theme Transition on All Common Elements === */
+*,
+*::before,
+*::after {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: var(--theme-speed);
+  transition-timing-function: ease;
+}
+
+/* Exclude elements where transitions cause jank */
+canvas,
+video,
+img,
+[data-no-transition],
+input,
+textarea {
+  transition: none !important;
+}
+
+/* === PDF Viewer === */
 .rpv-core__canvas-layer canvas {
   image-rendering: optimizeSpeed;
 }
 
-/* Font classes */
-.font-montserrat {
-  font-family: var(--font-montserrat), system-ui, sans-serif;
-}
-
-.font-poppins {
-  font-family: var(--font-poppins), system-ui, sans-serif;
-}
-/* Grid Pattern Background */
-.bg-grid-pattern {
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-}
-
-.dark .bg-grid-pattern {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-}
-
-/* Base colors for the site */
-:root {
-  --color-primary: #3b82f6; /* Blue - Main color for buttons, links, gradients */
-  --color-secondary: #10b981; /* Green - Accents, highlights */
-  --color-accent: #f59e0b; /* Amber/Yellow - Callouts, icons, badges */
-  --grid-bg: #f8f8f8;
-  --grid-dot: rgba(0, 0, 0, 0.1);
-  --particle-color: rgba(99, 102, 241, 0.3);
-  --particle-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
-  --hero-glow-1: rgba(99, 102, 241, 0.15); /* Indigo */
-  --hero-glow-2: rgba(139, 92, 246, 0.1); /* Violet */
-  --hero-glow-3: rgba(56, 189, 248, 0.1); /* Sky */
-}
-
-/* Dark mode overrides */
-.dark {
-  --color-primary: #60a5fa; /* Lighter blue for dark backgrounds */
-  --color-secondary: #34d399; /* Softer green */
-  --color-accent: #fbbf24; /* Softer amber */
-  --grid-bg: #0a0a0a;
-  --grid-dot: rgba(96, 165, 250, 0.18);
-  --particle-color: rgba(56, 189, 248, 0.3);
-  --particle-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
-  --hero-glow-1: rgba(99, 102, 241, 0.25);
-  --hero-glow-2: rgba(139, 92, 246, 0.2);
-  --hero-glow-3: rgba(56, 189, 248, 0.2);
-}
-
-/* Add these styles to your global CSS file */
 .react-pdf__Page {
   margin: 0 auto;
 }
@@ -96,82 +117,35 @@
   pointer-events: all;
 }
 
-/* Custom scrollbar for thumbnails */
+/* === Scrollbar === */
 ::-webkit-scrollbar {
+  width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--color-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--color-text-secondary);
 }
 
-/* Add to your global CSS */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animated-gradient {
-  animation: gradient 15s ease infinite;
-}
-
-.terminal-line {
-  line-height: 1.5;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards;
-}
-
+/* === Keyframes === */
 @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
-}
-
-/* Smooth scroll behavior */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 0px;
 }
 
 @keyframes loading {
@@ -181,4 +155,10 @@ html {
   100% {
     left: 100%;
   }
+}
+
+.terminal-line {
+  line-height: 1.5;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
 }

@@ -7,30 +7,8 @@ export default function HomePage() {
   const { theme } = useThemeContext();
 
   return (
-    <div className={`min-h-screen transition-all duration-300 overflow-hidden`}>
+    <div className="min-h-screen">
       <HeroSection theme={theme} />
-      <GlobalStyles />
     </div>
-  );
-}
-
-function GlobalStyles() {
-  return (
-    <style jsx global>{`
-      @keyframes gradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-      }
-      .animate-gradient {
-        background-size: 200% 200%;
-        animation: gradient 3s ease infinite;
-      }
-      .perspective-1000 {
-        perspective: 1000px;
-      }
-      .preserve-3d {
-        transform-style: preserve-3d;
-      }
-    `}</style>
   );
 }

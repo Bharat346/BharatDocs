@@ -42,7 +42,7 @@ export default function AdminDocsPage() {
   // Theme-based styles
   const themeClasses = {
     light: "bg-white border-gray-200 text-gray-900",
-    dark: "bg-gradient-to-br from-gray-900 to-black border-gray-800 text-white",
+    dark: "bg-neutral-950 border-gray-800 text-white",
   };
 
   const inputClasses = `w-full mt-1 px-4 py-2 rounded-lg border transition-colors ${

@@ -18,7 +18,11 @@ export default function DocsClient() {
   const [searchTerm, setSearchTerm] = useState("");
 
   /* ---------------- React Query with AbortController ---------------- */
-  const { data: rootNodes = [], isLoading, isError } = useQuery({
+  const {
+    data: rootNodes = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["docs", "root"],
     queryFn: ({ signal }) => fetchDocs(signal), // pass AbortSignal
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -36,7 +40,7 @@ export default function DocsClient() {
         fileType: root.fileType,
         updatedAt: root.updatedAt,
       })),
-    [rootNodes]
+    [rootNodes],
   );
 
   /* ---------------- Stats (memoized) ---------------- */
@@ -48,7 +52,7 @@ export default function DocsClient() {
       totalDocs: rootNodes.length,
       totalCollections: rootNodes.length,
       recentDocs: rootNodes.filter(
-        (d) => d.updatedAt && new Date(d.updatedAt) > sevenDaysAgo
+        (d) => d.updatedAt && new Date(d.updatedAt) > sevenDaysAgo,
       ).length,
       pdfCount: rootNodes.filter((d) => d.fileType === "pdf").length,
       folderCount: rootNodes.filter((d) => d.nodeType === "folder").length,
@@ -60,48 +64,44 @@ export default function DocsClient() {
   const filteredCollections = useMemo(
     () =>
       collections.filter((c) =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase())
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()),
       ),
-    [collections, searchTerm]
+    [collections, searchTerm],
   );
 
   if (isLoading) return <DocsLoader theme={theme} />;
-  if (isError) return <div className="p-8 text-red-500">Failed to load documents.</div>;
+  if (isError)
+    return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
-  <div className="h-screen overflow-hidden">
-    <GridBackground
-      variant="dots"
-      density="lg"
-      intensity="xs"
-      className="h-full"
-      gradient
-      blur
-    >
-      <div className="max-w-[90vw] h-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 py-8 mt-20">
-        
-        {/* Left Panel (static) */}
-        <div className="lg:col-span-1 hidden lg:block">
-          <StatsPanel theme={theme} stats={stats} />
-        </div>
+    <div className="h-screen">
+      <GridBackground className="h-full">
+        <div className="max-w-[90vw] h-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 py-8 mt-20">
+          {/* Left Panel (static) */}
+          <div className="lg:col-span-1 hidden lg:block">
+            <StatsPanel theme={theme} stats={stats} />
+          </div>
 
-        {/* Right Panel (scrollable) */}
-        <div className="lg:col-span-4 space-y-8 overflow-y-auto pr-4">
-          <SearchBar
-            theme={theme}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filteredCount={filteredCollections.length}
-          />
+          {/* Right Panel (scrollable) */}
+          <div className="lg:col-span-4 space-y-8 overflow-y-auto pr-4">
+            <SearchBar
+              theme={theme}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredCount={filteredCollections.length}
+            />
 
-          {filteredCollections.length === 0 ? (
-            <EmptyState theme={theme} searchTerm={searchTerm} />
-          ) : (
-            <CollectionsGrid theme={theme} collections={filteredCollections} />
-          )}
+            {filteredCollections.length === 0 ? (
+              <EmptyState theme={theme} searchTerm={searchTerm} />
+            ) : (
+              <CollectionsGrid
+                theme={theme}
+                collections={filteredCollections}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </GridBackground>
-  </div>
-);
+      </GridBackground>
+    </div>
+  );
 }

@@ -65,7 +65,7 @@ export default function Breadcrumbs({
           return (
             <li
               key={`${item.slug}-${index}`}
-              className="flex items-center gap-1 font-roboto"
+              className="flex items-center gap-1"
             >
               {/* Separator */}
               {index > 0 && (

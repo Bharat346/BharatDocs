@@ -71,9 +71,7 @@ export default function Sidebar({
                     }`}
                   ></div>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="text-sm font-roboto truncate">
-                      {child.name}
-                    </div>
+                    <div className="text-sm truncate">{child.name}</div>
                   </div>
                 </button>
               );
