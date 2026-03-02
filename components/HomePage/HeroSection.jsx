@@ -76,7 +76,7 @@ export default function HeroSection({ theme }) {
         {/* Title */}
         <div ref={titleRef} className="max-w-4xl">
           <h1
-            className={`text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] ${
+            className={`text-[clamp(2.5rem,10vw,6rem)] font-bold tracking-tight leading-[1.05] ${
               isDark ? "text-white" : "text-neutral-900"
             }`}
           >
@@ -90,7 +90,7 @@ export default function HeroSection({ theme }) {
         {/* Subtitle */}
         <p
           ref={subtitleRef}
-          className={`mt-8 max-w-2xl text-base sm:text-lg leading-relaxed ${
+          className={`mt-8 max-w-2xl text-[clamp(1rem,2vw,1.25rem)] leading-relaxed ${
             isDark ? "text-neutral-400" : "text-neutral-600"
           }`}
         >
@@ -140,37 +140,6 @@ export default function HeroSection({ theme }) {
               Browse Notes
             </Button>
           </Link>
-        </div>
-
-        {/* Feature Grid */}
-        <div
-          className={`mt-14 grid grid-cols-1 sm:grid-cols-3 gap-10 w-full max-w-4xl ${
-            isDark ? "opacity-50" : "opacity-70"
-          }`}
-        >
-          {[
-            { label: "Speed", value: "Edge Powered" },
-            { label: "Search", value: "Instant Global" },
-            { label: "Design", value: "Focus First" },
-          ].map((item, i) => (
-            <div key={i} className="flex flex-col items-center gap-3">
-              <span className="font-mono text-[11px] tracking-widest uppercase text-neutral-500">
-                {item.label}
-              </span>
-              <div
-                className={`h-px w-10 ${
-                  isDark ? "bg-neutral-700" : "bg-neutral-300"
-                }`}
-              />
-              <span
-                className={`text-sm font-medium ${
-                  isDark ? "text-white" : "text-neutral-900"
-                }`}
-              >
-                {item.value}
-              </span>
-            </div>
-          ))}
         </div>
       </div>
     </section>

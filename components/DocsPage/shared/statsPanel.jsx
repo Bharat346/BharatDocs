@@ -33,7 +33,7 @@ export default function StatsPanel({ theme, stats }) {
           </div>
           <div>
             <h1
-              className={`text-lg sm:text-xl font-bold ${
+              className={`text-[clamp(1.125rem,4vw,1.25rem)] font-bold ${
                 theme === "dark" ? "text-zinc-100" : "text-gray-900"
               }`}
             >
@@ -68,7 +68,7 @@ function QuickStats({ theme, stats }) {
       }`}
     >
       <h2
-        className={`text-base sm:text-lg font-semibold mb-4 ${
+        className={`text-[clamp(1rem,3vw,1.125rem)] font-semibold mb-4 ${
           theme === "dark" ? "text-zinc-100" : "text-gray-900"
         }`}
       >

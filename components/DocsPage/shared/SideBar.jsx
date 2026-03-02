@@ -71,7 +71,9 @@ export default function Sidebar({
                     }`}
                   ></div>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="text-sm truncate">{child.name}</div>
+                    <div className="text-[clamp(0.85rem,2vw,0.9rem)] truncate">
+                      {child.name}
+                    </div>
                   </div>
                 </button>
               );

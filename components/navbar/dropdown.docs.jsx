@@ -19,7 +19,7 @@ export default function DropdownDocuments({ items, theme }) {
             href={child.href}
             prefetch={shouldPrefetch()}
             suppressHydrationWarning
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[clamp(0.85rem,2vw,0.9rem)] transition-colors ${
               theme === "dark"
                 ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                 : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"

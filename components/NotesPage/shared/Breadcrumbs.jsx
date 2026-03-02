@@ -57,7 +57,7 @@ export default function Breadcrumbs({
       aria-label="Breadcrumb"
       className={`flex items-center gap-1 ${className}`}
     >
-      <ol className="flex flex-wrap items-center gap-1 text-sm">
+      <ol className="flex flex-wrap items-center gap-1 text-[clamp(0.85rem,2vw,0.9rem)]">
         {displayItems.map((item, index) => {
           const isLast = index === displayItems.length - 1;
           const isEllipsis = item.isEllipsis;

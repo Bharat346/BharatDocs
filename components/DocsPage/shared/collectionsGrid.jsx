@@ -59,7 +59,7 @@ function CollectionCard({ theme, collection }) {
           </div>
 
           <h3
-            className={`text-xl font-semibold mb-2 transition-colors ${
+            className={`text-[clamp(1.125rem,4vw,1.25rem)] font-semibold mb-2 truncate transition-colors ${
               theme === "dark"
                 ? "text-zinc-100 group-hover:text-blue-400"
                 : "text-gray-900 group-hover:text-blue-500"

@@ -84,7 +84,7 @@ const MainContent = function MainContent({
             </div>
 
             <div className="ml-2 min-w-0">
-              <h1 className="font-semibold truncate">
+              <h1 className="text-[clamp(1rem,3vw,1.25rem)] font-semibold truncate">
                 {frontmatter?.title || selectedChild.name}
               </h1>
             </div>

@@ -7,7 +7,7 @@ export default function Loader() {
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-500 border-t-transparent" />
         </div>
         <div className="mt-8 text-center">
-          <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+          <div className="text-[clamp(1.125rem,4vw,1.375rem)] font-bold text-gray-800 dark:text-gray-100">
             Bharat Docs
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">

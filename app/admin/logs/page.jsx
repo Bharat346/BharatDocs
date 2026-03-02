@@ -154,7 +154,7 @@ export default function AdminLogsPage() {
   // Theme-based styles
   const themeStyles = {
     light: {
-      background: "linear-gradient(135deg, #1976d220 0%, transparent 100%)",
+      background: "none",
       bgColor: "background.default",
       paperBg: "#ffffff",
       textPrimary: "text.primary",
@@ -163,9 +163,9 @@ export default function AdminLogsPage() {
       tabIndicator: "primary",
     },
     dark: {
-      background: "linear-gradient(135deg, #90caf920 0%, transparent 100%)",
-      bgColor: "#121212",
-      paperBg: "#1e1e1e",
+      background: "none",
+      bgColor: "#0a0a0a",
+      paperBg: "#111111",
       textPrimary: "#ffffff",
       textSecondary: "rgba(255, 255, 255, 0.7)",
       buttonVariant: "outlined",
@@ -255,16 +255,14 @@ export default function AdminLogsPage() {
             sx={{
               p: 3,
               mb: 3,
-              background: currentTheme.background,
+              background: "none",
               backgroundColor: currentTheme.paperBg,
               border:
                 theme === "dark"
                   ? "1px solid rgba(255, 255, 255, 0.1)"
-                  : "none",
-              boxShadow:
-                theme === "dark"
-                  ? "0 4px 20px rgba(0, 0, 0, 0.5)"
-                  : "0 4px 20px rgba(0, 0, 0, 0.1)",
+                  : "1px solid rgba(0, 0, 0, 0.05)",
+              boxShadow: "none",
+              borderRadius: 4,
             }}
           >
             <Box
@@ -279,6 +277,7 @@ export default function AdminLogsPage() {
                   fontWeight={800}
                   gutterBottom
                   color={currentTheme.textPrimary}
+                  sx={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}
                 >
                   Security Dashboard
                 </Typography>

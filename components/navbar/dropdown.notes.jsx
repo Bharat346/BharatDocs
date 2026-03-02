@@ -39,7 +39,7 @@ export default function DropdownNotes({ structure, theme }) {
                   href={subject.href}
                   prefetch={shouldPrefetch()}
                   suppressHydrationWarning
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[clamp(0.8rem,2vw,0.85rem)] transition-all ${
                     theme === "dark"
                       ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"

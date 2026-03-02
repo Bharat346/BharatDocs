@@ -36,7 +36,7 @@ export default function EmptyState({ theme, searchTerm }) {
       {/* Title */}
       <h3
         className={`
-          text-lg font-semibold mb-1
+          text-[clamp(1.125rem,4vw,1.25rem)] font-semibold mb-1
           ${isDark ? "text-zinc-200" : "text-gray-800"}
         `}
       >

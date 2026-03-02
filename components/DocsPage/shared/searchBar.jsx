@@ -18,7 +18,7 @@ export default function SearchBar({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2
-            className={`text-2xl font-bold mb-2 ${
+            className={`text-[clamp(1.5rem,5vw,2rem)] font-bold mb-2 ${
               theme === "dark" ? "text-zinc-100" : "text-gray-900"
             }`}
           >

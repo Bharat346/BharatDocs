@@ -173,7 +173,7 @@ export default function TableOfContent({
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
           </div>
-          <h3 className="text-sm font-medium text-blue-500">
+          <h3 className="text-[clamp(0.85rem,2vw,0.9rem)] font-semibold text-blue-500">
             Table of Contents
           </h3>
         </div>
