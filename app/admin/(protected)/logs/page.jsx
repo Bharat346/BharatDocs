@@ -26,6 +26,7 @@ import {
   People,
   Block,
   DataUsage,
+  Logout,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -140,6 +141,15 @@ export default function AdminLogsPage() {
   const handleExport = () => {
     // Export functionality
     console.log("Exporting data...");
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const tabs = [
@@ -316,6 +326,22 @@ export default function AdminLogsPage() {
                     }}
                   >
                     <Download />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Logout">
+                  <IconButton
+                    onClick={handleLogout}
+                    sx={{
+                      color: theme === "dark" ? "#f44336" : "error.main",
+                      "&:hover": {
+                        backgroundColor:
+                          theme === "dark"
+                            ? "rgba(244, 67, 54, 0.1)"
+                            : "rgba(211, 47, 47, 0.1)",
+                      },
+                    }}
+                  >
+                    <Logout />
                   </IconButton>
                 </Tooltip>
               </Box>

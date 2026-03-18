@@ -1,12 +1,16 @@
 // hooks/useNodeForm.js
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { 
-  INITIAL_FORM_STATE, 
-  COLLECTION_IDS, 
+import {
+  INITIAL_FORM_STATE,
+  COLLECTION_IDS,
   FILE_TYPES,
-  NODE_TYPES 
-} from "@/app/admin/docs/config";
-import { slugify, generateFilePath, validateFormData } from "@/app/admin/docs/helper";
+  NODE_TYPES,
+} from "@/app/admin/(protected)/docs/config";
+import {
+  slugify,
+  generateFilePath,
+  validateFormData,
+} from "@/app/admin/(protected)/docs/helper";
 
 export const useNodeForm = () => {
   const [form, setForm] = useState(INITIAL_FORM_STATE);
@@ -17,9 +21,10 @@ export const useNodeForm = () => {
 
   // Filter folders by current collection AND nodeType (only show folders for parent selection)
   const filteredFolders = useMemo(() => {
-    return folders.filter(folder => 
-      folder.collectionId === COLLECTION_IDS[form.category] && 
-      folder.nodeType === "folder"
+    return folders.filter(
+      (folder) =>
+        folder.collectionId === COLLECTION_IDS[form.category] &&
+        folder.nodeType === "folder",
     );
   }, [folders, form.category]);
 
@@ -30,7 +35,7 @@ export const useNodeForm = () => {
 
   // Memoized derived values
   const isFileType = useMemo(() => form.nodeType !== "folder", [form.nodeType]);
-  
+
   // Auto-generated file path preview
   const autoFilePathPreview = useMemo(() => {
     return generateFilePath(form);
@@ -47,23 +52,27 @@ export const useNodeForm = () => {
   // Calculate next order index for the selected parent
   const nextOrderIndex = useMemo(() => {
     // Filter nodes by current collection and parent
-    const collectionNodes = folders.filter(node => 
-      node.collectionId === COLLECTION_IDS[form.category]
+    const collectionNodes = folders.filter(
+      (node) => node.collectionId === COLLECTION_IDS[form.category],
     );
-    
+
     if (form.parentId) {
       // Filter nodes by parentId and get the highest orderIndex
-      const parentNodes = collectionNodes.filter(node => node.parentId === form.parentId);
+      const parentNodes = collectionNodes.filter(
+        (node) => node.parentId === form.parentId,
+      );
       if (parentNodes.length === 0) return 0;
-      
-      const maxIndex = Math.max(...parentNodes.map(node => node.orderIndex));
+
+      const maxIndex = Math.max(...parentNodes.map((node) => node.orderIndex));
       return maxIndex + 1;
     } else {
       // For root nodes (parentId is null)
-      const rootNodes = collectionNodes.filter(node => node.parentId === null);
+      const rootNodes = collectionNodes.filter(
+        (node) => node.parentId === null,
+      );
       if (rootNodes.length === 0) return 0;
-      
-      const maxIndex = Math.max(...rootNodes.map(node => node.orderIndex));
+
+      const maxIndex = Math.max(...rootNodes.map((node) => node.orderIndex));
       return maxIndex + 1;
     }
   }, [folders, form.category, form.parentId]);
@@ -91,9 +100,9 @@ export const useNodeForm = () => {
      AUTO UPDATE ORDER INDEX
   ======================= */
   useEffect(() => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      orderIndex: nextOrderIndex
+      orderIndex: nextOrderIndex,
     }));
   }, [nextOrderIndex]);
 
@@ -102,7 +111,7 @@ export const useNodeForm = () => {
   ======================= */
   useEffect(() => {
     if (form.name) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         slug: slugify(form.name),
       }));
@@ -114,7 +123,7 @@ export const useNodeForm = () => {
   ======================= */
   useEffect(() => {
     const newCollectionId = COLLECTION_IDS[form.category];
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       collectionId: newCollectionId,
     }));
@@ -125,25 +134,31 @@ export const useNodeForm = () => {
   ======================= */
   useEffect(() => {
     if (isFileType && form.slug && form.fileType && !manualFilePath) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         filePath: autoFilePathPreview,
       }));
     }
-  }, [form.slug, form.fileType, isFileType, autoFilePathPreview, manualFilePath]);
+  }, [
+    form.slug,
+    form.fileType,
+    isFileType,
+    autoFilePathPreview,
+    manualFilePath,
+  ]);
 
   /* =======================
      HANDLERS
   ======================= */
   const handleInputChange = useCallback((field, value) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       [field]: value,
     }));
   }, []);
 
   const handleCategoryChange = useCallback((value) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       category: value,
       collectionId: COLLECTION_IDS[value],
@@ -155,7 +170,7 @@ export const useNodeForm = () => {
   }, []);
 
   const handleNodeTypeChange = useCallback((value) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       nodeType: value,
       fileType: value === "folder" ? null : "mdx",
@@ -163,32 +178,38 @@ export const useNodeForm = () => {
     setErrors([]);
   }, []);
 
-  const handleParentChange = useCallback((value) => {
-    const selectedFolder = filteredFolders.find(f => f.id === value);
-    setForm(prev => ({
-      ...prev,
-      parentId: selectedFolder?.id ?? null,
-      parentName: selectedFolder?.name ?? null,
-      parentSlug: selectedFolder?.slug ?? null,
-    }));
-  }, [filteredFolders]);
+  const handleParentChange = useCallback(
+    (value) => {
+      const selectedFolder = filteredFolders.find((f) => f.id === value);
+      setForm((prev) => ({
+        ...prev,
+        parentId: selectedFolder?.id ?? null,
+        parentName: selectedFolder?.name ?? null,
+        parentSlug: selectedFolder?.slug ?? null,
+      }));
+    },
+    [filteredFolders],
+  );
 
-  const handleManualOrderChange = useCallback((value) => {
-    const newOrder = parseInt(value, 10);
-    if (!isNaN(newOrder) && newOrder >= 0) {
-      handleInputChange("orderIndex", newOrder);
-    }
-  }, [handleInputChange]);
+  const handleManualOrderChange = useCallback(
+    (value) => {
+      const newOrder = parseInt(value, 10);
+      if (!isNaN(newOrder) && newOrder >= 0) {
+        handleInputChange("orderIndex", newOrder);
+      }
+    },
+    [handleInputChange],
+  );
 
   const toggleManualFilePath = useCallback(() => {
     setManualFilePath(!manualFilePath);
     if (!manualFilePath) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         filePath: autoFilePathPreview,
       }));
     } else {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         filePath: null,
       }));
@@ -200,7 +221,7 @@ export const useNodeForm = () => {
   ======================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     const validationErrors = validateFormData(form, isFileType);
     if (validationErrors.length > 0) {
@@ -239,10 +260,10 @@ export const useNodeForm = () => {
       }
 
       alert("Node created successfully");
-      
+
       // Refresh folders
       await loadFolders();
-      
+
       // Reset form but keep current category
       setForm({
         ...INITIAL_FORM_STATE,
@@ -251,7 +272,6 @@ export const useNodeForm = () => {
         orderIndex: nextOrderIndex,
       });
       setManualFilePath(false);
-
     } catch (error) {
       console.error("Error creating node:", error);
       setErrors([error.message]);

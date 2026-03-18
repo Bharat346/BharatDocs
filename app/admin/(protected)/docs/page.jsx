@@ -30,6 +30,15 @@ export default function AdminDocsPage() {
     handleSubmit,
   } = useNodeForm();
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   // Don't render until theme is mounted
   if (!mounted) {
     return (
@@ -56,33 +65,45 @@ export default function AdminDocsPage() {
       <div
         className={`max-w-2xl mx-auto rounded-xl border p-6 space-y-6 shadow-lg ${themeClasses[theme]}`}
       >
-        <header>
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-2">
-            Create Node
-          </h2>
-          <p className="text-sm opacity-75">
-            Create a new folder, document, or note in your collection
-          </p>
-          <div
-            className={`mt-2 px-3 py-1 rounded-full text-xs inline-flex items-center gap-1 ${
-              form.category === "docs"
-                ? theme === "dark"
-                  ? "bg-blue-900/30 text-blue-300"
-                  : "bg-blue-100 text-blue-700"
-                : theme === "dark"
-                  ? "bg-green-900/30 text-green-300"
-                  : "bg-green-100 text-green-700"
+        <header className="flex justify-between items-start">
+          <div className="flex-1">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-2">
+              Create Node
+            </h2>
+            <p className="text-sm opacity-75">
+              Create a new folder, document, or note in your collection
+            </p>
+            <div
+              className={`mt-2 px-3 py-1 rounded-full text-xs inline-flex items-center gap-1 ${
+                form.category === "docs"
+                  ? theme === "dark"
+                    ? "bg-blue-900/30 text-blue-300"
+                    : "bg-blue-100 text-blue-700"
+                  : theme === "dark"
+                    ? "bg-green-900/30 text-green-300"
+                    : "bg-green-100 text-green-700"
+              }`}
+            >
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${
+                  form.category === "docs" ? "bg-blue-500" : "bg-green-500"
+                }`}
+              ></div>
+              Currently creating in:{" "}
+              <span className="font-medium capitalize">{form.category}</span>{" "}
+              collection
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              theme === "dark"
+                ? "border-red-900/50 text-red-400 hover:bg-red-900/20"
+                : "border-red-200 text-red-600 hover:bg-red-50"
             }`}
           >
-            <div
-              className={`w-1.5 h-1.5 rounded-full ${
-                form.category === "docs" ? "bg-blue-500" : "bg-green-500"
-              }`}
-            ></div>
-            Currently creating in:{" "}
-            <span className="font-medium capitalize">{form.category}</span>{" "}
-            collection
-          </div>
+            Logout
+          </button>
         </header>
 
         {/* {errors.length > 0 && <ErrorAlert errors={errors} theme={theme} />} */}
