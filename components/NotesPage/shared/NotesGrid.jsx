@@ -151,7 +151,7 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
       <div className="flex-1">
         <div className="flex justify-between items-start">
           <h3
-            className={`font-mono text-[clamp(0.875rem,2vw,1rem)] truncate ${
+            className={`font-black text-[clamp(0.875rem,2vw,1rem)] truncate ${
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
@@ -171,7 +171,7 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
         </div>
 
         <span
-          className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+          className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
             isFolder
               ? theme === "dark"
                 ? "bg-blue-800/30 text-blue-400"

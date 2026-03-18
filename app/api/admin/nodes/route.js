@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db/index";
 import { nodes } from "@/lib/db/schema";
 import { eq, and, or, isNull } from "drizzle-orm";
+import { isAuthenticatedAdmin } from "@/lib/auth-server";
 
 export async function GET() {
   try {
+    if (!(await isAuthenticatedAdmin())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const data = await db
       .select({
         id: nodes.id,
@@ -36,6 +40,9 @@ export async function GET() {
 
 export async function POST(req) {
   try {
+    if (!(await isAuthenticatedAdmin())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await req.json();
 
     const {
@@ -134,13 +141,13 @@ export async function POST(req) {
     return NextResponse.json(node);
   } catch (err) {
     console.error(err);
-    if (err.code === "23503") { 
+    if (err.code === "23503") {
       return NextResponse.json(
         { error: "Referenced collection or parent does not exist" },
         { status: 400 },
       );
     }
-    
+
     if (err.code === "23505") {
       return NextResponse.json(
         { error: "A node with this name or slug already exists" },

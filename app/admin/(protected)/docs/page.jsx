@@ -5,6 +5,7 @@ import { useThemeContext } from "@/components/ThemeProvider";
 import { useNodeForm } from "@/hooks/useNodeForm";
 import { CategorySelector } from "@/components/admin/CategorySelector";
 import { FileConfiguration } from "@/components/admin/FileConfiguration";
+import { Loader2 } from "lucide-react";
 // import { SummaryPanel } from "@/components/admin/SummaryPanel";
 
 export default function AdminDocsPage() {
@@ -30,15 +31,6 @@ export default function AdminDocsPage() {
     handleSubmit,
   } = useNodeForm();
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/admin/logout", { method: "POST" });
-      window.location.href = "/admin/login";
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
   // Don't render until theme is mounted
   if (!mounted) {
     return (
@@ -48,106 +40,83 @@ export default function AdminDocsPage() {
     );
   }
 
-  // Theme-based styles
-  const themeClasses = {
-    light: "bg-white border-gray-200 text-gray-900",
-    dark: "bg-neutral-950 border-gray-800 text-white",
-  };
-
-  const inputClasses = `w-full mt-1 px-4 py-2 rounded-lg border transition-colors ${
-    theme === "dark"
-      ? "bg-gray-800 border-gray-700 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-      : "bg-gray-50 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-  }`;
+  // Theme-based styles for complex dynamic colors (if any)
+  const inputBase =
+    "w-full mt-1 px-4 py-2 rounded-lg border transition-all duration-200 outline-none focus:ring-2 focus:ring-blue-500/50";
+  const inputThemes =
+    "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 focus:border-blue-500 dark:focus:border-blue-400";
+  const inputClasses = `${inputBase} ${inputThemes}`;
 
   return (
-    <div className="min-h-screen p-4 md:p-6">
-      <div
-        className={`max-w-2xl mx-auto rounded-xl border p-6 space-y-6 shadow-lg ${themeClasses[theme]}`}
-      >
-        <header className="flex justify-between items-start">
+    <div className="min-h-screen p-4 md:p-8 bg-transparent">
+      <div className="max-w-3xl mx-auto bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 md:p-10 space-y-8 shadow-sm transition-colors">
+        <header className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div className="flex-1">
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-2">
+            <h2 className="text-3xl font-black tracking-tight mb-2 text-neutral-800 dark:text-neutral-100 uppercase tracking-widest">
               Create Node
             </h2>
-            <p className="text-sm opacity-75">
-              Create a new folder, document, or note in your collection
+            <p className="text-sm text-neutral-500 font-medium">
+              Structure your documentation categories and files
             </p>
+
             <div
-              className={`mt-2 px-3 py-1 rounded-full text-xs inline-flex items-center gap-1 ${
+              className={`mt-4 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest inline-flex items-center gap-2 border ${
                 form.category === "docs"
-                  ? theme === "dark"
-                    ? "bg-blue-900/30 text-blue-300"
-                    : "bg-blue-100 text-blue-700"
-                  : theme === "dark"
-                    ? "bg-green-900/30 text-green-300"
-                    : "bg-green-100 text-green-700"
+                  ? "bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30 text-blue-600 dark:text-blue-400"
+                  : "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400"
               }`}
             >
               <div
-                className={`w-1.5 h-1.5 rounded-full ${
-                  form.category === "docs" ? "bg-blue-500" : "bg-green-500"
-                }`}
-              ></div>
-              Currently creating in:{" "}
-              <span className="font-medium capitalize">{form.category}</span>{" "}
-              collection
+                className={`w-1.5 h-1.5 rounded-full animate-pulse ${form.category === "docs" ? "bg-blue-500" : "bg-emerald-500"}`}
+              />
+              Collection: <span className="font-black">{form.category}</span>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-              theme === "dark"
-                ? "border-red-900/50 text-red-400 hover:bg-red-900/20"
-                : "border-red-200 text-red-600 hover:bg-red-50"
-            }`}
-          >
-            Logout
-          </button>
         </header>
 
-        {/* {errors.length > 0 && <ErrorAlert errors={errors} theme={theme} />} */}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Category Selection */}
+        <form onSubmit={handleSubmit} className="space-y-10">
           <CategorySelector
             category={form.category}
             onChange={handleCategoryChange}
             theme={theme}
           />
 
-          {/* Basic Information Section */}
-          <div className="space-y-5">
-            <h3 className="text-lg font-medium border-b pb-2">
+          <div className="space-y-6">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-3">
               Basic Information
             </h3>
 
-            {/* NAME */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Name *</label>
-              <input
-                className={inputClasses}
-                placeholder="Enter node name"
-                value={form.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-
-            {/* SLUG */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
+                  Node Name *
+                </label>
                 <input
                   className={inputClasses}
-                  placeholder="Auto-generated from name"
+                  placeholder="e.g. Introduction to React"
+                  value={form.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
+                  Slug
+                </label>
+                <input
+                  className={inputClasses}
+                  placeholder="auto-generated-slug"
                   value={form.slug}
                   onChange={(e) => handleInputChange("slug", e.target.value)}
                   disabled={loading}
                   required={isFileType}
                 />
-                <p className="text-xs opacity-75">
+              </div>
+
+              <div className="flex flex-col justify-end pb-1">
+                <p className="text-[10px] text-neutral-400 italic font-medium">
                   {isFileType
                     ? "Required for files. Auto-generated from name."
                     : "Optional for folders. Auto-generated from name."}
@@ -155,11 +124,9 @@ export default function AdminDocsPage() {
               </div>
             </div>
 
-            {/* TYPE and PARENT Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* TYPE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
                   Node Type
                 </label>
                 <select
@@ -176,9 +143,8 @@ export default function AdminDocsPage() {
                 </select>
               </div>
 
-              {/* PARENT */}
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
                   Parent Folder
                 </label>
                 <select
@@ -188,34 +154,16 @@ export default function AdminDocsPage() {
                   disabled={loading}
                 >
                   <option value="">Root (No Parent)</option>
-                  {folders.length === 0 ? (
-                    <option disabled value="">
-                      No folders available in {form.category} collection
+                  {folders.map((folder) => (
+                    <option key={folder.id} value={folder.id}>
+                      {folder.name}
                     </option>
-                  ) : (
-                    folders.map((folder) => (
-                      <option key={folder.id} value={folder.id}>
-                        {folder.name}
-                      </option>
-                    ))
-                  )}
+                  ))}
                 </select>
-                {folders.length === 0 ? (
-                  <p className="text-xs opacity-75 mt-1">
-                    No folders exist in the {form.category} collection yet. This
-                    will be created at the root level.
-                  </p>
-                ) : (
-                  <p className="text-xs opacity-75 mt-1">
-                    {folders.length} folder{folders.length !== 1 ? "s" : ""}{" "}
-                    available in {form.category} collection
-                  </p>
-                )}
               </div>
             </div>
           </div>
 
-          {/* File Configuration */}
           <FileConfiguration
             form={form}
             isFileType={isFileType}
@@ -228,103 +176,77 @@ export default function AdminDocsPage() {
             loading={loading}
           />
 
-          {/* Settings Section */}
-          <div className="space-y-5">
-            <h3 className="text-lg font-medium border-b pb-2">Settings</h3>
+          <div className="space-y-6">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-3">
+              Settings
+            </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* ORDER */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
                   Order Index
                 </label>
-                <div className="space-y-2">
-                  <input
-                    type="number"
-                    className={inputClasses}
-                    value={form.orderIndex}
-                    onChange={(e) => handleManualOrderChange(e.target.value)}
-                    disabled={loading}
-                    min="0"
-                    step="1"
-                  />
-                  <div className="flex items-center gap-2 text-sm">
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        form.orderIndex === nextOrderIndex
-                          ? "bg-green-500"
-                          : "bg-yellow-500"
-                      }`}
-                    ></div>
-                    <span className="opacity-75">
-                      {form.orderIndex === nextOrderIndex
-                        ? `Auto-calculated position (${form.orderIndex})`
-                        : `Manually set to ${form.orderIndex} (Auto suggests ${nextOrderIndex})`}
-                    </span>
-                  </div>
-                </div>
+                <input
+                  type="number"
+                  className={inputClasses}
+                  value={form.orderIndex}
+                  onChange={(e) => handleManualOrderChange(e.target.value)}
+                  disabled={loading}
+                  min="0"
+                />
+                <p className="mt-2 text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+                  Suggests: {nextOrderIndex}
+                </p>
               </div>
 
-              {/* PUBLISH TOGGLE */}
-              <div className="flex items-center pt-6">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className={`w-4 h-4 rounded ${theme === "dark" ? "accent-blue-500" : ""}`}
-                    checked={form.isPublished}
-                    onChange={(e) =>
-                      handleInputChange("isPublished", e.target.checked)
-                    }
-                    disabled={loading}
-                  />
+              <div className="flex items-center h-full pt-6">
+                <label className="flex items-center gap-4 cursor-pointer group">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={form.isPublished}
+                      onChange={(e) =>
+                        handleInputChange("isPublished", e.target.checked)
+                      }
+                      disabled={loading}
+                    />
+                    <div
+                      className={`w-12 h-6 rounded-full transition-colors duration-200 ${form.isPublished ? "bg-blue-600" : "bg-neutral-300 dark:bg-neutral-700"}`}
+                    />
+                    <div
+                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${form.isPublished ? "translate-x-6" : "translate-x-0"}`}
+                    />
+                  </div>
                   <div>
-                    <span className="font-medium">Published</span>
-                    <p className="text-xs opacity-75 mt-1">
-                      {form.isPublished
-                        ? "Visible to users"
-                        : "Hidden from users"}
-                    </p>
+                    <span className="text-sm font-bold text-neutral-700 dark:text-neutral-200 group-hover:text-blue-600 transition-colors">
+                      Visible to Users
+                    </span>
                   </div>
                 </label>
               </div>
             </div>
           </div>
 
-          {/* Summary Section */}
-          {/* <SummaryPanel form={form} isFileType={isFileType} manualFilePath={manualFilePath} filePathValue={filePathValue} theme={theme} /> */}
-
-          {/* SUBMIT BUTTON */}
-          <div className="pt-4">
+          <div className="pt-6">
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+              className={`w-full py-5 px-6 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-xl active:scale-95 ${
                 loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : form.category === "docs"
-                    ? theme === "dark"
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-blue-500 hover:bg-blue-600 text-white"
-                    : theme === "dark"
-                      ? "bg-green-600 hover:bg-green-700 text-white"
-                      : "bg-green-500 hover:bg-green-600 text-white"
+                  ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-400 cursor-not-allowed"
+                  : "bg-neutral-800 dark:bg-white text-white dark:text-black hover:bg-neutral-900 dark:hover:bg-neutral-100"
               }`}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span className="flex items-center justify-center gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   Creating...
                 </span>
               ) : (
-                `Create ${form.category === "docs" ? "Document" : "Note"} ${form.nodeType === "folder" ? "Folder" : "File"}`
+                `Create ${form.nodeType} Node`
               )}
             </button>
-
-            {loading && (
-              <p className="mt-2 text-sm text-center opacity-75">
-                Creating {form.nodeType} in {form.category} collection...
-              </p>
-            )}
           </div>
         </form>
       </div>

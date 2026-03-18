@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { writeAccessLog } from "@/server/access-log";
 import { getIPInfo } from "@/server/ip-info";
 import { firewall } from "@/server/firewall";
@@ -50,27 +50,58 @@ export async function proxy(request) {
   const start = Date.now();
   const { pathname } = request.nextUrl;
 
-  /* ---------- BYPASS STATIC & AUTH ---------- */
   /* ---------- NONCE & HEADERS ---------- */
   const nonce = generateNonce();
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
 
+  /* ---------- BASIC BYPASS ---------- */
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/session") ||
     pathname === "/favicon.ico"
   ) {
     const res = NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
+      request: { headers: requestHeaders },
     });
     return withSecurityHeaders(res, nonce);
   }
 
+  /* ---------- FILE UPLOAD DETECTION ---------- */
+  const contentType = request.headers.get("content-type") || "";
+  const isFileUpload =
+    contentType.includes("application/pdf") ||
+    contentType.includes("multipart/form-data") ||
+    contentType.includes("application/octet-stream");
+
   const ip = getIP(request);
   const ua = request.headers.get("user-agent") ?? "unknown";
+
+  /* ---------- FILE UPLOAD FLOW (SAFE) ---------- */
+  if (isFileUpload) {
+    // Optional firewall
+    const fw = firewall(request);
+    if (fw) return withSecurityHeaders(fw, nonce);
+
+    const res = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+
+    // Async logging
+    queueMicrotask(async () => {
+      await writeAccessLog({
+        ipAddress: ip,
+        userAgent: ua,
+        path: pathname,
+        method: request.method,
+        status: "upload",
+        responseTime: Date.now() - start,
+        ipInfo: await getIPInfo(ip),
+      });
+    });
+
+    return withSecurityHeaders(res, nonce);
+  }
 
   /* ---------- FIREWALL ---------- */
   const fw = firewall(request);
@@ -86,6 +117,7 @@ export async function proxy(request) {
         ipInfo: await getIPInfo(ip),
       });
     });
+
     return withSecurityHeaders(fw, nonce);
   }
 
@@ -96,9 +128,7 @@ export async function proxy(request) {
 
   if (isHTML) {
     const res = NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
+      request: { headers: requestHeaders },
     });
     return withSecurityHeaders(res, nonce);
   }
@@ -109,29 +139,34 @@ export async function proxy(request) {
 
   let sessionValid = verified;
 
-  /* ---------- VERIFY ONLY ONCE ---------- */
+  /* ---------- VERIFY SESSION ONCE ---------- */
   if (!verified && session) {
     sessionValid = await verifySessionOnce(session);
   }
 
   /* ---------- UNAUTHORIZED ---------- */
   if (!sessionValid) {
-    // APIs never redirect
+    // APIs → no redirect
     if (pathname.startsWith("/api/")) {
       return withSecurityHeaders(
         new NextResponse("Unauthorized", { status: 401 }),
+        nonce
       );
     }
 
-    const redirects = Number(request.cookies.get(COOKIE_REDIRECTS)?.value ?? 0);
+    const redirects = Number(
+      request.cookies.get(COOKIE_REDIRECTS)?.value ?? 0
+    );
 
     if (redirects >= MAX_REDIRECTS) {
       const res = new NextResponse("Unauthorized", { status: 401 });
       res.cookies.delete(COOKIE_REDIRECTS);
-      return withSecurityHeaders(res);
+      return withSecurityHeaders(res, nonce);
     }
 
-    const res = NextResponse.redirect(new URL("/api/session/create", BASE_URL));
+    const res = NextResponse.redirect(
+      new URL("/api/session/create", BASE_URL)
+    );
 
     res.cookies.set(COOKIE_REDIRECTS, String(redirects + 1), {
       httpOnly: true,
@@ -146,25 +181,23 @@ export async function proxy(request) {
 
   /* ---------- AUTH SUCCESS ---------- */
   const res = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
+    request: { headers: requestHeaders },
   });
 
-  // Set verified flag ONCE
+  // Set verified cookie once
   if (!verified) {
     res.cookies.set(COOKIE_VERIFIED, "1", {
       httpOnly: true,
       secure: isProd,
       sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 24h trust window
+      maxAge: 60 * 60 * 24,
       path: "/",
     });
   }
 
   res.cookies.delete(COOKIE_REDIRECTS);
 
-  /* ---------- LOG ---------- */
+  /* ---------- LOG SUCCESS ---------- */
   queueMicrotask(async () => {
     await writeAccessLog({
       ipAddress: ip,

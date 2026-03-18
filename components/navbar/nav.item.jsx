@@ -40,10 +40,10 @@ export default function NavItem({
         target={item.external ? "_blank" : undefined}
         rel={item.external ? "noopener noreferrer" : undefined}
         suppressHydrationWarning
-        className={`group relative px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 font-mono transition-all duration-300 ${
+        className={`group relative px-6 py-3 rounded-2xl flex items-center gap-2 font-black uppercase tracking-[0.2em] text-[11px] transition-all duration-300 ${
           theme === "dark"
-            ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
-            : "text-gray-700 hover:text-gray-900 hover:bg-gray-100/50"
+            ? "text-neutral-400 hover:text-white hover:bg-white/10"
+            : "text-neutral-600 hover:text-neutral-900 hover:bg-black/5"
         }`}
       >
         {item.icon && (

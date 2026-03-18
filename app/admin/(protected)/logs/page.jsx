@@ -1,542 +1,309 @@
-// app/admin/logs/page.jsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-  Box,
-  Tabs,
-  Tab,
-  Container,
-  Typography,
-  Button,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  Alert,
-  Snackbar,
-  Paper,
-  alpha,
-} from "@mui/material";
-import {
-  Refresh,
-  Download,
-  Settings,
-  Security,
-  Timeline,
-  People,
-  Block,
-  DataUsage,
-  Logout,
-} from "@mui/icons-material";
-import { motion } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { StatsCards } from "@/components/admin/StatsCards";
-import {
-  HourlyChart,
-  SeverityPieChart,
-  TopIPsChart,
-  TrendChart,
-} from "@/components/admin/Charts";
-import { IPManagement } from "@/components/admin/IPManagement";
-import { LogsTable } from "@/components/admin/LogsTable";
+  Activity,
+  Shield,
+  Globe,
+  Server,
+  RefreshCw,
+  AlertTriangle,
+  Database,
+  ChevronRight,
+  ChevronLeft,
+  Loader2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const TabPanel = ({ children, value, index }) => (
-  <div hidden={value !== index}>
-    {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-  </div>
-);
-
-const fetchLogs = async (timeRange = "7d") => {
-  const res = await fetch(`/api/admin/logs?timeRange=${timeRange}`);
-  if (!res.ok) throw new Error("Failed to fetch logs");
-  return res.json();
-};
-
-const postAction = async (action, data) => {
-  const res = await fetch("/api/admin/logs", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, data }),
-  });
-  if (!res.ok) throw new Error("Failed to perform action");
-  return res.json();
-};
-
-export default function AdminLogsPage() {
-  const [activeTab, setActiveTab] = useState(0);
+export default function SimpleLogsPage() {
+  const [logs, setLogs] = useState({ accessLogs: [], securityEvents: [] });
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("access");
   const [timeRange, setTimeRange] = useState("7d");
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const [theme, setTheme] = useState("light");
 
-  const queryClient = useQueryClient();
-
-  // Detect theme from localStorage or system preference
-  useEffect(() => {
-    // Check localStorage for theme preference
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      setTheme(prefersDark ? "dark" : "light");
-    }
-  }, []);
-
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["admin-logs", timeRange],
-    queryFn: () => fetchLogs(timeRange),
-    refetchInterval: 60000, // Auto-refresh every 60 seconds
-  });
-
-  const mutation = useMutation({
-    mutationFn: ({ action, data }) => postAction(action, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-logs"] });
-    },
-  });
-
-  const handleBlockIP = async (ip, duration, reason) => {
-    await mutation.mutateAsync({
-      action: "blockIP",
-      data: { ip, duration, reason },
-    });
-    setSnackbar({
-      open: true,
-      message: `Successfully blocked ${ip}`,
-      severity: "success",
-    });
-  };
-
-  const handleUnblockIP = async (ip) => {
-    await mutation.mutateAsync({
-      action: "unblockIP",
-      data: { ip },
-    });
-    setSnackbar({
-      open: true,
-      message: `Successfully unblocked ${ip}`,
-      severity: "success",
-    });
-  };
-
-  const handleClearLogs = async (type, days) => {
-    await mutation.mutateAsync({
-      action: "clearLogs",
-      data: { type, days },
-    });
-    setSnackbar({
-      open: true,
-      message: `Cleared logs older than ${days} days`,
-      severity: "success",
-    });
-  };
-
-  const handleExport = () => {
-    // Export functionality
-    console.log("Exporting data...");
-  };
-
-  const handleLogout = async () => {
+  const fetchLogs = async () => {
+    setLoading(true);
     try {
-      await fetch("/api/admin/logout", { method: "POST" });
-      window.location.href = "/admin/login";
-    } catch (error) {
-      console.error("Logout failed:", error);
+      const res = await fetch(
+        `/api/admin/logs?timeRange=${timeRange}&limit=50`,
+      );
+      const data = await res.json();
+      if (data.success) {
+        setLogs(data.data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const tabs = [
-    { label: "Overview", icon: <DataUsage /> },
-    { label: "Security Events", icon: <Security /> },
-    { label: "Access Logs", icon: <Timeline /> },
-    { label: "Visitors", icon: <People /> },
-    { label: "IP Management", icon: <Block /> },
-    { label: "Charts", icon: <Timeline /> },
-  ];
+  useEffect(() => {
+    fetchLogs();
+  }, [timeRange]);
 
-  // Theme-based styles
-  const themeStyles = {
-    light: {
-      background: "none",
-      bgColor: "background.default",
-      paperBg: "#ffffff",
-      textPrimary: "text.primary",
-      textSecondary: "text.secondary",
-      buttonVariant: "contained",
-      tabIndicator: "primary",
-    },
-    dark: {
-      background: "none",
-      bgColor: "#0a0a0a",
-      paperBg: "#111111",
-      textPrimary: "#ffffff",
-      textSecondary: "rgba(255, 255, 255, 0.7)",
-      buttonVariant: "outlined",
-      tabIndicator: "secondary",
-    },
-  };
-
-  const currentTheme = themeStyles[theme];
-
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-          gap: 3,
-          bgcolor: currentTheme.bgColor,
-        }}
-      >
-        <CircularProgress size={60} />
-        <Typography variant="h6" color={currentTheme.textSecondary}>
-          Loading Security Dashboard...
-        </Typography>
-        <Typography variant="body2" color={currentTheme.textSecondary}>
-          Initializing real-time monitoring systems
-        </Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4, bgcolor: currentTheme.bgColor }}>
-        <Alert
-          severity="error"
-          action={
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() => refetch()}
-              sx={{
-                color: theme === "dark" ? "#fff" : "inherit",
-                borderColor:
-                  theme === "dark" ? "rgba(255, 255, 255, 0.3)" : "inherit",
-              }}
-            >
-              Retry
-            </Button>
-          }
-        >
-          Failed to load security data: {error.message}
-        </Alert>
-      </Container>
-    );
-  }
-
-  const {
-    securityEvents = [],
-    accessLogs = [],
-    visitors = [],
-    rateLimits = [],
-    stats = {},
-    hourlyStats = [],
-    topIPs = [],
-    summary = {},
-  } = data?.data || {};
+  const activeLogs =
+    activeTab === "access" ? logs.accessLogs : logs.securityEvents;
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: currentTheme.bgColor,
-        color: currentTheme.textPrimary,
-      }}
-    >
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Paper
-            sx={{
-              p: 3,
-              mb: 3,
-              background: "none",
-              backgroundColor: currentTheme.paperBg,
-              border:
-                theme === "dark"
-                  ? "1px solid rgba(255, 255, 255, 0.1)"
-                  : "1px solid rgba(0, 0, 0, 0.05)",
-              boxShadow: "none",
-              borderRadius: 4,
-            }}
-          >
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mb={2}
+    <div className="max-w-7xl mx-auto py-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 rounded-3xl shadow-sm">
+        <div className="flex items-center gap-5">
+          <div className="bg-emerald-600 p-3 rounded-2xl shadow-lg shadow-emerald-500/20">
+            <Database className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-widest text-neutral-800 dark:text-neutral-100">
+              Audit & Access Logs
+            </h1>
+            <p className="text-sm text-neutral-500 font-medium">
+              Real-time system monitoring and event tracking
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-white dark:bg-black p-1.5 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-inner">
+          {["1d", "7d", "30d"].map((r) => (
+            <button
+              key={r}
+              onClick={() => setTimeRange(r)}
+              className={`px-5 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                timeRange === r
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
+                  : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+              }`}
             >
-              <Box>
-                <Typography
-                  variant="h4"
-                  fontWeight={800}
-                  gutterBottom
-                  color={currentTheme.textPrimary}
-                  sx={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}
-                >
-                  Security Dashboard
-                </Typography>
-                <Typography variant="body1" color={currentTheme.textSecondary}>
-                  Real-time monitoring, threat detection, and IP management
-                </Typography>
-              </Box>
-              <Box display="flex" gap={1}>
-                <Tooltip title="Refresh Data">
-                  <IconButton
-                    onClick={() => refetch()}
-                    sx={{
-                      color: theme === "dark" ? "#90caf9" : "primary.main",
-                      "&:hover": {
-                        backgroundColor:
-                          theme === "dark"
-                            ? "rgba(144, 202, 249, 0.1)"
-                            : "rgba(25, 118, 210, 0.1)",
-                      },
-                    }}
-                  >
-                    <Refresh />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Export Data">
-                  <IconButton
-                    onClick={handleExport}
-                    sx={{
-                      color: theme === "dark" ? "#90caf9" : "primary.main",
-                      "&:hover": {
-                        backgroundColor:
-                          theme === "dark"
-                            ? "rgba(144, 202, 249, 0.1)"
-                            : "rgba(25, 118, 210, 0.1)",
-                      },
-                    }}
-                  >
-                    <Download />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Logout">
-                  <IconButton
-                    onClick={handleLogout}
-                    sx={{
-                      color: theme === "dark" ? "#f44336" : "error.main",
-                      "&:hover": {
-                        backgroundColor:
-                          theme === "dark"
-                            ? "rgba(244, 67, 54, 0.1)"
-                            : "rgba(211, 47, 47, 0.1)",
-                      },
-                    }}
-                  >
-                    <Logout />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Box>
-
-            <Box display="flex" gap={1}>
-              {["1d", "7d", "30d"].map((range) => (
-                <Button
-                  key={range}
-                  variant={
-                    timeRange === range
-                      ? "contained"
-                      : currentTheme.buttonVariant
-                  }
-                  size="small"
-                  onClick={() => setTimeRange(range)}
-                  sx={{
-                    ...(theme === "dark" &&
-                      timeRange !== range && {
-                        color: "rgba(255, 255, 255, 0.7)",
-                        borderColor: "rgba(255, 255, 255, 0.3)",
-                        "&:hover": {
-                          borderColor: "rgba(255, 255, 255, 0.5)",
-                          backgroundColor: "rgba(255, 255, 255, 0.05)",
-                        },
-                      }),
-                  }}
-                >
-                  {range}
-                </Button>
-              ))}
-            </Box>
-          </Paper>
-        </motion.div>
-
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <StatsCards stats={{ ...stats, ...summary }} theme={theme} />
-        </motion.div>
-
-        {/* Tabs */}
-        <Paper
-          sx={{
-            mb: 3,
-            backgroundColor: currentTheme.paperBg,
-            border:
-              theme === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
-          }}
-        >
-          <Tabs
-            value={activeTab}
-            onChange={(_, newValue) => setActiveTab(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              "& .MuiTab-root": {
-                minHeight: 64,
-                color: currentTheme.textSecondary,
-                "&.Mui-selected": {
-                  color: theme === "dark" ? "#90caf9" : "primary.main",
-                },
-              },
-              "& .MuiTabs-indicator": {
-                backgroundColor: theme === "dark" ? "#90caf9" : "primary.main",
-              },
-            }}
+              {r}
+            </button>
+          ))}
+          <button
+            onClick={fetchLogs}
+            disabled={loading}
+            className="p-2 ml-4 text-emerald-600 hover:rotate-180 transition-transform duration-500"
           >
-            {tabs.map((tab, index) => (
-              <Tab
-                key={tab.label}
-                label={tab.label}
-                icon={tab.icon}
-                iconPosition="start"
-                sx={{
-                  "& .MuiSvgIcon-root": {
-                    color:
-                      activeTab === index
-                        ? theme === "dark"
-                          ? "#90caf9"
-                          : "primary.main"
-                        : currentTheme.textSecondary,
-                  },
-                }}
-              />
-            ))}
-          </Tabs>
-        </Paper>
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      </div>
 
-        {/* Tab Panels */}
-        <TabPanel value={activeTab} index={0}>
-          <Box display="grid" gridTemplateColumns={{ md: "1fr 1fr" }} gap={3}>
-            <HourlyChart data={hourlyStats} theme={theme} />
-            <SeverityPieChart events={securityEvents} theme={theme} />
-            <TopIPsChart data={topIPs} theme={theme} />
-            <TrendChart hourlyData={hourlyStats} theme={theme} />
-          </Box>
-        </TabPanel>
+      {/* Stats Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <StatsSummary
+          label="Access Logs"
+          val={logs.accessLogs?.length || 0}
+          icon={<Globe className="w-4 h-4 text-blue-500" />}
+          color="blue"
+        />
+        <StatsSummary
+          label="Security Risks"
+          val={logs.securityEvents?.length || 0}
+          icon={<Shield className="w-4 h-4 text-red-500" />}
+          color="red"
+        />
+        <StatsSummary
+          label="Status"
+          val="Live"
+          icon={<Activity className="w-4 h-4 text-emerald-500" />}
+          color="emerald"
+        />
+        <StatsSummary
+          label="Database"
+          val="Connected"
+          icon={<Server className="w-4 h-4 text-indigo-500" />}
+          color="indigo"
+        />
+      </div>
 
-        <TabPanel value={activeTab} index={1}>
-          <LogsTable
-            title="Security Events"
-            logs={securityEvents}
-            type="security"
-            columns={[
-              { key: "createdAt", label: "Time" },
-              { key: "event", label: "Event" },
-              { key: "severity", label: "Severity" },
-              { key: "ipAddress", label: "IP Address" },
-              { key: "path", label: "Path" },
-              { key: "method", label: "Method" },
-            ]}
-            severityFilter
-            theme={theme}
-          />
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={2}>
-          <LogsTable
-            title="Access Logs"
-            logs={accessLogs}
-            type="access"
-            columns={[
-              { key: "accessedAt", label: "Time" },
-              { key: "ipAddress", label: "IP Address" },
-              { key: "path", label: "Path" },
-              { key: "method", label: "Method" },
-              { key: "statusCode", label: "Status" },
-              { key: "country", label: "Country" },
-            ]}
-            theme={theme}
-          />
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={3}>
-          <LogsTable
-            title="Visitors"
-            logs={visitors}
-            type="visitors"
-            columns={[
-              { key: "username", label: "Username" },
-              { key: "lastSeen", label: "Last Seen" },
-              { key: "firstSeen", label: "First Seen" },
-              { key: "userAgent", label: "User Agent" },
-            ]}
-            theme={theme}
-          />
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={4}>
-          <IPManagement
-            blockedIPs={rateLimits}
-            topIPs={topIPs}
-            onBlockIP={handleBlockIP}
-            onUnblockIP={handleUnblockIP}
-            theme={theme}
-          />
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={5}>
-          <Box display="grid" gridTemplateColumns={{ md: "1fr 1fr" }} gap={3}>
-            <Box>
-              <HourlyChart data={hourlyStats} theme={theme} />
-            </Box>
-            <Box>
-              <SeverityPieChart events={securityEvents} theme={theme} />
-            </Box>
-            <Box gridColumn={{ md: "span 2" }}>
-              <TrendChart hourlyData={hourlyStats} theme={theme} />
-            </Box>
-          </Box>
-        </TabPanel>
-      </Container>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{
-            width: "100%",
-            backgroundColor: theme === "dark" ? "#1e1e1e" : "#fff",
-            color: theme === "dark" ? "#fff" : "inherit",
-          }}
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6">
+        <button
+          onClick={() => setActiveTab("access")}
+          className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all border ${
+            activeTab === "access"
+              ? "bg-neutral-800 dark:bg-white text-white dark:text-black border-transparent shadow-xl"
+              : "bg-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 border-neutral-200 dark:border-neutral-800"
+          }`}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          <Globe className="w-4 h-4" />
+          Access
+        </button>
+        <button
+          onClick={() => setActiveTab("security")}
+          className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all border ${
+            activeTab === "security"
+              ? "bg-neutral-800 dark:bg-white text-white dark:text-black border-transparent shadow-xl"
+              : "bg-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 border-neutral-200 dark:border-neutral-800"
+          }`}
+        >
+          <Shield className="w-4 h-4" />
+          Security
+        </button>
+      </div>
+
+      {/* Table Section */}
+      <div className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                  Timestamp
+                </th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                  IP ADDRESS
+                </th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                  Path / Resource
+                </th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                  Method
+                </th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                  Status / Event
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800/50">
+              <AnimatePresence mode="wait">
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center gap-4">
+                        <Loader2 className="w-8 h-8 text-neutral-400 animate-spin" />
+                        <span className="text-xs font-black uppercase tracking-widest text-neutral-400">
+                          Streaming logs...
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : activeLogs?.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center gap-4 text-neutral-300 dark:text-neutral-700">
+                        <AlertTriangle className="w-12 h-12" />
+                        <span className="text-xs font-black uppercase tracking-widest">
+                          No logs found for this period
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  activeLogs.map((log, i) => (
+                    <motion.tr
+                      key={log.id}
+                      initial={{ opacity: 0, x: -5 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.02 }}
+                      className="group hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-black text-neutral-800 dark:text-neutral-200">
+                            {new Date(
+                              log.accessedAt || log.createdAt,
+                            ).toLocaleTimeString([], {
+                              hour12: false,
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })}
+                          </span>
+                          <span className="text-[9px] text-neutral-400 font-bold uppercase">
+                            {new Date(
+                              log.accessedAt || log.createdAt,
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <code className="text-[10px] font-black text-blue-500 bg-blue-50 dark:bg-blue-900/10 px-2 py-1 rounded-md">
+                          {log.ipAddress}
+                        </code>
+                      </td>
+                      <td className="px-6 py-4 max-w-xs truncate">
+                        <span className="text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
+                          {log.path || log.event}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase border ${
+                            log.method === "POST"
+                              ? "bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-800/30 text-orange-600"
+                              : "bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/30 text-indigo-600"
+                          }`}
+                        >
+                          {log.method || log.severity || "UNKNOWN"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              log.statusCode >= 400 ||
+                              log.severity === "critical"
+                                ? "bg-red-500"
+                                : "bg-emerald-500"
+                            }`}
+                          />
+                          <span className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200">
+                            {log.statusCode ||
+                              (log.severity
+                                ? log.severity.toUpperCase()
+                                : "OK")}
+                          </span>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
+              </AnimatePresence>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer Pagination Placeholder */}
+        <div className="px-6 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-100/30 dark:bg-black/20 flex justify-between items-center">
+          <span className="text-[10px] font-black uppercase text-neutral-400 tracking-widest">
+            Showing last {activeLogs?.length || 0} entries
+          </span>
+          <div className="flex gap-2">
+            <button
+              className="p-2 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors disabled:opacity-30"
+              disabled
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              className="p-2 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors disabled:opacity-30"
+              disabled
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatsSummary({ label, val, icon, color }) {
+  return (
+    <div className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+      <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+        {icon}
+      </div>
+      <div className="flex flex-col gap-1 relative z-10">
+        <span className="text-[10px] uppercase font-black tracking-widest text-neutral-400 mb-1 flex items-center gap-2">
+          {icon} {label}
+        </span>
+        <span
+          className={`text-2xl font-black text-${color}-600 dark:text-${color}-500 transition-all`}
+        >
+          {val}
+        </span>
+      </div>
+    </div>
   );
 }

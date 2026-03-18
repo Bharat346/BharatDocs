@@ -73,11 +73,26 @@ export default function DocsSlugClient({ slug }) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  /* ---------- Auto select first child ---------- */
+  /* ---------- Auto select from URL or first child ---------- */
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
+  const childSlugFromUrl = searchParams?.get("child");
+
   useEffect(() => {
     if (!children.length || selectedChild) return;
+
+    if (childSlugFromUrl) {
+      const match = children.find((c) => c.slug === childSlugFromUrl);
+      if (match) {
+        ric(() => setSelectedChild(match));
+        return;
+      }
+    }
+
     ric(() => setSelectedChild(children[0]));
-  }, [children, selectedChild]);
+  }, [children, selectedChild, childSlugFromUrl]);
 
   /* ---------- Handle child selection ---------- */
   const handleChildSelect = (child) => {
@@ -121,13 +136,13 @@ export default function DocsSlugClient({ slug }) {
   /* ---------- Error Guards ---------- */
   if (childrenError)
     return (
-      <div className="p-10 font-mono text-crimson">
+      <div className="p-10 font-roboto text-crimson">
         Error loading documents cluster.
       </div>
     );
   if (mdxError)
     return (
-      <div className="p-10 font-mono text-crimson">
+      <div className="p-10 font-roboto text-crimson">
         Error retrieving document data.
       </div>
     );

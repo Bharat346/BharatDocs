@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
+import AdminNavbar from "@/components/admin/AdminNavbar";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "default_secret";
 
@@ -18,5 +19,12 @@ export default async function AdminProtectedLayout({ children }) {
     redirect("/admin/login");
   }
 
-  return children;
+  return (
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
+      <AdminNavbar />
+      <main className="max-w-[1600px] mx-auto min-h-[calc(100vh-64px)] overflow-x-hidden">
+        {children}
+      </main>
+    </div>
+  );
 }

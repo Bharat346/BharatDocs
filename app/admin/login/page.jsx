@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function AdminLoginPage() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,13 +25,13 @@ export default function AdminLoginPage() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        router.push("/admin/docs");
+        router.push("/admin");
       } else {
         setError(data.error || "Access Denied");
       }
@@ -74,6 +75,21 @@ export default function AdminLoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground ml-1">
+                Username
+              </label>
+              <Input
+                type="text"
+                placeholder="admin"
+                className="h-12 bg-muted/30 border-muted-foreground/20 focus:border-primary/50 transition-all text-lg"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoading}
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground ml-1">
                 Password

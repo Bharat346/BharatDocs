@@ -1,54 +1,58 @@
-// components/admin/CategorySelector.jsx
-export const CategorySelector = ({ category, onChange, theme }) => {
-  const cardClasses = `px-3 py-2 rounded-lg border transition-all duration-200 ${
-    theme === 'dark' 
-      ? 'bg-gray-800 border-gray-700 hover:bg-gray-700' 
-      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-  }`;
+export const CategorySelector = ({ category, onChange }) => {
+  const cardBase =
+    "px-6 py-4 rounded-2xl border transition-all duration-300 text-left relative group overflow-hidden shadow-sm";
+  const cardTheme =
+    "bg-white dark:bg-neutral-900/50 border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700";
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-lg font-medium">Category</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div className="space-y-4">
+      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-3">
+        Collection Selection
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button
           type="button"
           onClick={() => onChange("docs")}
-          className={`${cardClasses} text-left ${
+          className={`${cardBase} ${cardTheme} ${
             category === "docs"
-              ? theme === 'dark'
-                ? 'ring-2 ring-blue-500 bg-blue-900/20'
-                : 'ring-2 ring-blue-500 bg-blue-50'
-              : ''
+              ? "ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800"
+              : ""
           }`}
         >
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${category === "docs" ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div
+              className={`w-4 h-4 rounded-full border-4 transition-colors ${category === "docs" ? "border-blue-500 bg-white dark:bg-black" : "border-neutral-200 dark:border-neutral-800"}`}
+            />
             <div>
-              <div className="font-medium">📚 Documents</div>
-              <div className="text-xs opacity-75 mt-1">
-                Create folders and documents (.mdx, .pdf, .docx)
+              <div className="font-black text-xs uppercase tracking-widest text-neutral-800 dark:text-neutral-100">
+                📚 Documents
+              </div>
+              <div className="text-[10px] text-neutral-500 font-medium uppercase mt-1">
+                Authorative course materials
               </div>
             </div>
           </div>
         </button>
-        
+
         <button
           type="button"
           onClick={() => onChange("notes")}
-          className={`${cardClasses} text-left ${
+          className={`${cardBase} ${cardTheme} ${
             category === "notes"
-              ? theme === 'dark'
-                ? 'ring-2 ring-green-500 bg-green-900/20'
-                : 'ring-2 ring-green-500 bg-green-50'
-              : ''
+              ? "ring-2 ring-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
+              : ""
           }`}
         >
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${category === "notes" ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div
+              className={`w-4 h-4 rounded-full border-4 transition-colors ${category === "notes" ? "border-emerald-500 bg-white dark:bg-black" : "border-neutral-200 dark:border-neutral-800"}`}
+            />
             <div>
-              <div className="font-medium">📝 Notes</div>
-              <div className="text-xs opacity-75 mt-1">
-                Create folders and notes (.mdx, .pdf, .docx)
+              <div className="font-black text-xs uppercase tracking-widest text-neutral-800 dark:text-neutral-100">
+                📝 Notes
+              </div>
+              <div className="text-[10px] text-neutral-500 font-medium uppercase mt-1">
+                Handwritten and quick study guides
               </div>
             </div>
           </div>
