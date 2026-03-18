@@ -2,15 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeAccessLog } from "@/server/access-log";
 import { getIPInfo } from "@/server/ip-info";
 import { firewall } from "@/server/firewall";
-import { withSecurityHeaders } from "@/server/security-headers";
+import { withSecurityHeaders, generateNonce } from "@/server/security-headers";
 
 /* =========================
    CONFIG
 ========================= */
 const isProd = process.env.NODE_ENV === "production";
-const BASE_URL = isProd
-  ? "https://bhdocs.in"
-  : "http://localhost:3000";
+const BASE_URL = isProd ? "https://bhdocs.in" : "http://localhost:3000";
 
 const MAX_REDIRECTS = 2;
 
@@ -53,12 +51,22 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
   /* ---------- BYPASS STATIC & AUTH ---------- */
+  /* ---------- NONCE & HEADERS ---------- */
+  const nonce = generateNonce();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/session") ||
     pathname === "/favicon.ico"
   ) {
-    return withSecurityHeaders(NextResponse.next());
+    const res = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    return withSecurityHeaders(res, nonce);
   }
 
   const ip = getIP(request);
@@ -78,7 +86,7 @@ export async function proxy(request) {
         ipInfo: await getIPInfo(ip),
       });
     });
-    return withSecurityHeaders(fw);
+    return withSecurityHeaders(fw, nonce);
   }
 
   /* ---------- PAGE NAVIGATION ---------- */
@@ -87,7 +95,12 @@ export async function proxy(request) {
     request.headers.get("accept")?.includes("text/html");
 
   if (isHTML) {
-    return withSecurityHeaders(NextResponse.next());
+    const res = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    return withSecurityHeaders(res, nonce);
   }
 
   /* ---------- SESSION STATE ---------- */
@@ -106,12 +119,11 @@ export async function proxy(request) {
     // APIs never redirect
     if (pathname.startsWith("/api/")) {
       return withSecurityHeaders(
-        new NextResponse("Unauthorized", { status: 401 })
+        new NextResponse("Unauthorized", { status: 401 }),
       );
     }
 
-    const redirects =
-      Number(request.cookies.get(COOKIE_REDIRECTS)?.value ?? 0);
+    const redirects = Number(request.cookies.get(COOKIE_REDIRECTS)?.value ?? 0);
 
     if (redirects >= MAX_REDIRECTS) {
       const res = new NextResponse("Unauthorized", { status: 401 });
@@ -119,9 +131,7 @@ export async function proxy(request) {
       return withSecurityHeaders(res);
     }
 
-    const res = NextResponse.redirect(
-      new URL("/api/session/create", BASE_URL)
-    );
+    const res = NextResponse.redirect(new URL("/api/session/create", BASE_URL));
 
     res.cookies.set(COOKIE_REDIRECTS, String(redirects + 1), {
       httpOnly: true,
@@ -131,11 +141,15 @@ export async function proxy(request) {
       path: "/",
     });
 
-    return withSecurityHeaders(res);
+    return withSecurityHeaders(res, nonce);
   }
 
   /* ---------- AUTH SUCCESS ---------- */
-  const res = NextResponse.next();
+  const res = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 
   // Set verified flag ONCE
   if (!verified) {
@@ -163,14 +177,12 @@ export async function proxy(request) {
     });
   });
 
-  return withSecurityHeaders(res);
+  return withSecurityHeaders(res, nonce);
 }
 
 /* =========================
    MATCHER
 ========================= */
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

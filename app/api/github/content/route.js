@@ -3,6 +3,7 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import remarkMdx from "remark-mdx";
 import remarkRehype from "remark-rehype";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
@@ -43,10 +44,26 @@ export async function GET(request) {
       Authorization: `token ${githubToken}`,
     };
 
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       headers,
-      cache: "no-store", // avoid stale private content
+      cache: "no-store",
     });
+
+    // Fallback logic for missing extensions
+    if (
+      response.status === 404 &&
+      !url.endsWith(".md") &&
+      !url.endsWith(".mdx")
+    ) {
+      const urlsToTry = [url + ".mdx", url + ".md"];
+      for (const nextUrl of urlsToTry) {
+        const nextRes = await fetch(nextUrl, { headers, cache: "no-store" });
+        if (nextRes.ok) {
+          response = nextRes;
+          break;
+        }
+      }
+    }
 
     if (!response.ok) {
       return NextResponse.json(
@@ -54,6 +71,7 @@ export async function GET(request) {
           error: "GitHub API error",
           status: response.status,
           statusText: response.statusText,
+          attemptedUrl: url,
         },
         { status: response.status },
       );
@@ -76,26 +94,70 @@ export async function GET(request) {
     // Parse frontmatter
     const { data: frontmatter, content: markdownContent } = matter(rawContent);
 
-    // Process Markdown -> HTML
-    const processedContent = await unified()
-      .use(remarkParse)
-      .use(remarkGfm)
-      .use(remarkMath)
-      .use(remarkRehype)
-      .use(rehypeHighlight, {
-        detect: true,
-        ignoreMissing: true,
-        aliases: {
-          js: "javascript",
-          ts: "typescript",
-          py: "python",
-          sh: "bash",
-          shell: "bash",
-        },
-      })
-      .use(rehypeKatex)
-      .use(rehypeStringify)
-      .process(markdownContent);
+    const isMdx = data.path.endsWith(".mdx");
+
+    // Process Markdown -> HTML with fallback for MDX parsing errors
+    let processedContent;
+    try {
+      const processor = unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkMath);
+
+      // Only use remarkMdx for .mdx files, or if we want to try it
+      if (isMdx) {
+        processor.use(remarkMdx);
+      }
+
+      processedContent = await processor
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeHighlight, {
+          detect: true,
+          ignoreMissing: true,
+          aliases: {
+            js: "javascript",
+            ts: "typescript",
+            py: "python",
+            sh: "bash",
+            shell: "bash",
+          },
+        })
+        .use(rehypeKatex, {
+          strict: false,
+          trust: true,
+        })
+        .use(rehypeStringify)
+        .process(markdownContent);
+    } catch (parseError) {
+      console.warn(
+        `[GitHub Content API] MDX parsing failed for ${data.path}, falling back to standard Markdown:`,
+        parseError.message,
+      );
+
+      // Fallback: Process without remarkMdx
+      processedContent = await unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkMath)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeHighlight, {
+          detect: true,
+          ignoreMissing: true,
+          aliases: {
+            js: "javascript",
+            ts: "typescript",
+            py: "python",
+            sh: "bash",
+            shell: "bash",
+          },
+        })
+        .use(rehypeKatex, {
+          strict: false,
+          trust: true,
+        })
+        .use(rehypeStringify)
+        .process(markdownContent);
+    }
 
     const html = processedContent.toString();
 

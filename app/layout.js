@@ -13,25 +13,32 @@ const inter = Inter({
   display: "swap",
 });
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
   // Server-only: get headers as object
-  const h = headers();
-  const nonce = h["x-nonce"] ?? ""; // <- no .get()
+  const h = await headers();
+  const nonce = h.get("x-nonce") ?? "";
 
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${inter.className}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           id="theme-init"
           nonce={nonce}
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
         (function() {
           try {
             const stored = localStorage.getItem("theme");
-            const theme = stored === "dark" ? "dark" : "light";
+            const theme = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
             if (theme === "dark") {
               document.documentElement.classList.add("dark");
+            } else {
+              document.documentElement.classList.remove("dark");
             }
           } catch (e) {}
         })();
@@ -40,12 +47,13 @@ export default function RootLayout({ children }) {
         />
       </head>
 
-      <body className="min-h-screen">
-        {/* 🔒 CSP-safe inline script */}
-        <Script
+      <body
+        className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}
+      >
+        {/* 🔒 CSP-safe inline script - standard tag avoids hydration-mismatch stripped nonce error */}
+        <script
           id="csp-nonce"
           nonce={nonce}
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `self.__next_nonce=${JSON.stringify(nonce)};`,
           }}

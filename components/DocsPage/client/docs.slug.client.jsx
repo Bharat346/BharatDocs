@@ -54,9 +54,6 @@ export default function DocsSlugClient({ slug }) {
     staleTime: 10 * 60 * 1000,
   });
 
-  if (childrenError) return <div>Error loading docs</div>;
-  if (mdxError) return <div>Error loading mdx content</div>;
-
   const mdxContent = mdxData?.content ?? "";
   const frontmatter = mdxData?.frontmatter ?? {};
 
@@ -120,6 +117,20 @@ export default function DocsSlugClient({ slug }) {
       document.removeEventListener("touchstart", handleClick);
     };
   }, [isMobile]);
+
+  /* ---------- Error Guards ---------- */
+  if (childrenError)
+    return (
+      <div className="p-10 font-mono text-crimson">
+        Error loading documents cluster.
+      </div>
+    );
+  if (mdxError)
+    return (
+      <div className="p-10 font-mono text-crimson">
+        Error retrieving document data.
+      </div>
+    );
 
   /* ---------- Render ---------- */
   return (

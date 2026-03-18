@@ -149,6 +149,7 @@ const processHtmlContent = (html, theme, headingRefs = {}) => {
   // Process paragraphs
   const paragraphElements = doc.querySelectorAll("p");
   paragraphElements.forEach((p) => {
+    if (p.closest(".katex")) return;
     p.className = cn(
       p.className,
       "mb-6 leading-relaxed prose-paragraph",
@@ -217,8 +218,8 @@ const processHtmlContent = (html, theme, headingRefs = {}) => {
   // Process inline code for keyword styling
   const codeElements = doc.querySelectorAll("code");
   codeElements.forEach((code) => {
-    // Skip if inside pre (code block)
-    if (code.parentElement?.tagName === "PRE") return;
+    // Skip if inside pre (code block) or if part of KaTeX output
+    if (code.parentElement?.tagName === "PRE" || code.closest(".katex")) return;
 
     const codeText = code.textContent || "";
     const trimmedText = codeText.trim();

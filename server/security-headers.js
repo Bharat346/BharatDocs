@@ -1,12 +1,12 @@
-function generateNonce() {
+export function generateNonce() {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array); // Web - crypto
   return btoa(String.fromCharCode(...array));
 }
 
-export function withSecurityHeaders(res) {
+export function withSecurityHeaders(res, overrideNonce) {
   const isProd = process.env.NODE_ENV === "production";
-  const nonce = generateNonce();
+  const nonce = overrideNonce || generateNonce();
 
   const csp = isProd
     ? [
@@ -14,7 +14,7 @@ export function withSecurityHeaders(res) {
         "default-src 'self'",
 
         `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-        `script-src-elem 'self 'nonce-${nonce}' 'strict-dynamic'`,
+        `script-src-elem 'self' 'nonce-${nonce}' 'strict-dynamic'`,
         "style-src 'self' 'unsafe-inline'",
 
         // Images (PDF renders images via canvas)
