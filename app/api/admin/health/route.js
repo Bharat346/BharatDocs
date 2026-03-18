@@ -20,7 +20,7 @@ export async function GET() {
         github: { status: "unknown", message: null },
         env: {
           DATABASE_URL: !!process.env.DATABASE_URL,
-          BLOB_READ_WRITE_TOKEN: !!process.env.BLOB_READ_WRITE_TOKEN,
+          BLOB_READ_WRITE_TOKEN: !!process.env.vercel_rw_token_READ_WRITE_TOKEN,
           github_AT: !!process.env.github_AT,
           SESSION_SECRET: !!process.env.SESSION_SECRET,
         },
