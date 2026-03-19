@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withSecurityHeaders } from "./security-headers";
 
-const ALLOWED_ORIGINS = new Set(["http://localhost:3000", "https://bhdocs.in"]);
+const ALLOWED_ORIGINS = new Set([
+  "http://localhost:3000",
+  "https://bhdocs.in",
+  "https://www.bhdocs.in",
+]);
 
 const BLOCKED_UA = [
   /curl/i,

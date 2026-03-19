@@ -41,6 +41,7 @@ export async function POST(req) {
         sameSite: "lax",
         path: "/",
         maxAge: 60 * 60 * 24, // 1 Day
+        domain: process.env.NODE_ENV === "production" ? ".bhdocs.in" : undefined,
       });
 
       // Store username in a cookie too for the profile
@@ -49,6 +50,7 @@ export async function POST(req) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
+        domain: process.env.NODE_ENV === "production" ? ".bhdocs.in" : undefined,
       });
 
       return response;
