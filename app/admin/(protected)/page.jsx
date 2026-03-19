@@ -61,7 +61,7 @@ export default function AdminProfilePage() {
               {username}
             </h1>
             <p className="text-sm text-neutral-500 mt-2 flex items-center gap-2 font-black uppercase tracking-widest">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               Administrator Access
             </p>
           </div>

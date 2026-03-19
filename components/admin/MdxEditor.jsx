@@ -11,17 +11,15 @@ import remarkGfm from "remark-gfm";
 
 export default function MdxEditor() {
   const { mounted } = useThemeContext();
-  const [content, setContent] = useState("");
-  const [path, setPath] = useState("docs/nodejs/example.mdx");
 
-  if (!mounted) return null;
+  const [content, setContent] = useState("");
+  const [path, setPath] = useState("docs/");
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [savedUrl, setSavedUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Suggestion states
   const [allFolders, setAllFolders] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -38,6 +36,8 @@ export default function MdxEditor() {
     };
     fetchFolders();
   }, []);
+  
+  if (!mounted) return null;
 
   const handlePathChange = (val) => {
     setPath(val);
