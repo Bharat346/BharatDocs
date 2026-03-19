@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useThemeContext } from "@/components/ThemeProvider";
 import {
   Search as SearchIcon,
@@ -20,13 +20,14 @@ function SearchResults() {
   const { theme } = useThemeContext();
   const isDark = theme === "dark";
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [localQuery, setLocalQuery] = useState(query);
 
   const fetchResults = async (q) => {
-    if (!q) {
+    if (!q.trim()) {
       setResults([]);
       setLoading(false);
       return;
@@ -49,9 +50,9 @@ function SearchResults() {
   }, [query]);
 
   const handleSearch = (e) => {
-    // Form submission will naturally update URL with Link prefetch
-    if (!localQuery.trim()) {
-      e.preventDefault();
+    e.preventDefault();
+    if (localQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(localQuery)}`, { scroll: false });
     }
   };
 
@@ -97,20 +98,29 @@ function SearchResults() {
         </div>
 
         {/* Local Search Refinement */}
-        <form action="/search" method="get" className="relative group">
+        <form onSubmit={handleSearch} className="relative group">
           <input
             type="text"
-            name="q"
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch(e);
+              }
+            }}
             placeholder="Search again..."
             className={`w-full text-base sm:text-lg md:text-xl lg:text-2xl font-semibold p-4 sm:p-5 md:p-6 lg:p-8 pr-12 sm:pr-14 md:pr-16 border-2 rounded-2xl sm:rounded-3xl transition-all outline-none placeholder:text-sm sm:placeholder:text-base ${isDark ? "bg-neutral-900 border-neutral-800 text-white focus:border-indigo-500" : "bg-white border-neutral-100 text-neutral-950 focus:border-indigo-500 shadow-sm"} placeholder:font-medium`}
           />
           <button
             type="submit"
-            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-neutral-400 group-hover:text-indigo-600 transition-colors"
+            disabled={loading}
+            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-neutral-400 group-hover:text-indigo-600 transition-colors disabled:opacity-50"
           >
-            <SearchIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" />
+            {loading ? (
+              <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 animate-spin" />
+            ) : (
+              <SearchIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8" />
+            )}
           </button>
         </form>
 

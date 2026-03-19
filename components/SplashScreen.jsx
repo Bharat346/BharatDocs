@@ -47,14 +47,8 @@ export default function SplashScreen({ children }) {
               >
                 <motion.img
                   src="/icon.png"
-                  alt="Bharat Docs"
+                  alt=" "
                   className="w-32 h-32 object-contain drop-shadow-2xl"
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
                 />
               </motion.div>
 

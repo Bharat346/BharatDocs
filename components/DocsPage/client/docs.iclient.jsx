@@ -25,7 +25,7 @@ export default function DocsClient() {
     isError,
   } = useQuery({
     queryKey: ["docs", "root"],
-    queryFn: ({ signal }) => fetchDocs(signal), // pass AbortSignal
+    queryFn: ({ signal }) => fetchDocs(signal),
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 30 * 60 * 1000, // 30 minutes
   });
