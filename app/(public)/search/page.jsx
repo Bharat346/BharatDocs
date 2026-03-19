@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useThemeContext } from "@/components/ThemeProvider";
 import {
   Search as SearchIcon,
@@ -20,7 +20,6 @@ function SearchResults() {
   const { theme } = useThemeContext();
   const isDark = theme === "dark";
   const searchParams = useSearchParams();
-  const router = useRouter();
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,9 +49,9 @@ function SearchResults() {
   }, [query]);
 
   const handleSearch = (e) => {
-    e.preventDefault();
-    if (localQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(localQuery)}`);
+    // Form submission will naturally update URL with Link prefetch
+    if (!localQuery.trim()) {
+      e.preventDefault();
     }
   };
 
@@ -98,9 +97,10 @@ function SearchResults() {
         </div>
 
         {/* Local Search Refinement */}
-        <form onSubmit={handleSearch} className="relative group">
+        <form action="/search" method="get" className="relative group">
           <input
             type="text"
+            name="q"
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
             placeholder="Search again..."

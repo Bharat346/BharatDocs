@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useThemeContext } from "@/components/ThemeProvider";
 import { NAV_ITEMS } from "./nav.config";
 import NavLogo from "./nav.logo";
 import NavDesktop from "./nav.desk";
 import NavMobile from "./nav.mobile";
 import { Menu, X, Sun, Moon, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function NavBar() {
@@ -18,14 +18,15 @@ export default function NavBar() {
   
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
+  const searchLinkRef = useRef(null);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
       setSearchQuery("");
+      // Click the hidden Link for instant navigation
+      searchLinkRef.current?.click();
     }
   };
 
@@ -148,6 +149,14 @@ export default function NavBar() {
                   className={`flex-1 text-lg sm:text-xl font-medium outline-none bg-transparent ${
                     theme === "dark" ? "text-white placeholder:text-zinc-500" : "text-black placeholder:text-gray-400"
                   }`}
+                />
+                {/* Hidden Link for instant navigation */}
+                <Link
+                  ref={searchLinkRef}
+                  href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                  className="hidden"
+                  tabIndex={-1}
+                  aria-hidden="true"
                 />
                 <button
                   type="button"

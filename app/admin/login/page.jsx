@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { MagicCard } from "@/components/ui/magic-card";
@@ -14,7 +14,6 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -31,7 +30,8 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (data.success) {
-        router.push("/admin");
+        // Use window.location for immediate redirect - Link prefetch handles the navigation
+        window.location.href = "/admin";
       } else {
         setError(data.error || "Access Denied");
       }

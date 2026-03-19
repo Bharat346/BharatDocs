@@ -122,7 +122,7 @@ export default function RecentDocs({ theme }) {
           <div className="col-span-full py-20 text-center bg-neutral-100 dark:bg-neutral-900 rounded-[3rem] border-2 border-dashed border-neutral-200 dark:border-neutral-800">
             <Clock className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
             <p className="text-xl font-black text-neutral-400 uppercase tracking-tighter">
-              No recent documents available
+              It might be a Network Error Please Reload the page ....
             </p>
           </div>
         )}

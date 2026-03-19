@@ -15,13 +15,12 @@ import {
   Key,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useThemeContext } from "@/components/ThemeProvider";
 
 export default function AdminProfilePage() {
   const [username, setUsername] = useState("Admin");
   const { mounted } = useThemeContext();
-  const router = useRouter();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const user = Cookies.get("admin_user");
@@ -30,10 +29,19 @@ export default function AdminProfilePage() {
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
     Cookies.remove("admin_session");
     Cookies.remove("admin_user");
-    router.push("/admin/login");
+    // Use window.location for immediate redirect with Link prefetch via onClick
+    setShowLogoutConfirm(false);
+    // Navigate using Link component
+    window.location.href = "/admin/login";
   };
 
   if (!mounted) return null;

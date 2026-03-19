@@ -10,7 +10,7 @@ import { useThemeContext } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import dynamic from "next/dynamic";
 import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 
 // Dynamically load PDF viewer
 const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), {
@@ -29,7 +29,6 @@ export default function NotesGrid({
   const isMobile = useIsMobile();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const router = useRouter();
 
   const [starred, setStarred] = useState({});
   const [activePdf, setActivePdf] = useState(null);
@@ -47,16 +46,16 @@ export default function NotesGrid({
     }
   }, [searchParams, nodes]);
 
-  const handleOpenPdf = (cleanSlug) => {
+  const getUrlWithPdf = (cleanSlug) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("pdf", cleanSlug);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    return `${pathname}?${params.toString()}`;
   };
 
-  const handleClosePdf = () => {
+  const getUrlWithoutPdf = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("pdf");
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    return `${pathname}?${params.toString()}`;
   };
 
   /* ---------------- Load starred from localStorage ---------------- */
@@ -123,23 +122,28 @@ export default function NotesGrid({
               </Card>
             </Link>
           ) : (
-            <Card
+            <Link
               key={node.nodeId}
-              onClick={() => handleOpenPdf(pdfParamValue)}
-              className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
-                theme === "dark"
-                  ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
-                  : "bg-white border-gray-200 hover:bg-gray-50"
-              }`}
+              href={getUrlWithPdf(pdfParamValue)}
+              prefetch={shouldPrefetch()}
+              className={`block`}
             >
-              <ItemContent
-                node={node}
-                theme={theme}
-                isFolder={false}
-                starred={starred}
-                toggleStar={toggleStar}
-              />
-            </Card>
+              <Card
+                className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
+                  theme === "dark"
+                    ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
+                    : "bg-white border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                <ItemContent
+                  node={node}
+                  theme={theme}
+                  isFolder={false}
+                  starred={starred}
+                  toggleStar={toggleStar}
+                />
+              </Card>
+            </Link>
           );
         })}
       </div>

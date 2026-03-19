@@ -5,12 +5,11 @@ import gsap from "gsap";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ChevronRight, Notebook, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function HeroSection({ theme }) {
   const isDark = theme === "dark";
-  const router = useRouter();
   const [query, setQuery] = useState("");
+  const searchLinkRef = useRef(null);
 
   const containerRef = useRef(null);
   const elementsRef = useRef([]);
@@ -24,7 +23,7 @@ export default function HeroSection({ theme }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query)}`);
+      searchLinkRef.current?.click();
     }
   };
 
@@ -85,6 +84,14 @@ export default function HeroSection({ theme }) {
             >
               <Search className="w-6 h-6 md:w-8 md:h-8" />
             </button>
+            {/* Hidden Link for instant navigation */}
+            <Link
+              ref={searchLinkRef}
+              href={`/search?q=${encodeURIComponent(query)}`}
+              className="hidden"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
           </form>
         </div>
 
