@@ -6,13 +6,28 @@ import { NAV_ITEMS } from "./nav.config";
 import NavLogo from "./nav.logo";
 import NavDesktop from "./nav.desk";
 import NavMobile from "./nav.mobile";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function NavBar() {
   const { theme, toggleTheme, mounted } = useThemeContext();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,6 +62,17 @@ export default function NavBar() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className={`p-2 rounded-lg transition-colors ${
+              theme === "dark"
+                ? "hover:bg-gray-800 text-gray-300 hover:text-white"
+                : "hover:bg-gray-100 text-gray-600 hover:text-black"
+            }`}
+          >
+            <Search className="w-5 h-5" />
+          </button>
+
           <button
             onClick={toggleTheme}
             suppressHydrationWarning
@@ -91,6 +117,52 @@ export default function NavBar() {
           closeMobile={closeMobile}
         />
       </div>
+
+      {/* Global Search Modal */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh]">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsSearchOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className={`relative z-[201] w-[90%] max-w-2xl rounded-2xl shadow-2xl overflow-hidden border ${
+                theme === "dark" ? "bg-zinc-900 border-zinc-800" : "bg-white border-gray-200"
+              }`}
+            >
+              <form onSubmit={handleSearchSubmit} className="flex items-center p-4 sm:p-5">
+                <Search className={`w-6 h-6 mr-4 ${theme === "dark" ? "text-zinc-500" : "text-gray-400"}`} />
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Search documentation, notes, and topics..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`flex-1 text-lg sm:text-xl font-medium outline-none bg-transparent ${
+                    theme === "dark" ? "text-white placeholder:text-zinc-500" : "text-black placeholder:text-gray-400"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className={`ml-4 p-1 rounded-md transition-colors ${
+                    theme === "dark" ? "hover:bg-zinc-800 text-zinc-400" : "hover:bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

@@ -22,7 +22,7 @@ export default function Panel({ open, mobile, side, panelRef, children }) {
 
   /* ---------- Desktop ---------- */
   return (
-    <aside className="hidden lg:block w-72 h-full mt-15">
+    <aside className="hidden lg:flex flex-col w-72 h-[calc(100%-60px)] mt-[60px]">
       {children}
     </aside>
   );

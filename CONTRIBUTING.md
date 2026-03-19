@@ -44,7 +44,7 @@ Before you begin contributing, please:
 
 ### Prerequisites
 
-- **Node.js** 18.17 or higher
+- **Node.js** 20.11.1 or higher
 - **npm** or **pnpm**
 - **Neon PostgreSQL** account (or local PostgreSQL)
 - **Git** for version control
@@ -53,7 +53,7 @@ Before you begin contributing, please:
 
 ```bash
 # 1. Clone your fork
-git clone https://github.com/YOUR_USERNAME/docs.git
+git clone https://github.com/Bharat346/BharatDocs.git
 cd docs
 
 # 2. Install dependencies

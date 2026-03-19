@@ -36,7 +36,7 @@ export default function TableOfContent({
       const next = { ...prev };
       for (const h of headings) {
         if (h.level <= 2 && next[h.id] === undefined) {
-          next[h.id] = true;
+          next[h.id] = false; // Initially only headings show, not subheadings
         }
       }
       return next;
@@ -110,10 +110,10 @@ export default function TableOfContent({
 
   /* ---------------- Render node ---------------- */
   const renderNode = (node) => {
-    const open = openMap[node.id] ?? true;
+    const open = openMap[node.id] ?? false; // Default to closed (no subheadings shown initially)
 
     return (
-      <div key={node.key} className="pl-3">
+      <div key={node.key} className="pl-1">
         <Collapsible
           open={open}
           onOpenChange={(v) => setOpenMap((m) => ({ ...m, [node.id]: v }))}
@@ -160,15 +160,13 @@ export default function TableOfContent({
   return (
     <aside
       className={cn(
-        "flex flex-col h-full border-l",
-        isDark
-          ? "bg-zinc-900/95 border-zinc-800"
-          : "bg-white/95 border-gray-200",
+        "flex flex-col h-full",
+        isDark ? "bg-transparent text-white" : "bg-transparent text-neutral-900",
         className,
       )}
     >
       {/* Header */}
-      <div className={cn("p-4 sticky top-0 z-10", isMobile && "pt-20")}>
+      <div className={cn("px-2 py-4 sticky top-0 z-10", isMobile && "pt-20")}>
         <div className="flex items-center gap-2 pt-2 pb-5">
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
@@ -180,7 +178,7 @@ export default function TableOfContent({
       </div>
 
       {/* Body */}
-      <div className={cn("h-full", !isMobile && "overflow-y-auto")}>
+      <div className={cn("flex-1 px-1 pb-4", !isMobile && "overflow-y-auto")}>
         {headings.length === 0 ? (
           <p className="text-sm text-center text-muted-foreground py-8">
             This document has no headings

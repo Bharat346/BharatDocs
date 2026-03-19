@@ -10,6 +10,7 @@ import { useThemeContext } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import dynamic from "next/dynamic";
 import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 // Dynamically load PDF viewer
 const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), {
@@ -26,9 +27,37 @@ export default function NotesGrid({
 }) {
   const { theme } = useThemeContext();
   const isMobile = useIsMobile();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [starred, setStarred] = useState({});
   const [activePdf, setActivePdf] = useState(null);
+
+  /* ---------------- Sync URL with Active PDF ---------------- */
+  useEffect(() => {
+    const pdfParam = searchParams.get("pdf");
+    if (pdfParam) {
+      // Find the actual node to get the secure filePath
+      const match = nodes?.find((n) => n.slug === pdfParam || n.name === pdfParam);
+      const urlToEmulate = match ? (match.filePath || match.slug) : pdfParam;
+      if (urlToEmulate !== activePdf) setActivePdf(urlToEmulate);
+    } else if (!pdfParam && activePdf) {
+      setActivePdf(null);
+    }
+  }, [searchParams, nodes]);
+
+  const handleOpenPdf = (cleanSlug) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("pdf", cleanSlug);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const handleClosePdf = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("pdf");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   /* ---------------- Load starred from localStorage ---------------- */
   useEffect(() => {
@@ -68,7 +97,7 @@ export default function NotesGrid({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
         {nodes.map((node) => {
           const isFolder = node.nodeType === "folder";
-          const pdfUrl = node.filePath || node.slug;
+          const pdfParamValue = node.slug || node.name;
 
           return isFolder ? (
             <Link
@@ -96,7 +125,7 @@ export default function NotesGrid({
           ) : (
             <Card
               key={node.nodeId}
-              onClick={() => setActivePdf(pdfUrl)}
+              onClick={() => handleOpenPdf(pdfParamValue)}
               className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
                 theme === "dark"
                   ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
@@ -128,7 +157,7 @@ export default function NotesGrid({
             <Suspense fallback={<NotesLoader />}>
               <PDFViewer
                 fileUrl={activePdf}
-                onClose={() => setActivePdf(null)}
+                onClose={handleClosePdf}
               />
             </Suspense>
           </div>
@@ -141,24 +170,25 @@ export default function NotesGrid({
 /* ================= ITEM ================= */
 function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3 min-w-0">
       {isFolder ? (
-        <Folder className="h-6 w-6 text-blue-400" />
+        <Folder className="h-6 w-6 text-blue-400 shrink-0" />
       ) : (
-        <FileText className="h-6 w-6 text-green-400" />
+        <FileText className="h-6 w-6 text-green-400 shrink-0" />
       )}
 
-      <div className="flex-1">
-        <div className="flex justify-between items-start">
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <div className="flex justify-between items-start gap-3 mb-1.5">
           <h3
-            className={`font-black text-[clamp(0.875rem,2vw,1rem)] truncate ${
+            title={node.name}
+            className={`font-black text-[clamp(0.875rem,2vw,1rem)] truncate flex-1 min-w-0 ${
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
             {node.name}
           </h3>
 
-          <button onClick={(e) => toggleStar(node, e)}>
+          <button onClick={(e) => toggleStar(node, e)} className="shrink-0 mt-0.5 relative z-10 p-1 -m-1">
             <Star
               size={14}
               className={
@@ -170,19 +200,21 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
           </button>
         </div>
 
-        <span
-          className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-            isFolder
-              ? theme === "dark"
-                ? "bg-blue-800/30 text-blue-400"
-                : "bg-blue-50 text-blue-600"
-              : theme === "dark"
-                ? "bg-green-800/30 text-green-400"
-                : "bg-green-50 text-green-600"
-          }`}
-        >
-          {isFolder ? "Folder" : node.fileType || "File"}
-        </span>
+        <div>
+          <span
+            className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+              isFolder
+                ? theme === "dark"
+                  ? "bg-blue-800/30 text-blue-400"
+                  : "bg-blue-50 text-blue-600"
+                : theme === "dark"
+                  ? "bg-green-800/30 text-green-400"
+                  : "bg-green-50 text-green-600"
+            }`}
+          >
+            {isFolder ? "Folder" : node.fileType || "File"}
+          </span>
+        </div>
       </div>
     </div>
   );

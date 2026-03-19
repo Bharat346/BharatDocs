@@ -4,12 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Sparkles,
-  ChevronRight,
-  Notebook,
-  Search,
-} from "lucide-react";
+import { Sparkles, ChevronRight, Notebook, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function HeroSection({ theme }) {
@@ -103,8 +98,8 @@ export default function HeroSection({ theme }) {
               size="lg"
               className={`hero-btn-primary h-14 sm:h-16 px-8 sm:px-10 text-[0.8rem] sm:text-[0.9rem] font-bold uppercase tracking-[0.08em] w-full sm:min-w-[240px] rounded-2xl transition-all duration-300 group ${
                 isDark
-                  ? "bg-white text-black"
-                  : "bg-neutral-950 text-white"
+                  ? "bg-white text-black hover:bg-black hover:text-white border-2 border-white"
+                  : "bg-neutral-950 text-white hover:bg-white hover:text-black border-2 border-black"
               }`}
             >
               Explore Docs
@@ -118,8 +113,8 @@ export default function HeroSection({ theme }) {
               size="lg"
               className={`hero-btn-outline h-14 sm:h-16 px-8 sm:px-10 text-[0.8rem] sm:text-[0.9rem] font-bold uppercase tracking-[0.08em] w-full sm:min-w-[240px] rounded-2xl border-2 transition-all duration-300 ${
                 isDark
-                  ? "border-neutral-700 bg-transparent text-white"
-                  : "border-neutral-200 bg-transparent text-neutral-950"
+                  ? "border-neutral-700 bg-transparent text-white hover:bg-white hover:text-black border-2 border-black"
+                  : "border-neutral-200 bg-transparent text-neutral-950 hover:bg-black hover:text-white border-2 border-black"
               }`}
             >
               <Notebook className="mr-3 w-5 h-5" />

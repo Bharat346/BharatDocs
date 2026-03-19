@@ -4,18 +4,19 @@ import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useThemeContext } from "@/components/ThemeProvider";
 
-import GridBackground from "@/components/GridBG";
-import StatsPanel from "@/components/DocsPage/shared/statsPanel";
 import SearchBar from "@/components/DocsPage/shared/searchBar";
 import CollectionsGrid from "@/components/DocsPage/shared/collectionsGrid";
 import EmptyState from "@/components/DocsPage/shared/EmptyState";
 import DocsLoader from "@/components/DocsPage/shared/DocsLoader";
 
 import { fetchDocs } from "@/components/DocsPage/lib/docs.api.js";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function DocsClient() {
   const { theme } = useThemeContext();
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("name");
 
   /* ---------------- React Query with AbortController ---------------- */
   const {
@@ -43,65 +44,72 @@ export default function DocsClient() {
     [rootNodes],
   );
 
-  /* ---------------- Stats (memoized) ---------------- */
-  const stats = useMemo(() => {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  /* ---------------- Filtered & Sorted collections (memoized) ---------------- */
+  const filteredCollections = useMemo(() => {
+    let result = collections.filter((c) =>
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
-    return {
-      totalDocs: rootNodes.length,
-      totalCollections: rootNodes.length,
-      recentDocs: rootNodes.filter(
-        (d) => d.updatedAt && new Date(d.updatedAt) > sevenDaysAgo,
-      ).length,
-      pdfCount: rootNodes.filter((d) => d.fileType === "pdf").length,
-      folderCount: rootNodes.filter((d) => d.nodeType === "folder").length,
-      avgUpdateFrequency: "Weekly",
-    };
-  }, [rootNodes]);
+    result.sort((a, b) => {
+      if (sortBy === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === "updated") {
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        return dateB - dateA; // Newest first
+      }
+      return 0;
+    });
 
-  /* ---------------- Filtered collections (memoized) ---------------- */
-  const filteredCollections = useMemo(
-    () =>
-      collections.filter((c) =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    [collections, searchTerm],
-  );
+    return result;
+  }, [collections, searchTerm, sortBy]);
 
   if (isLoading) return <DocsLoader theme={theme} />;
   if (isError)
     return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
-    <div className="h-screen">
-      <GridBackground className="h-full">
-        <div className="max-w-[90vw] h-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 py-8 mt-20">
-          {/* Left Panel (static) */}
-          <div className="lg:col-span-1 hidden lg:block">
-            <StatsPanel theme={theme} stats={stats} />
-          </div>
-
-          {/* Right Panel (scrollable) */}
-          <div className="lg:col-span-4 space-y-8 overflow-y-auto pr-4">
-            <SearchBar
-              theme={theme}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              filteredCount={filteredCollections.length}
-            />
-
-            {filteredCollections.length === 0 ? (
-              <EmptyState theme={theme} searchTerm={searchTerm} />
-            ) : (
-              <CollectionsGrid
-                theme={theme}
-                collections={filteredCollections}
-              />
-            )}
-          </div>
+    <div
+      className={`min-h-screen pt-24 pb-20 px-6 transition-colors duration-500 ${
+        theme === "dark"
+          ? "bg-[#0a0a0a] text-white"
+          : "bg-white text-neutral-900"
+      }`}
+    >
+      <div className="max-w-4xl mx-auto space-y-12">
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <Link
+            href="/"
+            className="group flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-indigo-500 transition-colors self-start"
+          >
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />{" "}
+            Back Home
+          </Link>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
+            Docs{" "}
+            <span className="text-indigo-600 dark:text-indigo-400">
+              Library
+            </span>
+          </h1>
         </div>
-      </GridBackground>
+
+        <div className="space-y-8">
+          <SearchBar
+            theme={theme}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filteredCount={filteredCollections.length}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+          />
+
+          {filteredCollections.length === 0 ? (
+            <EmptyState theme={theme} searchTerm={searchTerm} />
+          ) : (
+            <CollectionsGrid theme={theme} collections={filteredCollections} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

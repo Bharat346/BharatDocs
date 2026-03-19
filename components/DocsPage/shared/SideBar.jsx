@@ -14,8 +14,8 @@ export default function Sidebar({
     <aside
       className={`h-full pt-20 flex flex-col ${
         theme === "dark"
-          ? "bg-zinc-900/95 border-zinc-800 backdrop-blur-sm shadow-xl"
-          : "bg-white/95 border-gray-200 backdrop-blur-sm shadow-lg"
+          ? "bg-transparent text-white"
+          : "bg-transparent text-neutral-900"
       } ${isMobile ? "w-full" : "w-72"}`}
     >
       {/* Content */}

@@ -2,12 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Calendar,
-  Clock,
   ChevronUp,
   Layers,
   ChevronRight,
@@ -38,29 +35,13 @@ const MainContent = function MainContent({
 
   const { showScrollTop, scrollToTop } = useScrollDetector(scrollRef, 300);
 
-  /* ---------------- Metadata ---------------- */
-  const metadata = selectedChild
-    ? [
-        {
-          icon: Calendar,
-          label: "Updated",
-          value: new Date(selectedChild.updatedAt).toLocaleDateString(),
-        },
-        {
-          icon: Clock,
-          label: "ID",
-          value: selectedChild.nodeId?.slice(0, 8),
-        },
-      ]
-    : [];
-
   /* ---------------- Empty State ---------------- */
   if (!selectedChild) return <EmptyState theme={theme} />;
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 relative mt-15">
+    <div className={`flex flex-col flex-1 min-w-0 relative mt-15 ${theme === "dark" ? "bg-neutral-900/50" : "bg-neutral-50"}`}>
       {/* ---------------- HEADER ---------------- */}
-      <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
+      <header className={`sticky top-0 z-30 border-b backdrop-blur ${theme === "dark" ? "bg-neutral-900/80 border-neutral-800" : "bg-neutral-50/80 border-neutral-200"}`}>
         <div className="flex h-16 items-center justify-between px-4">
           <div
             className={`flex items-center gap-2 min-w-0 ${
@@ -112,17 +93,6 @@ const MainContent = function MainContent({
                 theme === "dark" ? "prose-invert" : ""
               }`}
             >
-              {metadata.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {metadata.map((m, i) => (
-                    <Badge key={i} variant="secondary">
-                      <m.icon className="mr-1 h-3 w-3" />
-                      {m.label}: {m.value}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
               <MDXContent
                 content={mdxContent}
                 theme={theme}

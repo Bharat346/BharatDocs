@@ -43,33 +43,19 @@ export default function SplashScreen({ children }) {
                 initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="relative"
+                className="relative flex items-center justify-center"
               >
-                {/* Pulsing ring */}
-                <motion.div
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
+                <motion.img
+                  src="/icon.png"
+                  alt="Bharat Docs"
+                  className="w-32 h-32 object-contain drop-shadow-2xl"
+                  animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{
-                    duration: 2,
+                    duration: 3,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute inset-0 rounded-2xl bg-indigo-500/20"
                 />
-
-                {/* Logo container */}
-                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 shadow-2xl shadow-indigo-500/30 flex items-center justify-center">
-                  <motion.img
-                    src="/icon.png"
-                    alt="Bharat Docs"
-                    className="w-12 h-12 object-contain drop-shadow-lg"
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </div>
               </motion.div>
 
               {/* Brand name */}

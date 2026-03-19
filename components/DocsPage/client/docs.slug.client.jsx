@@ -117,6 +117,7 @@ export default function DocsSlugClient({ slug }) {
       const t = tocRef.current;
 
       if ((s && s.contains(e.target)) || (t && t.contains(e.target))) return;
+      if (e.target.closest("button")) return; // ignore toggle button clicks
 
       ric(() => {
         setSidebarOpen(false);
@@ -149,7 +150,7 @@ export default function DocsSlugClient({ slug }) {
 
   /* ---------- Render ---------- */
   return (
-    <div className={`h-dvh ${theme === "dark" ? "bg-zinc-900" : "bg-gray-50"}`}>
+    <div className={`h-dvh transition-colors duration-500 overflow-hidden ${theme === "dark" ? "bg-[#0a0a0a] text-white" : "bg-white text-neutral-900"}`}>
       <div className="flex h-full relative">
         {/* Sidebar */}
         <Panel
