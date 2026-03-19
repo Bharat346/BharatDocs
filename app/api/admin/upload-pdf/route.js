@@ -12,7 +12,7 @@ export async function POST(request) {
   const folder = searchParams.get("folder") || "notes";
 
   // Check if BLOB_READ_WRITE_TOKEN is configured
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  if (!process.env.vercel_rw_token_READ_WRITE_TOKEN) {
     return NextResponse.json(
       { error: "Vercel Blob token not configured" },
       { status: 500 },
@@ -27,6 +27,7 @@ export async function POST(request) {
 
   const blob = await put(`${cleanFolder}/${filename}`, body, {
     access: "public",
+    token: process.env.vercel_rw_token_READ_WRITE_TOKEN,
   });
 
   return NextResponse.json(blob);

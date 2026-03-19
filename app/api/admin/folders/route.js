@@ -9,7 +9,9 @@ export async function GET() {
     }
 
     // List all blobs to find directory-like prefixes
-    const { blobs } = await list();
+    const { blobs } = await list({
+      token: process.env.vercel_rw_token_READ_WRITE_TOKEN,
+    });
 
     // Extract unique "folders" by finding all slash-delimited prefixes
     const folderSet = new Set();

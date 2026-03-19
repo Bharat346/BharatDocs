@@ -143,7 +143,7 @@ export default function SystemHealthPage() {
             />
             <EnvCheck
               label="BLOB_TOKEN"
-              present={healthData?.checks?.env?.BLOB_READ_WRITE_TOKEN}
+              present={healthData?.checks?.env?.vercel_rw_token_READ_WRITE_TOKEN}
             />
             <EnvCheck
               label="GITHUB_AT"

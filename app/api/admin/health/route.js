@@ -20,7 +20,8 @@ export async function GET() {
         github: { status: "unknown", message: null },
         env: {
           DATABASE_URL: !!process.env.DATABASE_URL,
-          BLOB_READ_WRITE_TOKEN: !!process.env.vercel_rw_token_READ_WRITE_TOKEN,
+          vercel_rw_token_READ_WRITE_TOKEN:
+            !!process.env.vercel_rw_token_READ_WRITE_TOKEN,
           github_AT: !!process.env.github_AT,
           SESSION_SECRET: !!process.env.SESSION_SECRET,
         },
@@ -39,7 +40,10 @@ export async function GET() {
 
     // 2. Check Vercel Blob
     try {
-      await list({ limit: 1 });
+      await list({
+        limit: 1,
+        token: process.env.vercel_rw_token_READ_WRITE_TOKEN,
+      });
       health.checks.vercelBlob.status = "up";
     } catch (e) {
       health.status = "degraded";
