@@ -46,7 +46,7 @@ export default function DropdownNotes({ structure, theme }) {
                   }`}
                 >
                   {subject.icon && <subject.icon className="h-3.5 w-3.5" />}
-                  <span className="font-black">{subject.name}</span>
+                  <span className="font-medium">{subject.name}</span>
                 </Link>
               ))}
             </div>

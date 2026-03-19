@@ -1,6 +1,5 @@
 // app/layout.js
 import "./globals.css";
-import Script from "next/script";
 import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 

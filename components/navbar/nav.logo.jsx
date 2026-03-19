@@ -20,7 +20,7 @@ export default function NavLogo({ theme }) {
       </motion.div>
       <span
         suppressHydrationWarning
-        className={`font-black text-[clamp(1rem,4vw,1.25rem)] font-semibold ${
+        className={`text-[clamp(1.05rem,4vw,1.3rem)] font-bold tracking-tight ${
           theme === "dark" ? "text-white" : "text-gray-900"
         }`}
       >

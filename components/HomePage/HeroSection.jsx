@@ -20,25 +20,6 @@ export default function HeroSection({ theme }) {
   const containerRef = useRef(null);
   const elementsRef = useRef([]);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        elementsRef.current,
-        { opacity: 0, y: 30, scale: 0.98 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          stagger: 0.15,
-          duration: 1,
-          ease: "expo.out",
-          delay: 0.3,
-        },
-      );
-    }, containerRef);
-    return () => ctx.revert();
-  }, []);
-
   const addToRefs = (el) => {
     if (el && !elementsRef.current.includes(el)) {
       elementsRef.current.push(el);
@@ -75,18 +56,18 @@ export default function HeroSection({ theme }) {
         />
       </div>
 
-      <div className="relative mt-15 z-10 w-full max-w-7xl px-6 flex flex-col items-center">
+      <div className="relative sm:mt-15 z-10 w-full max-w-7xl px-6 flex flex-col items-center">
         {/* Hero Title */}
         <div ref={addToRefs} className="text-center mb-10 max-w-5xl">
           <h1
-            className={`text-6xl md:text-9xl font-black tracking-tighter leading-[0.85] uppercase ${isDark ? "text-white" : "text-neutral-950"}`}
+            className={`text-[3rem] sm:text-5xl md:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] uppercase ${isDark ? "text-white" : "text-neutral-950"}`}
           >
             Bharat <span className={accentText}>Docs</span>
           </h1>
           <p
-            className={`mt-10 max-w-2xl text-lg md:text-xl font-black uppercase tracking-widest leading-none mx-auto italic opacity-70 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}
+            className={`mt-6 sm:mt-8 md:mt-10 max-w-2xl text-sm sm:text-base md:text-lg lg:text-xl font-bold uppercase tracking-widest leading-relaxed mx-auto italic opacity-70 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}
           >
-            Structure your knowledge.
+            Structure your Knowledge. Master the Workflow.
           </p>
         </div>
 
@@ -101,7 +82,7 @@ export default function HeroSection({ theme }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search subjects, topics, or notes..."
-              className={`w-full text-xl md:text-2xl font-black p-6 md:p-8 pr-20 md:pr-24 rounded-[2rem] md:rounded-[3rem] border-2 outline-none transition-all shadow-xl shadow-black/5 ${searchBg} ${searchFocus} ${isDark ? "text-white" : "text-neutral-900"} placeholder:text-neutral-400`}
+              className={`w-full text-base sm:text-lg md:text-xl lg:text-2xl font-semibold p-4 sm:p-5 md:p-6 lg:p-8 pr-16 sm:pr-18 md:pr-20 lg:pr-24 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] border-2 outline-none transition-all shadow-xl shadow-black/5 placeholder:text-sm sm:placeholder:text-base md:placeholder:text-lg lg:placeholder:text-xl ${searchBg} ${searchFocus} ${isDark ? "text-white" : "text-neutral-900"} placeholder:text-neutral-400 placeholder:font-medium`}
             />
             <button
               type="submit"
@@ -112,22 +93,22 @@ export default function HeroSection({ theme }) {
           </form>
         </div>
 
-        {/* Action Buttons as requested */}
+        {/* Action Buttons */}
         <div
           ref={addToRefs}
-          className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto"
+          className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto"
         >
           <Link href="/docs" className="w-full sm:w-auto">
             <Button
               size="lg"
-              className={`h-16 px-10 text-xs font-black uppercase tracking-[0.2em] w-full sm:min-w-[240px] rounded-2xl shadow-2xl transition-all duration-300 group ${
+              className={`hero-btn-primary h-14 sm:h-16 px-8 sm:px-10 text-[0.8rem] sm:text-[0.9rem] font-bold uppercase tracking-[0.08em] w-full sm:min-w-[240px] rounded-2xl transition-all duration-300 group ${
                 isDark
-                  ? "bg-white text-black hover:bg-neutral-200"
-                  : "bg-neutral-950 text-white hover:bg-neutral-800"
+                  ? "bg-white text-black"
+                  : "bg-neutral-950 text-white"
               }`}
             >
               Explore Docs
-              <ChevronRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-all" />
+              <ChevronRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
             </Button>
           </Link>
 
@@ -135,10 +116,10 @@ export default function HeroSection({ theme }) {
             <Button
               variant="outline"
               size="lg"
-              className={`h-16 px-10 text-xs font-black uppercase tracking-[0.2em] w-full sm:min-w-[240px] rounded-2xl border-2 transition-all duration-300 shadow-xl ${
+              className={`hero-btn-outline h-14 sm:h-16 px-8 sm:px-10 text-[0.8rem] sm:text-[0.9rem] font-bold uppercase tracking-[0.08em] w-full sm:min-w-[240px] rounded-2xl border-2 transition-all duration-300 ${
                 isDark
-                  ? "border-neutral-800 bg-transparent text-white hover:bg-neutral-900 shadow-white/5"
-                  : "border-neutral-200 bg-transparent text-neutral-950 hover:bg-neutral-50 shadow-black/5"
+                  ? "border-neutral-700 bg-transparent text-white"
+                  : "border-neutral-200 bg-transparent text-neutral-950"
               }`}
             >
               <Notebook className="mr-3 w-5 h-5" />
