@@ -58,6 +58,15 @@ export default function NotesGrid({
     return `${pathname}?${params.toString()}`;
   };
 
+  const handleClosePdf = () => {
+    setActivePdf(null);
+
+    if (typeof window !== "undefined") {
+      const nextUrl = getUrlWithoutPdf();
+      window.history.replaceState({}, "", nextUrl);
+    }
+  };
+
   /* ---------------- Load starred from localStorage ---------------- */
   useEffect(() => {
     const stored = localStorage.getItem("starred");
