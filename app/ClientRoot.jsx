@@ -10,12 +10,13 @@ import { usePathname } from "next/navigation";
 export default function ClientRoot({ children, nonce }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isPdf = pathname.startsWith("/pdf");
 
   return (
     <ThemeProvider>
       <QueryProvider>
         <SplashScreen>
-          {!isAdmin && <NavBar />}
+          {!isAdmin && !isPdf && <NavBar />}
           <SessionInitializer />
           <main>{children}</main>
         </SplashScreen>

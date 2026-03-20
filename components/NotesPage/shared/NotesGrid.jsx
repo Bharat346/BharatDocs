@@ -1,21 +1,13 @@
 // components/NotesGrid.tsx
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { shouldPrefetch } from "@/lib/network/network.config";
 import { Folder, FileText, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useThemeContext } from "@/components/ThemeProvider";
-import { useIsMobile } from "@/hooks/use-mobile";
-import dynamic from "next/dynamic";
 import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
-import { useSearchParams, usePathname } from "next/navigation";
-
-// Dynamically load PDF viewer
-const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), {
-  ssr: false,
-});
 
 // ---------------- Global cache for folder nodes ----------------
 const folderCache = {};
@@ -26,46 +18,7 @@ export default function NotesGrid({
   isLoading: parentLoading,
 }) {
   const { theme } = useThemeContext();
-  const isMobile = useIsMobile();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
   const [starred, setStarred] = useState({});
-  const [activePdf, setActivePdf] = useState(null);
-
-  /* ---------------- Sync URL with Active PDF ---------------- */
-  useEffect(() => {
-    const pdfParam = searchParams.get("pdf");
-    if (pdfParam) {
-      // Find the actual node to get the secure filePath
-      const match = nodes?.find((n) => n.slug === pdfParam || n.name === pdfParam);
-      const urlToEmulate = match ? (match.filePath || match.slug) : pdfParam;
-      if (urlToEmulate !== activePdf) setActivePdf(urlToEmulate);
-    } else if (!pdfParam && activePdf) {
-      setActivePdf(null);
-    }
-  }, [searchParams, nodes]);
-
-  const getUrlWithPdf = (cleanSlug) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("pdf", cleanSlug);
-    return `${pathname}?${params.toString()}`;
-  };
-
-  const getUrlWithoutPdf = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("pdf");
-    return `${pathname}?${params.toString()}`;
-  };
-
-  const handleClosePdf = () => {
-    setActivePdf(null);
-
-    if (typeof window !== "undefined") {
-      const nextUrl = getUrlWithoutPdf();
-      window.history.replaceState({}, "", nextUrl);
-    }
-  };
 
   /* ---------------- Load starred from localStorage ---------------- */
   useEffect(() => {
@@ -101,18 +54,19 @@ export default function NotesGrid({
 
   return (
     <>
-      {/* ================= GRID ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
         {nodes.map((node) => {
           const isFolder = node.nodeType === "folder";
-          const pdfParamValue = node.slug || node.name;
+          const href = isFolder
+            ? `/notes/${[...slugArray, node.slug].join("/")}`
+            : `/pdf/${[...slugArray, node.slug].join("/")}`;
 
-          return isFolder ? (
+          return (
             <Link
               key={node.nodeId}
-              href={`/notes/${[...slugArray, node.slug].join("/")}`}
+              href={href}
               prefetch={shouldPrefetch()}
-              className={`block`}
+              className="block"
             >
               <Card
                 className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
@@ -124,30 +78,7 @@ export default function NotesGrid({
                 <ItemContent
                   node={node}
                   theme={theme}
-                  isFolder={true}
-                  starred={starred}
-                  toggleStar={toggleStar}
-                />
-              </Card>
-            </Link>
-          ) : (
-            <Link
-              key={node.nodeId}
-              href={getUrlWithPdf(pdfParamValue)}
-              prefetch={shouldPrefetch()}
-              className={`block`}
-            >
-              <Card
-                className={`p-4 min-w-[300px] rounded-2xl shadow-lg cursor-pointer transition ${
-                  theme === "dark"
-                    ? "bg-zinc-900 border-zinc-800 hover:bg-zinc-800/60"
-                    : "bg-white border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                <ItemContent
-                  node={node}
-                  theme={theme}
-                  isFolder={false}
+                  isFolder={isFolder}
                   starred={starred}
                   toggleStar={toggleStar}
                 />
@@ -156,26 +87,6 @@ export default function NotesGrid({
           );
         })}
       </div>
-
-      {/* ================= PDF OVERLAY ================= */}
-      {activePdf && (
-        <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center pt-16">
-          <div
-            className={`w-full h-full max-w-5xl rounded-xl border ${
-              theme === "dark"
-                ? "border-zinc-700 bg-zinc-900"
-                : "border-gray-200 bg-white"
-            }`}
-          >
-            <Suspense fallback={<NotesLoader />}>
-              <PDFViewer
-                fileUrl={activePdf}
-                onClose={handleClosePdf}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
     </>
   );
 }

@@ -60,10 +60,10 @@ function SearchResults() {
     const coll = node.collectionName.toLowerCase(); // docs or notes
     if (coll === "notes") {
       // Notes: open till the last folder (parentSlug)
-      let baseUrl = `/notes/${node.parentSlug || ""}`;
+      let baseUrl = `/pdf/${node.parentSlug || ""}`;
       if (node.fileType === "pdf") {
         const cleanPdfParam = node.slug || node.name;
-        return `${baseUrl}?pdf=${encodeURIComponent(cleanPdfParam)}`;
+        return `${baseUrl}/${encodeURIComponent(cleanPdfParam)}`;
       }
       return baseUrl;
     } else {

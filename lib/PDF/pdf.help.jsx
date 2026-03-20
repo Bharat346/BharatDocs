@@ -1,21 +1,40 @@
-export default function PDFHelpDialog({ onClose }) {
+export default function PDFHelpDialog({ onClose, theme }) {
+  const isDark = theme === "dark";
+
   return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-[10002]">
-      <div className="bg-neutral-900 text-white p-6 rounded-xl w-[320px]">
-        <h3 className="font-semibold mb-4">Keyboard Shortcuts</h3>
-        <ul className="space-y-2 text-sm">
-          <li>↑ / k Previous Page</li>
-          <li>↓ / j Next Page</li>
-          <li>+ Zoom In</li>
-          <li>- Zoom Out</li>
-          <li>F Fit to Page</li>
-          <li>? Toggle Help</li>
+    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[10007]">
+      <div className={`p-6 rounded-2xl w-[320px] shadow-2xl border ${
+        isDark ? "bg-zinc-900 text-white border-white/10" : "bg-white text-gray-900 border-gray-200"
+      }`}>
+        <h3 className="font-bold mb-5 flex items-center gap-2">
+           <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+           Keyboard Shortcuts
+        </h3>
+        <ul className="space-y-3 text-sm">
+          <li className={`flex justify-between items-center p-2.5 rounded-xl border ${
+             isDark ? "bg-zinc-800/50 border-white/5 text-zinc-400" : "bg-gray-50 border-gray-100 text-gray-600"
+          }`}>
+             <span className="text-blue-500 font-mono font-bold tracking-tighter">← / →</span> 
+             <span>Prev / Next Page</span>
+          </li>
+          <li className={`flex justify-between items-center p-2.5 rounded-xl border ${
+             isDark ? "bg-zinc-800/50 border-white/5 text-zinc-400" : "bg-gray-50 border-gray-100 text-gray-600"
+          }`}>
+             <span className="text-blue-500 font-mono font-bold tracking-tighter">↑ / ↓</span> 
+             <span>Slide / Scroll Page</span>
+          </li>
+          <li className={`flex justify-between items-center p-2.5 rounded-xl border ${
+             isDark ? "bg-zinc-800/50 border-white/5 text-zinc-400" : "bg-gray-50 border-gray-100 text-gray-600"
+          }`}>
+             <span className="text-blue-500 font-mono font-bold tracking-tighter">+ / -</span> 
+             <span>Zoom In / Out</span>
+          </li>
         </ul>
         <button
           onClick={onClose}
-          className="mt-4 w-full bg-blue-500 py-2 rounded-lg"
+          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-blue-500/20"
         >
-          Close
+          Got it
         </button>
       </div>
     </div>
