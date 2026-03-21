@@ -6,9 +6,10 @@ import { NAV_ITEMS } from "./nav.config";
 import NavLogo from "./nav.logo";
 import NavDesktop from "./nav.desk";
 import NavMobile from "./nav.mobile";
-import { Menu, X, Sun, Moon, Search } from "lucide-react";
+import { Menu, X, Sun, Moon, Search, Share2 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import PDFShare from "@/lib/PDF/pdf.share";
 
 export default function NavBar() {
   const { theme, toggleTheme, mounted } = useThemeContext();
@@ -17,6 +18,7 @@ export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchLinkRef = useRef(null);
 
@@ -34,8 +36,26 @@ export default function NavBar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+    
+    const handleKeyDown = (e) => {
+      // Ctrl + Shift + F shortcut
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+
+      // Close search on Escape
+      if (e.key === "Escape") {
+        setIsSearchOpen(false);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const closeMobile = () => setIsMobileMenuOpen(false);
@@ -62,7 +82,7 @@ export default function NavBar() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => setIsSearchOpen(true)}
             className={`p-2 rounded-lg transition-colors ${
@@ -70,8 +90,21 @@ export default function NavBar() {
                 ? "hover:bg-gray-800 text-gray-300 hover:text-white"
                 : "hover:bg-gray-100 text-gray-600 hover:text-black"
             }`}
+            title="Search (Ctrl+K)"
           >
             <Search className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => setIsShareOpen(true)}
+            className={`p-2 rounded-lg transition-colors ${
+              theme === "dark"
+                ? "hover:bg-gray-800 text-gray-300 hover:text-white"
+                : "hover:bg-gray-100 text-gray-600 hover:text-black"
+            }`}
+            title="Share"
+          >
+            <Share2 className="w-5 h-5" />
           </button>
 
           <button
@@ -172,6 +205,14 @@ export default function NavBar() {
           </div>
         )}
       </AnimatePresence>
+
+      {isShareOpen && (
+        <PDFShare
+          theme={theme}
+          title={typeof document !== "undefined" ? document.title : "Research Hub"}
+          onClose={() => setIsShareOpen(false)}
+        />
+      )}
     </nav>
   );
 }

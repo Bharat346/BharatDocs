@@ -12,8 +12,9 @@ export const DOCS_SUBMENU = [
   { label: "Node js", href: "/docs/nodejs", icon: Code },
   { label: "DBMS", href: "/docs/dbms", icon: FileText },
   { label: "Static GK", href: "/docs/statik-gk", icon: BookOpen },
-  { label: "One Word", href: "/docs/oneword", icon: FileText },
-  { label: "Phrasal Verb", href: "/docs/phraselverb", icon: FileText },
+  { label: "GPS", href: "/docs/gps", icon: FileText },
+  { label: "Diffusion Models", href: "/docs/diffusion-models", icon: FileText },
+  { label: "Fourier Transformation", href: "/docs/math-behind-the-fourier-transformation", icon: FileText },
 ];
 
 export const NOTES_STRUCTURE = [
