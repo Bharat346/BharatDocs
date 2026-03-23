@@ -1,135 +1,198 @@
-// app/api/admin/logs/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db/index";
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import {
   accessLogs,
   securityEvents,
   rateLimits,
   visitors,
+  auditLogs,
 } from "@/lib/db/schema";
 import { desc, gte, and, eq, sql } from "drizzle-orm";
 
-// Helper to format date for SQL
-const getDateRange = (days) => {
+/* ------------------ Utils ------------------ */
+
+const getStartDate = (timeRange) => {
   const date = new Date();
-  date.setDate(date.getDate() - days);
+  if (timeRange === "1d") date.setDate(date.getDate() - 1);
+  else if (timeRange === "30d") date.setDate(date.getDate() - 30);
+  else if (timeRange === "all") return new Date(0); // beginning of time
+  else date.setDate(date.getDate() - 7);
   return date;
 };
 
-export async function GET(request) {
+/* ------------------ Queries ------------------ */
+
+// 1. Security Events (list)
+const getSecurityEvents = (limit, offset) =>
+  db
+    .select()
+    .from(securityEvents)
+    .orderBy(desc(securityEvents.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+// 2. Access Logs
+const getAccessLogs = (filters, limit, offset) =>
+  db
+    .select()
+    .from(accessLogs)
+    .where(and(...filters))
+    .orderBy(desc(accessLogs.accessedAt))
+    .limit(limit)
+    .offset(offset);
+
+// 3. Rate Limits
+const getRateLimits = (startDate, limit) =>
+  db
+    .select()
+    .from(rateLimits)
+    .where(
+      and(eq(rateLimits.isBlocked, true), gte(rateLimits.createdAt, startDate))
+    )
+    .orderBy(desc(rateLimits.createdAt))
+    .limit(limit);
+
+// 4. Visitors
+const getVisitors = () =>
+  db.select().from(visitors).orderBy(desc(visitors.lastSeen)).limit(100);
+
+// 5. Security Stats (NO JOIN)
+const getSecurityStats = () =>
+  db
+    .select({
+      totalSecurityEvents: sql`COUNT(*)`,
+      criticalEvents: sql`COUNT(CASE WHEN ${securityEvents.severity} = 'critical' THEN 1 END)`,
+      uniqueIPs: sql`COUNT(DISTINCT ${securityEvents.ipAddress})`,
+      todayEvents: sql`COUNT(CASE WHEN ${securityEvents.createdAt} > CURRENT_DATE THEN 1 END)`,
+    })
+    .from(securityEvents);
+
+// 6. Blocked IPs (separate query)
+const getBlockedIPs = (startDate) =>
+  db
+    .select({
+      count: sql`COUNT(DISTINCT ${rateLimits.key})`,
+    })
+    .from(rateLimits)
+    .where(
+      and(eq(rateLimits.isBlocked, true), gte(rateLimits.createdAt, startDate))
+    );
+
+// 7. Hourly stats
+const getHourlyStats = (startDate) =>
+  db
+    .select({
+      hour: sql`EXTRACT(HOUR FROM ${securityEvents.createdAt})`,
+      count: sql`COUNT(*)`,
+    })
+    .from(securityEvents)
+    .where(gte(securityEvents.createdAt, startDate))
+    .groupBy(sql`EXTRACT(HOUR FROM ${securityEvents.createdAt})`)
+    .orderBy(sql`EXTRACT(HOUR FROM ${securityEvents.createdAt})`);
+
+// 8. Event types
+const getEventTypes = (startDate) =>
+  db
+    .select({
+      type: securityEvents.event,
+      count: sql`COUNT(*)`,
+    })
+    .from(securityEvents)
+    .where(gte(securityEvents.createdAt, startDate))
+    .groupBy(securityEvents.event)
+    .orderBy(desc(sql`COUNT(*)`));
+
+// 9. Top IPs (optimized)
+const getTopIPs = (startDate) =>
+  db
+    .select({
+      ipAddress: securityEvents.ipAddress,
+      count: sql`COUNT(*)`,
+    })
+    .from(securityEvents)
+    .where(gte(securityEvents.createdAt, startDate))
+    .groupBy(securityEvents.ipAddress)
+    .orderBy(desc(sql`COUNT(*)`))
+    .limit(10);
+
+// 10. Counts
+const getCounts = (startDate, filters) =>
+  Promise.all([
+    db
+      .select({ count: sql`count(*)` })
+      .from(accessLogs)
+      .where(and(...filters)),
+
+    db
+      .select({ count: sql`count(*)` })
+      .from(securityEvents),
+
+    db
+      .select({ count: sql`count(*)` })
+      .from(auditLogs),
+  ]);
+
+/* ------------------ Route ------------------ */
+
+export async function GET(req) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const timeRange = searchParams.get("timeRange") || "7d";
-    const limit = parseInt(searchParams.get("limit") || "100");
+    const params = new URL(req.url).searchParams;
 
-    // Calculate date range
-    let startDate = new Date();
-    switch (timeRange) {
-      case "1d":
-        startDate.setDate(startDate.getDate() - 1);
-        break;
-      case "7d":
-        startDate.setDate(startDate.getDate() - 7);
-        break;
-      case "30d":
-        startDate.setDate(startDate.getDate() - 30);
-        break;
-      default:
-        startDate.setDate(startDate.getDate() - 7);
-    }
+    const timeRange = params.get("timeRange") || "7d";
+    const limit = parseInt(params.get("limit") || "50");
+    const page = parseInt(params.get("page") || "1");
+    const offset = (page - 1) * limit;
 
-    // Fetch all data in parallel
+    const searchPath = params.get("path");
+    const searchIp = params.get("ip");
+
+    const startDate = getStartDate(timeRange);
+
+    const filters = [gte(accessLogs.accessedAt, startDate)];
+    if (searchPath)
+      filters.push(sql`${accessLogs.path} ILIKE ${"%" + searchPath + "%"}`);
+    if (searchIp) filters.push(sql`${accessLogs.ipAddress} ILIKE ${"%" + searchIp + "%"}`);
+
+    /* ---------- Fast queries ---------- */
     const [
       securityEventsData,
       accessLogsData,
       rateLimitsData,
       visitorsData,
-      statsData,
-      hourlyStats,
-      topIPs,
     ] = await Promise.all([
-      // Security Events
-      db
-        .select()
-        .from(securityEvents)
-        .where(gte(securityEvents.createdAt, startDate))
-        .orderBy(desc(securityEvents.createdAt))
-        .limit(limit),
-
-      // Access Logs
-      db
-        .select()
-        .from(accessLogs)
-        .where(gte(accessLogs.accessedAt, startDate))
-        .orderBy(desc(accessLogs.accessedAt))
-        .limit(limit),
-
-      // Rate Limits
-      db
-        .select()
-        .from(rateLimits)
-        .where(
-          and(
-            eq(rateLimits.isBlocked, true),
-            gte(rateLimits.createdAt, startDate),
-          ),
-        )
-        .orderBy(desc(rateLimits.createdAt))
-        .limit(limit),
-
-      // Visitors
-      db.select().from(visitors).orderBy(desc(visitors.lastSeen)).limit(100),
-
-      // Statistics
-      db
-        .select({
-          totalSecurityEvents: sql`COUNT(${securityEvents.id})`,
-          criticalEvents: sql`COUNT(CASE WHEN ${securityEvents.severity} = 'critical' THEN 1 END)`,
-          uniqueIPs: sql`COUNT(DISTINCT ${securityEvents.ipAddress})`,
-          todayEvents: sql`COUNT(CASE WHEN ${securityEvents.createdAt} > CURRENT_DATE THEN 1 END)`,
-          blockedIPs: sql`COUNT(DISTINCT CASE WHEN ${rateLimits.isBlocked} = true THEN ${rateLimits.key} END)`,
-        })
-        .from(securityEvents)
-        .leftJoin(rateLimits, eq(rateLimits.key, securityEvents.ipAddress)),
-
-      // Hourly statistics for charts
-      db
-        .select({
-          hour: sql`EXTRACT(HOUR FROM ${securityEvents.createdAt})`,
-          count: sql`COUNT(*)`,
-        })
-        .from(securityEvents)
-        .where(gte(securityEvents.createdAt, startDate))
-        .groupBy(sql`EXTRACT(HOUR FROM ${securityEvents.createdAt})`)
-        .orderBy(sql`EXTRACT(HOUR FROM ${securityEvents.createdAt})`),
-
-      // Top IPs by event count
-      db
-        .select({
-          ipAddress: securityEvents.ipAddress,
-          count: sql`COUNT(*)`,
-          country: accessLogs.country,
-          isSuspicious: sql`
-  BOOL_OR(${rateLimits.isBlocked})
-`,
-        })
-        .from(securityEvents)
-        .leftJoin(
-          accessLogs,
-          eq(accessLogs.ipAddress, securityEvents.ipAddress),
-        )
-        .leftJoin(
-          rateLimits,
-          and(
-            eq(rateLimits.key, securityEvents.ipAddress),
-            eq(rateLimits.isBlocked, true),
-          ),
-        )
-        .where(gte(securityEvents.createdAt, startDate))
-        .groupBy(securityEvents.ipAddress, accessLogs.country)
-        .orderBy(desc(sql`COUNT(*)`))
-        .limit(10),
+      getSecurityEvents(limit, offset),
+      getAccessLogs(filters, limit, offset),
+      getRateLimits(startDate, limit),
+      getVisitors(),
     ]);
+
+    /* ---------- Analytics (heavy but filtered) ---------- */
+    const [
+      statsData,
+      blockedIPs,
+      hourlyStats,
+      eventTypes,
+      topIPs,
+      [accessCount, securityCount, auditCount],
+    ] = await Promise.all([
+      getSecurityStats(startDate),
+      getBlockedIPs(startDate),
+      getHourlyStats(startDate),
+      getEventTypes(startDate),
+      getTopIPs(startDate),
+      getCounts(startDate, filters),
+    ]);
+
+    /* ---------- Format ---------- */
+
+    const stats = {
+      ...statsData[0],
+      blockedIPs: blockedIPs[0].count,
+    };
+
+    const totalAccess = parseInt(accessCount[0].count);
+    const totalSecurity = parseInt(securityCount[0].count);
+    const totalAudit = parseInt(auditCount[0].count);
 
     return NextResponse.json({
       success: true,
@@ -138,139 +201,62 @@ export async function GET(request) {
         accessLogs: accessLogsData,
         rateLimits: rateLimitsData,
         visitors: visitorsData,
-        stats: statsData[0] || {
-          totalSecurityEvents: 0,
-          criticalEvents: 0,
-          uniqueIPs: 0,
-          todayEvents: 0,
-          blockedIPs: 0,
-        },
-        hourlyStats: hourlyStats.map((h) => ({
-          hour: parseInt(h.hour),
-          count: parseInt(h.count.toString()),
-        })),
-        topIPs: topIPs.map((ip) => ({
-          ipAddress: ip.ipAddress,
-          count: parseInt(ip.count.toString()),
-          country: ip.country,
-          isSuspicious: ip.isSuspicious,
-        })),
-        summary: {
-          totalVisitors: visitorsData.length,
-          totalAccessLogs: accessLogsData.length,
-          totalBlocked: rateLimitsData.length,
+        stats,
+        hourlyStats,
+        eventTypes,
+        topIPs,
+        pagination: {
+          totalAccess,
+          totalSecurity,
+          totalAudit,
+          page,
+          limit,
+          totalPagesAccess: Math.ceil(totalAccess / limit),
+          totalPagesSecurity: Math.ceil(totalSecurity / limit),
         },
       },
     });
-  } catch (error) {
-    console.error("Error fetching logs:", error);
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch logs" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
-export async function POST(request) {
+export async function DELETE(req) {
   try {
-    const body = await request.json();
-    const { action, data } = body;
+    const { type, ids } = await req.json();
 
-    switch (action) {
-      case "blockIP": {
-        const { ip, duration = 24, reason = "Manual block" } = data;
-
-        await db.insert(rateLimits).values({
-          key: ip,
-          type: "ip",
-          endpoint: "*",
-          count: 1000, // Set high count to ensure blocking
-          windowStart: new Date(),
-          expiresAt: new Date(Date.now() + duration * 60 * 60 * 1000),
-          isBlocked: true,
-        });
-
-        // Log as security event
-        await db.insert(securityEvents).values({
-          event: "manual_ip_block",
-          severity: "critical",
-          ipAddress: ip,
-          details: JSON.stringify({ reason, duration }),
-        });
-
-        return NextResponse.json({
-          success: true,
-          message: `IP ${ip} blocked for ${duration} hours`,
-        });
-      }
-
-      case "unblockIP": {
-        const { ip } = data;
-
-        await db
-          .update(rateLimits)
-          .set({ isBlocked: false })
-          .where(and(eq(rateLimits.key, ip), eq(rateLimits.type, "ip")));
-
-        return NextResponse.json({
-          success: true,
-          message: `IP ${ip} unblocked`,
-        });
-      }
-
-      case "clearLogs": {
-        const { type, days = 30 } = data;
-        const cutoffDate = getDateRange(days);
-
-        let deletedCount = 0;
-
-        switch (type) {
-          case "security":
-            deletedCount = (
-              await db
-                .delete(securityEvents)
-                .where(gte(securityEvents.createdAt, cutoffDate))
-            )[0];
-            break;
-          case "access":
-            deletedCount = (
-              await db
-                .delete(accessLogs)
-                .where(gte(accessLogs.accessedAt, cutoffDate))
-            )[0];
-            break;
-          case "all":
-            const secCount = (
-              await db
-                .delete(securityEvents)
-                .where(gte(securityEvents.createdAt, cutoffDate))
-            )[0];
-            const accCount = (
-              await db
-                .delete(accessLogs)
-                .where(gte(accessLogs.accessedAt, cutoffDate))
-            )[0];
-            deletedCount = secCount + accCount;
-            break;
-        }
-
-        return NextResponse.json({
-          success: true,
-          message: `Cleared ${deletedCount} logs older than ${days} days`,
-        });
-      }
-
-      default:
-        return NextResponse.json(
-          { success: false, error: "Invalid action" },
-          { status: 400 },
-        );
+    if (!type || !ids || !Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "Invalid request: type and ids required" },
+        { status: 400 }
+      );
     }
-  } catch (error) {
-    console.error("Error processing admin action:", error);
+
+    let table;
+    if (type === "access") table = accessLogs;
+    else if (type === "security") table = securityEvents;
+    else {
+      return NextResponse.json(
+        { success: false, error: "Invalid type: must be 'access' or 'security'" },
+        { status: 400 }
+      );
+    }
+
+    await db.delete(table).where(sql`${table.id} IN ${ids}`);
+
+    return NextResponse.json({
+      success: true,
+      message: `Deleted ${ids.length} ${type} log${ids.length > 1 ? 's' : ''}`,
+    });
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
-      { success: false, error: "Failed to process action" },
-      { status: 500 },
+      { success: false, error: "Failed to delete logs" },
+      { status: 500 }
     );
   }
 }

@@ -64,6 +64,13 @@
       "when": 1770282797130,
       "tag": "0008_many_giant_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1774213452063,
+      "tag": "0009_lovely_xavin",
+      "breakpoints": true
     }
   ]
 }

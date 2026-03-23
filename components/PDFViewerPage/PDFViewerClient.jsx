@@ -52,6 +52,7 @@ export default function PDFViewerClient({ path }) {
     <div className="h-screen w-screen overflow-hidden bg-zinc-950">
       <PDFViewer 
          fileUrl={node.filePath || node.slug} 
+         nodeId={node.id || node.nodeId}
          onClose={() => router.back()} 
       />
     </div>
