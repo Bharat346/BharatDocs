@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useThemeContext } from "@/components/ThemeProvider";
 import {
   Search as SearchIcon,
@@ -20,11 +20,11 @@ function SearchResults() {
   const { theme } = useThemeContext();
   const isDark = theme === "dark";
   const searchParams = useSearchParams();
-  const router = useRouter();
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [localQuery, setLocalQuery] = useState(query);
+  const searchLinkRef = useRef(null);
 
   const fetchResults = async (q) => {
     if (!q.trim()) {
@@ -35,10 +35,12 @@ function SearchResults() {
     setLoading(true);
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
       setResults(data);
     } catch (e) {
       console.error(e);
+      setResults([]);
     } finally {
       setLoading(false);
     }
@@ -52,12 +54,12 @@ function SearchResults() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (localQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(localQuery)}`, { scroll: false });
+      searchLinkRef.current?.click();
     }
   };
 
   const getLink = (node) => {
-    const coll = node.collectionName.toLowerCase(); // docs or notes
+    const coll = node.collectionName?.toLowerCase() || "docs"; // docs or notes
     if (coll === "notes") {
       // Notes: open till the last folder (parentSlug)
       let baseUrl = `/pdf/${node.parentSlug || ""}`;
@@ -79,6 +81,12 @@ function SearchResults() {
     <div
       className={`min-h-screen pt-24 pb-20 px-6 transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-white text-neutral-900"}`}
     >
+      {/* Hidden link for Link-only navigation policy */}
+      <Link 
+        ref={searchLinkRef} 
+        href={`/search?q=${encodeURIComponent(localQuery)}`}
+        className="hidden"
+      />
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Header & Back */}
         <div className="flex flex-col gap-4 sm:gap-6">

@@ -9,8 +9,8 @@ export default function SplashScreen({ children }) {
   useEffect(() => {
     // Wait for the page to be fully interactive
     const handleReady = () => {
-      // Small extra delay for JS hydration to settle
-      setTimeout(() => setIsLoading(false), 2000); // 1 seconds
+      // Very small delay for JS hydration
+      setTimeout(() => setIsLoading(false), 400); 
     };
 
     if (document.readyState === "complete") {
@@ -20,8 +20,8 @@ export default function SplashScreen({ children }) {
       return () => window.removeEventListener("load", handleReady);
     }
 
-    // Fallback: dismiss after 3s no matter what
-    const fallback = setTimeout(() => setIsLoading(false), 3000);
+    // Fallback: dismiss after 1s no matter what
+    const fallback = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(fallback);
   }, []);
 
@@ -34,7 +34,7 @@ export default function SplashScreen({ children }) {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
+            className={`fixed inset-0 z-[9999] flex items-center justify-center transition-colors duration-500 bg-white`}
             style={{ willChange: "opacity" }}
           >
             <div className="flex flex-col items-center gap-6">
@@ -59,7 +59,7 @@ export default function SplashScreen({ children }) {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-center"
               >
-                <h2 className="text-2xl font-bold tracking-tight text-neutral-900">
+                <h2 className={`text-2xl font-bold tracking-tight text-neutral-900`}>
                   Bharat{" "}
                   <span className="text-indigo-600">
                     Docs
@@ -78,7 +78,7 @@ export default function SplashScreen({ children }) {
                   className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full"
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
-                  transition={{ duration: 2.2, ease: "easeInOut" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
                 />
               </motion.div>
             </div>

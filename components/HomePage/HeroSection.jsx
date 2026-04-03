@@ -9,7 +9,6 @@ import { Sparkles, ChevronRight, Notebook, Search } from "lucide-react";
 export default function HeroSection({ theme }) {
   const isDark = theme === "dark";
   const [query, setQuery] = useState("");
-  const searchLinkRef = useRef(null);
 
   const containerRef = useRef(null);
   const elementsRef = useRef([]);
@@ -20,19 +19,12 @@ export default function HeroSection({ theme }) {
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query.trim()) {
-      searchLinkRef.current?.click();
-    }
-  };
-
   // Premium CSS Logic
-  const bgClass = isDark ? "bg-[#0a0a0a]" : "bg-white";
+  const bgClass = isDark ? "bg-[#18181b]" : "bg-white";
   const textClass = isDark ? "text-white" : "text-neutral-950";
   const accentText = isDark ? "text-indigo-400" : "text-indigo-600";
   const searchBg = isDark
-    ? "bg-neutral-900 border-neutral-800"
+    ? "bg-neutral-900/50 border-neutral-800"
     : "bg-white border-neutral-100 shadow-indigo-500/5";
   const searchFocus = isDark
     ? "focus:border-indigo-500/50"
@@ -41,20 +33,16 @@ export default function HeroSection({ theme }) {
   return (
     <section
       ref={containerRef}
-      className={`relative min-h-screen flex items-center justify-center pt-24 pb-12 overflow-hidden transition-colors duration-700 ${bgClass} ${textClass}`}
+      className={`relative min-h-[85vh] sm:min-h-screen flex items-center justify-center pt-20 sm:pt-24 pb-10 sm:pb-12 overflow-hidden transition-colors duration-700 ${bgClass} ${textClass}`}
     >
-      {/* Abstract Background Decoration */}
-      <div className="absolute inset-x-0 top-0 h-[70vh] z-0 overflow-hidden pointer-events-none">
-        <div
-          className={`absolute top-[-20%] left-[-10%] w-[120%] h-[120%] opacity-10 dark:opacity-20 blur-[120px] rounded-full transition-colors ${isDark ? "bg-indigo-900/40" : "bg-indigo-300/30"}`}
-        />
-      </div>
+      {/* Abstract Background Decoration removed as per request */}
+
 
       <div className="relative sm:mt-15 z-10 w-full max-w-7xl px-6 flex flex-col items-center">
         {/* Hero Title */}
         <div ref={addToRefs} className="text-center mb-10 max-w-5xl">
           <h1
-            className={`text-[3rem] sm:text-5xl md:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] uppercase ${isDark ? "text-white" : "text-neutral-950"}`}
+            className={`text-[2.5rem] sm:text-5xl md:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] uppercase ${isDark ? "text-white" : "text-neutral-950"} relative`}
           >
             Bharat <span className={accentText}>Docs</span>
           </h1>
@@ -67,16 +55,15 @@ export default function HeroSection({ theme }) {
 
         {/* Functional Fuzzy Search Bar */}
         <div ref={addToRefs} className="w-full max-w-3xl mb-12 relative group">
-          <div
-            className={`absolute inset-0 blur-3xl rounded-[3rem] transition-opacity duration-500 opacity-0 group-focus-within:opacity-30 ${isDark ? "bg-indigo-500" : "bg-indigo-300"}`}
-          />
-          <form onSubmit={handleSearch} className="relative">
+          <form action="/search" method="GET" className="relative">
             <input
               type="text"
+              name="q"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search subjects, topics, or notes..."
-              className={`w-full text-base sm:text-lg md:text-xl lg:text-2xl font-semibold p-4 sm:p-5 md:p-6 lg:p-8 pr-16 sm:pr-18 md:pr-20 lg:pr-24 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] border-2 outline-none transition-all shadow-xl shadow-black/5 placeholder:text-sm sm:placeholder:text-base md:placeholder:text-lg lg:placeholder:text-xl ${searchBg} ${searchFocus} ${isDark ? "text-white" : "text-neutral-900"} placeholder:text-neutral-400 placeholder:font-medium`}
+              required
+              className={`w-full text-base sm:text-lg md:text-xl lg:text-2xl font-semibold p-4 sm:p-5 md:p-6 lg:p-8 pr-16 sm:pr-18 md:pr-20 lg:pr-24 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] border-2 outline-none transition-all shadow-xl shadow-black/5 placeholder:text-xs sm:placeholder:text-base md:placeholder:text-lg lg:placeholder:text-xl ${searchBg} ${searchFocus} ${isDark ? "text-white" : "text-neutral-900"} placeholder:text-neutral-400 placeholder:font-medium`}
             />
             <button
               type="submit"
@@ -84,14 +71,6 @@ export default function HeroSection({ theme }) {
             >
               <Search className="w-6 h-6 md:w-8 md:h-8" />
             </button>
-            {/* Hidden Link for instant navigation */}
-            <Link
-              ref={searchLinkRef}
-              href={`/search?q=${encodeURIComponent(query)}`}
-              className="hidden"
-              tabIndex={-1}
-              aria-hidden="true"
-            />
           </form>
         </div>
 

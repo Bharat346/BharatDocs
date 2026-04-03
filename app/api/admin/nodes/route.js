@@ -58,6 +58,7 @@ export async function POST(req) {
       parentSlug,
       orderIndex,
       isPublished = false,
+      tags = [],
     } = body;
 
     if (!collectionId || !name || !nodeType) {
@@ -121,6 +122,7 @@ export async function POST(req) {
         parentSlug: parentSlug || null,
         orderIndex: finalOrderIndex,
         isPublished: Boolean(isPublished),
+        tags: Array.isArray(tags) ? tags : [],
       })
       .returning({
         id: nodes.id,

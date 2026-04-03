@@ -39,10 +39,10 @@ const MainContent = function MainContent({
   if (!selectedChild) return <EmptyState theme={theme} />;
 
   return (
-    <div className={`flex flex-col flex-1 min-w-0 relative mt-15 ${theme === "dark" ? "bg-neutral-900/50" : "bg-neutral-50"}`}>
+    <div className={`flex flex-col flex-1 h-full min-w-0 relative ${theme === "dark" ? "bg-[#0a0a0a] border-l border-zinc-800" : "bg-neutral-50 shadow-inner"}`}>
       {/* ---------------- HEADER ---------------- */}
-      <header className={`sticky top-0 z-30 border-b backdrop-blur ${theme === "dark" ? "bg-neutral-900/80 border-neutral-800" : "bg-neutral-50/80 border-neutral-200"}`}>
-        <div className="flex h-16 items-center justify-between px-4">
+      <header className={`sticky top-0 z-30 border-b backdrop-blur ${theme === "dark" ? "bg-[#0a0a0a]/80 border-zinc-800" : "bg-neutral-50/80 border-neutral-200"}`}>
+        <div className="flex h-14 items-center justify-between px-4">
           <div
             className={`flex items-center gap-2 min-w-0 ${
               theme === "dark" ? "text-white" : ""
@@ -84,23 +84,29 @@ const MainContent = function MainContent({
       </header>
 
       {/* ---------------- MAIN SCROLL AREA ---------------- */}
-      <main ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto min-w-[80%] max-w-6xl p-6 pt-0">
+      <main ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="mx-auto max-w-5xl px-6 sm:px-12 lg:px-16 py-12 md:py-16">
           {mdxContent ? (
             <article
               id="mdx-content-container"
-              className={`prose max-w-none ${
-                theme === "dark" ? "prose-invert" : ""
+              className={`prose prose-lg md:prose-xl max-w-none transition-all duration-500 ${
+                theme === "dark" 
+                  ? "prose-invert prose-headings:text-white prose-p:text-neutral-300 prose-strong:text-white prose-code:text-indigo-400" 
+                  : "prose-headings:text-neutral-900 prose-p:text-neutral-700 prose-strong:text-neutral-900 prose-code:text-indigo-600"
               }`}
             >
               <MDXContent
                 content={mdxContent}
                 theme={theme}
-                // headingRefs={headingRefs}
               />
             </article>
           ) : (
-            <DocsLoader theme={theme} />
+            <div className="flex flex-col items-center justify-center py-20">
+              <DocsLoader theme={theme} />
+              <p className={`mt-4 text-sm font-medium ${theme === "dark" ? "text-neutral-500" : "text-neutral-400"}`}>
+                Preparing your document...
+              </p>
+            </div>
           )}
         </div>
       </main>

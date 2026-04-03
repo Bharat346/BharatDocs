@@ -14,9 +14,13 @@ export default function NavLogo({ theme }) {
       <motion.div
         whileHover={{ rotate: 360 }}
         transition={{ duration: 0.6 }}
-        className="p-2.5 rounded-xl bg-blue-600 shadow-lg"
+        className="h-10 w-10 p-1 rounded-xl bg-white shadow-lg overflow-hidden flex items-center justify-center border border-zinc-100"
       >
-        <BookOpen className="h-6 w-6 text-white" />
+        <img
+          src="/icon.png"
+          alt="Logo"
+          className="w-full h-full object-contain"
+        />
       </motion.div>
       <span
         suppressHydrationWarning

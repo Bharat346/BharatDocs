@@ -8,8 +8,22 @@ export default function SearchBar({
   filteredCount,
   sortBy,
   setSortBy,
+  selectedTags = [],
+  setSelectedTags,
+  allTags = [],
 }) {
   const isDark = theme === "dark";
+
+  const toggleTag = (tag) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedTags([]);
+  };
 
   return (
     <div className="space-y-8 w-full">
@@ -33,24 +47,72 @@ export default function SearchBar({
               : "bg-white border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
           }`}
         />
-        {searchTerm && (
+        {(searchTerm || selectedTags.length > 0) && (
           <button
-            onClick={() => setSearchTerm("")}
+            onClick={clearFilters}
             className={`absolute inset-y-0 right-0 pr-5 sm:pr-6 flex items-center transition-colors ${
-              isDark ? "text-neutral-500 hover:text-white" : "text-neutral-400 hover:text-black"
+              isDark
+                ? "text-neutral-500 hover:text-white"
+                : "text-neutral-400 hover:text-black"
             }`}
+            title="Clear all filters"
           >
             <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         )}
       </div>
 
+      {/* Tags Filter section */}
+      {allTags.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">
+              Filter by Tags
+            </span>
+            {selectedTags.length > 0 && (
+              <button
+                onClick={() => setSelectedTags([])}
+                className="text-[10px] font-bold uppercase tracking-wider text-indigo-500 hover:text-indigo-600 transition-colors"
+              >
+                Reset Tags
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {allTags.map((tag) => {
+              const isSelected = selectedTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border ${
+                    isSelected
+                      ? isDark
+                        ? "bg-indigo-600 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                        : "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-200"
+                      : isDark
+                        ? "bg-neutral-900/50 border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-neutral-300"
+                        : "bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 shadow-sm"
+                  }`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Results Tracking Info & Sort Menu */}
       <div className="flex items-center justify-between gap-2 text-[12px] sm:text-xs font-bold uppercase tracking-widest text-neutral-500 border-b border-neutral-100 dark:border-neutral-800 pb-3 sm:pb-4">
         <span className="truncate pr-2">
           {filteredCount} {filteredCount === 1 ? "doc" : "docs"}{" "}
           <span className="hidden sm:inline">found</span>{" "}
-          <span className="hidden sm:inline">{searchTerm && `for "${searchTerm}"`}</span>
+          <span className="hidden sm:inline">
+            {searchTerm && `for "${searchTerm}"`}
+            {selectedTags.length > 0 &&
+              ` in ${selectedTags.length} ${selectedTags.length === 1 ? "tag" : "tags"}`}
+          </span>
         </span>
 
         <button
@@ -62,7 +124,12 @@ export default function SearchBar({
               : "bg-neutral-100/50 hover:bg-neutral-200 text-indigo-600"
           }`}
         >
-          <span className="text-[12px]">Sort By :</span> {sortBy === "name" ? <ArrowDownAZ className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+          <span className="text-[12px]">Sort By :</span>{" "}
+          {sortBy === "name" ? (
+            <ArrowDownAZ className="w-5 h-5" />
+          ) : (
+            <Clock className="w-5 h-5" />
+          )}
           <span className="hidden sm:inline-block">
             {sortBy === "name" ? "Name" : "Updated"}
           </span>

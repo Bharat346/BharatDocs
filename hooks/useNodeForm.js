@@ -246,6 +246,7 @@ export const useNodeForm = () => {
         parentSlug: form.parentSlug,
         orderIndex: form.orderIndex,
         isPublished: form.isPublished,
+        tags: form.tags,
       };
 
       const response = await fetch("/api/admin/nodes", {

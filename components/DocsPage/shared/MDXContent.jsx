@@ -373,7 +373,7 @@ const processHtmlContent = (html, theme, headingRefs = {}) => {
   tableElements.forEach((table) => {
     const wrapper = document.createElement("div");
     wrapper.className = cn(
-      "overflow-x-auto my-8 rounded-lg border prose-table-wrapper",
+      "overflow-x-auto w-full my-8 rounded-lg border prose-table-wrapper",
       theme === "dark"
         ? "border-zinc-800 bg-zinc-900/50"
         : "border-gray-200 bg-gray-50",
@@ -537,6 +537,42 @@ export default function MDXContent({
     setProcessedHtml(html);
   }, [content, theme, headingRefs]);
 
+  useEffect(() => {
+    // Add copy functionality to code blocks after HTML is rendered
+    if (!processedHtml) return;
+
+    const handleCopyClick = async function() {
+      const pre = this.closest('pre');
+      const code = pre?.querySelector('code');
+      if (!code) return;
+      
+      try {
+        await navigator.clipboard.writeText(code.textContent || '');
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="text-green-500">✓ Copied!</span>';
+        
+        setTimeout(() => {
+          this.innerHTML = originalText;
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    };
+
+    const buttons = document.querySelectorAll('.mdx-content .copy-btn');
+    buttons.forEach(button => {
+      // Remove old listeners to prevent duplicates if re-rendered
+      button.removeEventListener('click', handleCopyClick);
+      button.addEventListener('click', handleCopyClick);
+    });
+
+    return () => {
+      buttons.forEach(button => {
+        button.removeEventListener('click', handleCopyClick);
+      });
+    };
+  }, [processedHtml]);
+
   if (!content) return <p>Loading content...</p>;
 
   // Container styles using Tailwind classes only
@@ -564,37 +600,6 @@ export default function MDXContent({
           __html:
             processedHtml ||
             content /* fallback to raw content while processing */,
-        }}
-      />
-
-      {/* Client-side script to handle copy buttons and interactivity */}
-      {/* NOTE: We can likely move this logic to React effects properly instead of script tags in future, but keeping for compatibility */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            // ... logic preserved or could be moved to useEffect ...
-            // For now, keeping as is but ensuring it runs after render
-             document.querySelectorAll('.copy-btn').forEach(button => {
-                 // Re-attach listeners if they are lost
-                  button.addEventListener('click', async function() {
-                  const pre = this.closest('pre');
-                  const code = pre?.querySelector('code');
-                  if (!code) return;
-                  
-                  try {
-                    await navigator.clipboard.writeText(code.textContent || '');
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<span class="text-green-500">✓ Copied!</span>';
-                    
-                    setTimeout(() => {
-                      this.innerHTML = originalText;
-                    }, 2000);
-                  } catch (err) {
-                    console.error('Failed to copy:', err);
-                  }
-                });
-             });
-          `,
         }}
       />
     </>

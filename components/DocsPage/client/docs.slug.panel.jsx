@@ -1,29 +1,39 @@
-// docs.slug.panel.js
 "use client";
 
-export default function Panel({ open, mobile, side, panelRef, children }) {
-  if (!open) return null;
+import { motion, AnimatePresence } from "framer-motion";
 
-  /* ---------- Mobile Overlay ---------- */
+export default function Panel({ open, mobile, side, panelRef, children }) {
   if (mobile) {
     return (
-      <div
-        ref={panelRef}
-        className={`fixed inset-y-0 ${
-          side === "right" ? "right-0" : "left-0"
-        } z-40 w-72 bg-background shadow-xl`}
-        role="dialog"
-        aria-modal="true"
-      >
-        {children}
-      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ x: side === "right" ? "100%" : "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: side === "right" ? "100%" : "-100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            ref={panelRef}
+            className={`fixed inset-y-0 ${
+              side === "right" ? "right-0" : "left-0"
+            } z-[150] w-72 bg-background shadow-2xl flex flex-col`}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     );
   }
 
-  /* ---------- Desktop ---------- */
+  // Desktop
   return (
-    <aside className="hidden lg:flex flex-col w-72 h-[calc(100%-60px)] mt-[60px]">
-      {children}
+    <aside 
+      className={`hidden lg:flex flex-col transition-all duration-300 overflow-hidden ${
+        open ? "w-72" : "w-0"
+      } h-full relative z-20`}
+    >
+      <div className="w-72 h-full flex flex-col">
+        {children}
+      </div>
     </aside>
   );
 }

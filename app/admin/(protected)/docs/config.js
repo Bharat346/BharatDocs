@@ -20,6 +20,7 @@ export const INITIAL_FORM_STATE = {
   parentSlug: null,
   orderIndex: 0,
   isPublished: false,
+  tags: [],
   category: "docs",
 };
 

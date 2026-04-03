@@ -15,7 +15,8 @@ export async function GET() {
         parentName: nodes.parentName,
         parentSlug: nodes.parentSlug,
         collectionName: collections.name,
-        updatedAt: nodes.updatedAt,
+        createdAt: nodes.createdAt,
+        tags: nodes.tags,
       })
       .from(nodes)
       .innerJoin(collections, eq(collections.id, nodes.collectionId))
@@ -25,7 +26,7 @@ export async function GET() {
           ne(nodes.nodeType, "folder"), // Only files
         ),
       )
-      .orderBy(desc(nodes.updatedAt))
+      .orderBy(desc(nodes.createdAt))
       .limit(6);
 
     return NextResponse.json(recentNodes);

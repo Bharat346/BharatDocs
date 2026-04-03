@@ -124,7 +124,7 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
           </button>
         </div>
 
-        <div>
+        <div className="flex items-center gap-2 mt-auto pt-3">
           <span
             className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
               isFolder
@@ -138,6 +138,23 @@ function ItemContent({ node, theme, isFolder, starred, toggleStar }) {
           >
             {isFolder ? "Folder" : node.fileType || "File"}
           </span>
+
+          {node.tags && node.tags.length > 0 && (
+            <div className="flex gap-1 flex-wrap">
+              {node.tags.map((tag, idx) => (
+                <span 
+                  key={idx} 
+                  className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                    theme === "dark" 
+                      ? "bg-zinc-800/50 border-zinc-700 text-zinc-500" 
+                      : "bg-gray-100 border-gray-200 text-gray-400"
+                  }`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

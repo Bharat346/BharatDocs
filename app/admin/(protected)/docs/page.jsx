@@ -162,6 +162,23 @@ export default function AdminDocsPage() {
                 </select>
               </div>
             </div>
+
+            <div className="md:col-span-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
+                  Tags (Comma separated)
+                </label>
+                <input
+                  className={inputClasses}
+                  placeholder="e.g. react, hooks, advanced"
+                  value={form.tags.join(", ")}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const tagsArray = val.split(",").map(t => t.trim()).filter(t => t !== "");
+                    handleInputChange("tags", tagsArray);
+                  }}
+                  disabled={loading}
+                />
+            </div>
           </div>
 
           <FileConfiguration

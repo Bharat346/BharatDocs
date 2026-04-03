@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/index.js";
 import { collections, nodes } from "@/lib/db/schema";
-import { eq, and, isNull, like, or } from "drizzle-orm";
+import { eq, and, isNull, like, or, sql } from "drizzle-orm";
 
 export async function GET(req) {
   try {
@@ -19,6 +19,12 @@ export async function GET(req) {
       conditions.push(isNull(nodes.parentSlug));
     } else {
       conditions.push(eq(nodes.parentSlug, parentSlug));
+    }
+
+    const tag = searchParams.get("tag");
+
+    if (tag) {
+      conditions.push(sql`${nodes.tags} @> ARRAY[${tag}]::text[]`);
     }
 
     /* ----------------------------
@@ -51,7 +57,7 @@ export async function GET(req) {
         isPublished: nodes.isPublished,
         orderIndex: nodes.orderIndex,
         updatedAt: nodes.updatedAt,
-
+        tags: nodes.tags,
         collectionName: collections.name,
       })
       .from(nodes)

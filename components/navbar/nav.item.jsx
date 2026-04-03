@@ -36,7 +36,7 @@ export default function NavItem({
     >
       <Link
         href={item.href}
-        prefetch={shouldPrefetch()}
+        prefetch={true}
         target={item.external ? "_blank" : undefined}
         rel={item.external ? "noopener noreferrer" : undefined}
         suppressHydrationWarning

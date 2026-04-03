@@ -50,9 +50,4 @@ export const NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home },
   { label: "Documents", href: "/docs", children: DOCS_SUBMENU },
   { label: "Notes", href: "/notes", structure: NOTES_STRUCTURE },
-  {
-    label: "Portfolio",
-    href: "https://portfolio.bhdocs.in",
-    external: true,
-  },
 ];

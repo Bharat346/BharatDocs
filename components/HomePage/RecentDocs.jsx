@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  FileText,
-  ChevronRight,
-  Clock,
-  ExternalLink,
-  Loader2,
-} from "lucide-react";
+import { FileText, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -34,48 +28,51 @@ export default function RecentDocs({ theme }) {
   const getLink = (doc) => {
     const coll = doc.collectionName.toLowerCase();
     if (coll === "notes") {
-      // Notes: open till last folder (parentSlug)
       return `/notes/${doc.parentSlug || ""}`;
     } else {
-      // Docs: docs/parent?child=slug
       if (!doc.parentSlug) return `/docs?child=${doc.slug}`;
       return `/docs/${doc.parentSlug}?child=${doc.slug}`;
     }
   };
 
-  const bgClass = isDark ? "bg-neutral-900/50" : "bg-neutral-50";
-  const borderClass = isDark ? "border-neutral-800" : "border-neutral-100";
   const headingColor = isDark ? "text-white" : "text-neutral-950";
 
   return (
-    <section className="py-24 px-6 max-w-7xl mx-auto">
-      <div className="flex items-end justify-between mb-12">
+    <section className="py-12 md:py-24 px-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex items-end justify-between mb-8 md:mb-14">
         <div className="max-w-2xl">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-[3px] bg-indigo-600 rounded-full" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400">
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400">
               Fresh Updates
             </span>
           </div>
+
           <h2
-            className={`text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] ${headingColor}`}
+            className={`text-4xl md:text-6xl font-extrabold tracking-tight leading-[0.95] ${headingColor}`}
           >
             Recently{" "}
-            <span className="text-indigo-600 dark:text-indigo-500 font-black">
+            <span className="text-indigo-600 dark:text-indigo-500">
               Added
             </span>
           </h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {loading ? (
           Array(6)
             .fill(0)
             .map((_, i) => (
               <div
                 key={i}
-                className={`h-40 rounded-[2.5rem] animate-pulse ${bgClass}`}
+                className={`h-64 rounded-3xl animate-pulse ${
+                  isDark ? "bg-neutral-900/50" : "bg-neutral-50"
+                } border ${
+                  isDark ? "border-neutral-800" : "border-neutral-100"
+                }`}
               />
             ))
         ) : docs.length > 0 ? (
@@ -83,46 +80,81 @@ export default function RecentDocs({ theme }) {
             <Link
               key={doc.id}
               href={getLink(doc)}
-              className="group block h-full outline-none"
+              className="group block h-full"
             >
               <motion.div
-                whileHover={{ y: -8, scale: 1.01 }}
-                className={`flex flex-col p-8 rounded-[2.5rem] border-2 transition-all duration-500 h-full ${bgClass} ${borderClass} hover:border-indigo-500/50 ${isDark ? "hover:bg-neutral-950" : "hover:bg-white"} shadow-sm ${isDark ? "hover:shadow-indigo-500/10" : "hover:shadow-indigo-200/50"} hover:shadow-2xl`}
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: i * 0.08 }}
+                viewport={{ once: true }}
+                className={`flex flex-col p-7 rounded-[2rem] border transition-all duration-500 h-full ${
+                  isDark
+                    ? "bg-zinc-900/40 border-zinc-800/80 hover:border-indigo-500/50 hover:bg-zinc-900/70"
+                    : "bg-white border-neutral-100 hover:border-indigo-200 hover:shadow-xl"
+                }`}
               >
-                <div className="flex items-center justify-between mb-8">
+                {/* Top */}
+                <div className="flex items-center justify-between mb-6">
                   <div
-                    className={`p-4 rounded-2xl transition-all duration-500 ${isDark ? "bg-neutral-800 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white" : "bg-white text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white"}`}
+                    className={`p-3 rounded-xl transition-all duration-500 ${
+                      isDark
+                        ? "bg-zinc-800 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white"
+                        : "bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white"
+                    }`}
                   >
-                    <FileText className="w-6 h-6" />
+                    <FileText className="w-5 h-5" />
                   </div>
+
+                  <ExternalLink className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-indigo-500" />
                 </div>
 
-                <div className="flex-1">
+                {/* Content */}
+                <div className="flex-1 flex flex-col">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[12px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-500">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-500">
                       {doc.collectionName}
                     </span>
-                    <span className="text-neutral-300">/</span>
-                    <span
-                      className={`text-[12px] font-black uppercase tracking-widest ${isDark ? "text-neutral-500" : "text-neutral-400"}`}
-                    >
+                    <span className="w-1 h-1 rounded-full bg-neutral-400" />
+                    <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">
                       {doc.parentName || "Root"}
                     </span>
                   </div>
+
                   <h3
-                    className={`text-xl md:text-2xl font-black uppercase tracking-tight leading-tight transition-colors group-hover:text-indigo-600 ${headingColor}`}
+                    className={`text-lg md:text-xl font-semibold leading-snug transition-colors ${
+                      isDark
+                        ? "text-white group-hover:text-indigo-400"
+                        : "text-neutral-900 group-hover:text-indigo-600"
+                    }`}
                   >
                     {doc.name}
                   </h3>
+
+                  {/* Bottom Tags */}
+                  {doc.tags && doc.tags.length > 0 && (
+                    <div className="mt-auto pt-6 flex flex-wrap gap-2">
+                      {doc.tags.slice(0, 3).map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className={`text-[10px] font-semibold px-3 py-1 rounded-full ${
+                            isDark
+                              ? "bg-white/5 text-neutral-400 border border-white/10"
+                              : "bg-neutral-100 text-neutral-600"
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </Link>
           ))
         ) : (
-          <div className="col-span-full py-20 text-center bg-neutral-100 dark:bg-neutral-900 rounded-[3rem] border-2 border-dashed border-neutral-200 dark:border-neutral-800">
-            <Clock className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-            <p className="text-xl font-black text-neutral-400 uppercase tracking-tighter">
-              It might be a Network Error Please Reload the page ....
+          <div className="col-span-full py-16 text-center border-2 border-dashed rounded-[2.5rem] border-neutral-200 dark:border-neutral-800">
+            <p className="text-sm font-semibold text-neutral-400 uppercase tracking-widest">
+              No documents found
             </p>
           </div>
         )}

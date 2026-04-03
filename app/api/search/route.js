@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/index.js";
 import { nodes, collections } from "@/lib/db/schema";
-import { eq, ilike, or, and } from "drizzle-orm";
+import { eq, ilike, or, and , sql } from "drizzle-orm";
 
 export async function GET(req) {
   try {
@@ -22,6 +22,7 @@ export async function GET(req) {
         fileType: nodes.fileType,
         parentName: nodes.parentName,
         parentSlug: nodes.parentSlug,
+        tags: nodes.tags,
         collectionName: collections.name,
       })
       .from(nodes)
@@ -33,6 +34,7 @@ export async function GET(req) {
             ilike(nodes.name, `%${query}%`),
             ilike(nodes.slug, `%${query}%`),
             ilike(nodes.parentName || "", `%${query}%`),
+            sql`${nodes.tags}::text ilike ${`%${query}%`}`,
           ),
         ),
       )

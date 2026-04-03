@@ -12,10 +12,10 @@ export default function Sidebar({
 }) {
   return (
     <aside
-      className={`h-full pt-20 flex flex-col ${
+      className={`h-full flex flex-col border-r transition-all duration-300 ${
         theme === "dark"
-          ? "bg-transparent text-white"
-          : "bg-transparent text-neutral-900"
+          ? "bg-[#0a0a0a] border-zinc-800 text-white"
+          : "bg-white border-neutral-200 text-neutral-900 shadow-xl shadow-neutral-200/5"
       } ${isMobile ? "w-full" : "w-72"}`}
     >
       {/* Content */}
@@ -41,6 +41,7 @@ export default function Sidebar({
           </div>
         ) : (
           <div className="flex flex-col gap-2">
+            <span className="text-xl font-semibold ml-2 mb-5 mt-3">Chapters</span>
             {children.map((child) => {
               const isSelected = selectedChild?.nodeId === child.nodeId;
               const isFile = child.nodeType === "file";
@@ -49,30 +50,38 @@ export default function Sidebar({
                 <button
                   key={child.nodeId}
                   onClick={() => onChildSelect(child)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 group ${
+                  className={`w-full flex flex-col gap-1 px-4 py-3 rounded-2xl transition-all duration-300 group ${
                     isSelected
                       ? theme === "dark"
-                        ? "text-blue-400"
-                        : "bg-blue-100/50 text-blue-600 shadow-inner shadow-blue-300/20"
+                        ? "bg-blue-500/10 text-white shadow-[0_0_20px_rgba(59,130,246,0.1)] border border-blue-500/20"
+                        : "bg-blue-50 text-blue-600 shadow-sm border border-blue-100"
                       : theme === "dark"
-                        ? "text-zinc-300 hover:bg-zinc-800/50 hover:text-white"
-                        : "text-gray-700 hover:bg-gray-100/70 hover:text-gray-900"
+                        ? "text-zinc-400 hover:bg-zinc-800/40 hover:text-white border border-transparent"
+                        : "text-neutral-600 hover:bg-neutral-100/70 hover:text-neutral-900 border border-transparent"
                   }`}
                 >
-                  <div
-                    className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                      isSelected
-                        ? theme === "dark"
-                          ? "bg-blue-500/20"
-                          : "bg-blue-100"
-                        : theme === "dark"
-                          ? "bg-zinc-800/50 group-hover:bg-zinc-700/50"
-                          : "bg-gray-100 group-hover:bg-gray-200"
-                    }`}
-                  ></div>
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="text-[clamp(0.85rem,2vw,0.9rem)] truncate">
-                      {child.name}
+                  <div className="w-full flex items-center gap-3">
+                    <div
+                      className={`flex-shrink-0 p-2.5 rounded-xl transition-all duration-300 ${
+                        isSelected
+                          ? theme === "dark"
+                            ? "bg-blue-500 text-white"
+                            : "bg-blue-600 text-white shadow-md shadow-blue-200"
+                          : theme === "dark"
+                            ? "bg-zinc-800/80 group-hover:bg-zinc-700"
+                            : "bg-neutral-100 group-hover:bg-neutral-200"
+                      }`}
+                    >
+                      {isFile ? (
+                        <FileText className="w-4 h-4" />
+                      ) : (
+                        <BookOpen className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="text-sm font-semibold truncate">
+                        {child.name}
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -90,7 +99,7 @@ export default function Sidebar({
             : "border-gray-200 text-gray-500"
         }`}
       >
-        <div className="text-xs text-center">Documentation Portal v2.0</div>
+        <div className="text-xs text-center">Documentation Portal v4.2</div>
       </div>
     </aside>
   );

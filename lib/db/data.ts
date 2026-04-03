@@ -14,6 +14,7 @@ export interface TreeNode {
   children: TreeNode[];
   filePath?: string | null;
   fileType?: "mdx" | "pdf" | "docx" | null;
+  updatedAt?: Date;
 }
 
 export async function getTree(collectionName: string): Promise<TreeNode[]> {
@@ -50,6 +51,7 @@ export async function getTree(collectionName: string): Promise<TreeNode[]> {
       parentId: node.parentId,
       filePath: node.filePath,
       fileType: node.fileType,
+      updatedAt: node.updatedAt,
       children: [],
     });
   });

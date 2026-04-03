@@ -6,7 +6,7 @@ import { NAV_ITEMS } from "./nav.config";
 import NavLogo from "./nav.logo";
 import NavDesktop from "./nav.desk";
 import NavMobile from "./nav.mobile";
-import { Menu, X, Sun, Moon, Search, Share2 } from "lucide-react";
+import { Menu, X, Sun, Moon, Search, Share2, FileText, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import PDFShare from "@/lib/PDF/pdf.share";
@@ -16,21 +16,47 @@ export default function NavBar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  
+  const [dynamicNavItems, setDynamicNavItems] = useState(NAV_ITEMS);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(true);
+
+  useEffect(() => {
+    async function fetchDocs() {
+      try {
+        const res = await fetch("/api/docs?collection=Docs");
+        if (res.ok) {
+          const data = await res.json();
+          const docItems = data.map((doc) => ({
+            label: doc.name,
+            href: `/docs/${doc.slug}`,
+            icon: FileText,
+          }));
+
+          setDynamicNavItems((prev) =>
+            prev.map((item) =>
+              item.label === "Documents"
+                ? {
+                    ...item,
+                    children: [
+                      { label: "All Documents", href: "/docs", icon: BookOpen },
+                      ...docItems,
+                    ],
+                  }
+                : item,
+            ),
+          );
+        }
+      } catch (err) {
+        console.error("Failed to fetch docs for navbar:", err);
+      } finally {
+        setIsLoadingDocs(false);
+      }
+    }
+    fetchDocs();
+  }, []);
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const searchLinkRef = useRef(null);
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearchOpen(false);
-      setSearchQuery("");
-      // Click the hidden Link for instant navigation
-      searchLinkRef.current?.click();
-    }
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +92,7 @@ export default function NavBar() {
       className={`fixed top-0 left-0 right-0 z-150 transition-all duration-300 ${
         isScrolled
           ? theme === "dark"
-            ? "bg-black/80 backdrop-blur-lg border-b border-white/10"
+            ? "bg-[#18181b]/80 backdrop-blur-lg border-b border-white/10"
             : "bg-white/80 backdrop-blur-lg border-b border-black/5"
           : "bg-transparent"
       } ${isScrolled ? "py-0" : "py-2"}`}
@@ -75,7 +101,7 @@ export default function NavBar() {
         <div className="flex items-center gap-10">
           <NavLogo theme={theme} />
           <NavDesktop
-            navItems={NAV_ITEMS}
+            navItems={dynamicNavItems}
             theme={theme}
             activeDropdown={activeDropdown}
             setActiveDropdown={setActiveDropdown}
@@ -110,7 +136,7 @@ export default function NavBar() {
           <button
             onClick={toggleTheme}
             suppressHydrationWarning
-            className={`p-2 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-colors hidden lg:flex ${
               theme === "dark"
                 ? "hover:bg-gray-800 text-yellow-400"
                 : "hover:bg-gray-100 text-gray-600"
@@ -146,8 +172,9 @@ export default function NavBar() {
 
         <NavMobile
           isOpen={isMobileMenuOpen}
-          navItems={NAV_ITEMS}
+          navItems={dynamicNavItems}
           theme={theme}
+          toggleTheme={toggleTheme}
           closeMobile={closeMobile}
         />
       </div>
@@ -171,25 +198,19 @@ export default function NavBar() {
                 theme === "dark" ? "bg-zinc-900 border-zinc-800" : "bg-white border-gray-200"
               }`}
             >
-              <form onSubmit={handleSearchSubmit} className="flex items-center p-4 sm:p-5">
+              <form action="/search" method="GET" className="flex items-center p-4 sm:p-5">
                 <Search className={`w-6 h-6 mr-4 ${theme === "dark" ? "text-zinc-500" : "text-gray-400"}`} />
                 <input
                   type="text"
+                  name="q"
                   autoFocus
                   placeholder="Search documentation, notes, and topics..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  required
                   className={`flex-1 text-lg sm:text-xl font-medium outline-none bg-transparent ${
                     theme === "dark" ? "text-white placeholder:text-zinc-500" : "text-black placeholder:text-gray-400"
                   }`}
-                />
-                {/* Hidden Link for instant navigation */}
-                <Link
-                  ref={searchLinkRef}
-                  href={`/search?q=${encodeURIComponent(searchQuery)}`}
-                  className="hidden"
-                  tabIndex={-1}
-                  aria-hidden="true"
                 />
                 <button
                   type="button"

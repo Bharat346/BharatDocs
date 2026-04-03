@@ -4,9 +4,7 @@ const nextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   compress: true,
-  experimental: {
-    serverComponentsExternalPackages: ["pdfjs-dist", "canvas", "tesseract.js"],
-  },
+  serverExternalPackages: ["pdfjs-dist", "canvas", "tesseract.js"],
 };
 
 export default nextConfig;

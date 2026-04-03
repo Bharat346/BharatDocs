@@ -22,7 +22,7 @@ export default function MobileAccordion({
         <Link
           href={item.href}
           onClick={closeMobile}
-          prefetch={shouldPrefetch()}
+          prefetch={true}
           target={item.external ? "_blank" : undefined}
           rel={item.external ? "noopener noreferrer" : undefined}
           suppressHydrationWarning
@@ -73,7 +73,7 @@ export default function MobileAccordion({
                     key={child.label}
                     href={child.href}
                     onClick={closeMobile}
-                    prefetch={shouldPrefetch()}
+                    prefetch={true}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[clamp(0.85rem,3vw,0.95rem)] font-medium transition-all ${
                       theme === "dark"
                         ? "text-gray-400 hover:bg-gray-800/30 hover:text-white"
@@ -113,7 +113,7 @@ export default function MobileAccordion({
                           key={subject.name}
                           href={subject.href}
                           onClick={closeMobile}
-                          prefetch={shouldPrefetch()}
+                          prefetch={true}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all font-medium ${
                             theme === "dark"
                               ? "text-gray-400 hover:bg-gray-800/50 hover:text-white"

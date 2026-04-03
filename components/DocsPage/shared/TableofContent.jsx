@@ -160,14 +160,16 @@ export default function TableOfContent({
   return (
     <aside
       className={cn(
-        "flex flex-col h-full",
-        isDark ? "bg-transparent text-white" : "bg-transparent text-neutral-900",
+        "flex flex-col h-full transition-all duration-300",
+        isDark
+          ? "bg-[#0a0a0a] border-l border-zinc-800 text-white"
+          : "bg-white border-l border-neutral-200 text-neutral-900 shadow-xl shadow-neutral-200/5",
         className,
       )}
     >
       {/* Header */}
-      <div className={cn("px-2 py-4 sticky top-0 z-10", isMobile && "pt-20")}>
-        <div className="flex items-center gap-2 pt-2 pb-5">
+      <div className={cn("px-2 py-4 h-14 z-10")}>
+        <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4">
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
           </div>
@@ -178,7 +180,7 @@ export default function TableOfContent({
       </div>
 
       {/* Body */}
-      <div className={cn("flex-1 px-1 pb-4", !isMobile && "overflow-y-auto")}>
+      <div className={cn("flex-1 px-1 pb-4 mt-5", !isMobile && "overflow-y-auto")}>
         {headings.length === 0 ? (
           <p className="text-sm text-center text-muted-foreground py-8">
             This document has no headings

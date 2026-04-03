@@ -17,6 +17,7 @@ export default function DocsClient() {
   const { theme } = useThemeContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
+  const [selectedTags, setSelectedTags] = useState([]);
 
   /* ---------------- React Query with AbortController ---------------- */
   const {
@@ -30,25 +31,46 @@ export default function DocsClient() {
     cacheTime: 30 * 60 * 1000, // 30 minutes
   });
 
-  /* ---------------- Collections (memoized) ---------------- */
-  const collections = useMemo(
-    () =>
-      rootNodes.map((root) => ({
-        id: root.nodeId,
-        name: root.name,
-        slug: root.slug,
-        nodeType: root.nodeType,
-        fileType: root.fileType,
-        updatedAt: root.updatedAt,
-      })),
-    [rootNodes],
-  );
+  /* ---------------- Collections & Tags (memoized) ---------------- */
+  const { collections, allTags } = useMemo(() => {
+    const colls = rootNodes.map((root) => ({
+      id: root.nodeId,
+      name: root.name,
+      slug: root.slug,
+      nodeType: root.nodeType,
+      fileType: root.fileType,
+      updatedAt: root.updatedAt,
+      tags: root.tags || [],
+    }));
+
+    const tagCounts = {};
+    colls.forEach((c) => {
+      c.tags.forEach((t) => {
+        tagCounts[t] = (tagCounts[t] || 0) + 1;
+      });
+    });
+
+    // Sort by frequency and take top 15
+    const tags = Object.entries(tagCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([tag]) => tag)
+      .slice(0, 15);
+
+    return { collections: colls, allTags: tags.sort() };
+  }, [rootNodes]);
 
   /* ---------------- Filtered & Sorted collections (memoized) ---------------- */
   const filteredCollections = useMemo(() => {
-    let result = collections.filter((c) =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    let result = collections.filter((c) => {
+      const matchesSearch = 
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.every((tag) => c.tags.includes(tag));
+      return matchesSearch && matchesTags;
+    });
 
     result.sort((a, b) => {
       if (sortBy === "name") {
@@ -62,7 +84,7 @@ export default function DocsClient() {
     });
 
     return result;
-  }, [collections, searchTerm, sortBy]);
+  }, [collections, searchTerm, sortBy, selectedTags]);
 
   if (isLoading) return <DocsLoader theme={theme} />;
   if (isError)
@@ -72,7 +94,7 @@ export default function DocsClient() {
     <div
       className={`min-h-screen pt-24 pb-20 px-6 transition-colors duration-500 ${
         theme === "dark"
-          ? "bg-[#0a0a0a] text-white"
+          ? "bg-[#18181b] text-white"
           : "bg-white text-neutral-900"
       }`}
     >
@@ -101,6 +123,9 @@ export default function DocsClient() {
             filteredCount={filteredCollections.length}
             sortBy={sortBy}
             setSortBy={setSortBy}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            allTags={allTags}
           />
 
           {filteredCollections.length === 0 ? (
