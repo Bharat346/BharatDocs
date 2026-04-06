@@ -5,10 +5,11 @@ import gsap from "gsap";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ChevronRight, Notebook, Search } from "lucide-react";
+import SearchOverlay from "@/components/ui/search-overlay";
 
 export default function HeroSection({ theme }) {
   const isDark = theme === "dark";
-  const [query, setQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const containerRef = useRef(null);
   const elementsRef = useRef([]);
@@ -55,24 +56,22 @@ export default function HeroSection({ theme }) {
 
         {/* Functional Fuzzy Search Bar */}
         <div ref={addToRefs} className="w-full max-w-3xl mb-12 relative group">
-          <form action="/search" method="GET" className="relative">
-            <input
-              type="text"
-              name="q"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search subjects, topics, or notes..."
-              required
-              className={`w-full text-base sm:text-lg md:text-xl lg:text-2xl font-semibold p-4 sm:p-5 md:p-6 lg:p-8 pr-16 sm:pr-18 md:pr-20 lg:pr-24 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] border-2 outline-none transition-all shadow-xl shadow-black/5 placeholder:text-xs sm:placeholder:text-base md:placeholder:text-lg lg:placeholder:text-xl ${searchBg} ${searchFocus} ${isDark ? "text-white" : "text-neutral-900"} placeholder:text-neutral-400 placeholder:font-medium`}
-            />
+          <div className="relative cursor-text" onClick={() => setIsSearchOpen(true)}>
+            <div
+              className={`w-full text-base sm:text-lg md:text-xl lg:text-2xl font-semibold p-4 sm:p-5 md:p-6 lg:p-8 pr-16 sm:pr-18 md:pr-20 lg:pr-24 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] border-2 outline-none transition-all shadow-xl shadow-black/5 ${searchBg} ${isDark ? "text-zinc-500" : "text-neutral-400"} flex items-center`}
+            >
+              Search subjects, topics, or notes...
+            </div>
             <button
-              type="submit"
+              type="button"
               className={`absolute right-4 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-[2rem] flex items-center justify-center transition-all ${isDark ? "bg-indigo-600 hover:bg-indigo-500 text-white" : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"}`}
             >
               <Search className="w-6 h-6 md:w-8 md:h-8" />
             </button>
-          </form>
+          </div>
         </div>
+
+        <SearchOverlay isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} theme={theme} />
 
         {/* Action Buttons */}
         <div

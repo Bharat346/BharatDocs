@@ -12,10 +12,10 @@ export default function Sidebar({
 }) {
   return (
     <aside
-      className={`h-full flex flex-col border-r transition-all duration-300 ${
+      className={`h-full flex flex-col transition-all duration-300 ${
         theme === "dark"
-          ? "bg-[#0a0a0a] border-zinc-800 text-white"
-          : "bg-white border-neutral-200 text-neutral-900 shadow-xl shadow-neutral-200/5"
+          ? "bg-[#0a0a0a] text-white"
+          : "bg-white text-neutral-900"
       } ${isMobile ? "w-full" : "w-72"}`}
     >
       {/* Content */}
@@ -44,7 +44,6 @@ export default function Sidebar({
             <span className="text-xl font-semibold ml-2 mb-5 mt-3">Chapters</span>
             {children.map((child) => {
               const isSelected = selectedChild?.nodeId === child.nodeId;
-              const isFile = child.nodeType === "file";
 
               return (
                 <button
@@ -61,25 +60,8 @@ export default function Sidebar({
                   }`}
                 >
                   <div className="w-full flex items-center gap-3">
-                    <div
-                      className={`flex-shrink-0 p-2.5 rounded-xl transition-all duration-300 ${
-                        isSelected
-                          ? theme === "dark"
-                            ? "bg-blue-500 text-white"
-                            : "bg-blue-600 text-white shadow-md shadow-blue-200"
-                          : theme === "dark"
-                            ? "bg-zinc-800/80 group-hover:bg-zinc-700"
-                            : "bg-neutral-100 group-hover:bg-neutral-200"
-                      }`}
-                    >
-                      {isFile ? (
-                        <FileText className="w-4 h-4" />
-                      ) : (
-                        <BookOpen className="w-4 h-4" />
-                      )}
-                    </div>
                     <div className="flex-1 text-left min-w-0">
-                      <div className="text-sm font-semibold truncate">
+                      <div className="text-sm font-semibold truncate px-1">
                         {child.name}
                       </div>
                     </div>
@@ -93,13 +75,13 @@ export default function Sidebar({
 
       {/* Footer */}
       <div
-        className={`p-4 border-t shrink-0 ${
+        className={`p-4 shrink-0 ${
           theme === "dark"
-            ? "border-zinc-800 text-zinc-500"
-            : "border-gray-200 text-gray-500"
+            ? "text-zinc-500"
+            : "text-gray-500"
         }`}
       >
-        <div className="text-xs text-center">Documentation Portal v4.2</div>
+        <div className="text-xs text-center font-medium opacity-50">Documentation Portal v4.2</div>
       </div>
     </aside>
   );

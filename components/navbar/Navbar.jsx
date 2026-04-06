@@ -10,6 +10,7 @@ import { Menu, X, Sun, Moon, Search, Share2, FileText, BookOpen } from "lucide-r
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import PDFShare from "@/lib/PDF/pdf.share";
+import SearchOverlay from "@/components/ui/search-overlay";
 
 export default function NavBar() {
   const { theme, toggleTheme, mounted } = useThemeContext();
@@ -56,7 +57,6 @@ export default function NavBar() {
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -180,52 +180,7 @@ export default function NavBar() {
       </div>
 
       {/* Global Search Modal */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh]">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setIsSearchOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className={`relative z-[201] w-[90%] max-w-2xl rounded-2xl shadow-2xl overflow-hidden border ${
-                theme === "dark" ? "bg-zinc-900 border-zinc-800" : "bg-white border-gray-200"
-              }`}
-            >
-              <form action="/search" method="GET" className="flex items-center p-4 sm:p-5">
-                <Search className={`w-6 h-6 mr-4 ${theme === "dark" ? "text-zinc-500" : "text-gray-400"}`} />
-                <input
-                  type="text"
-                  name="q"
-                  autoFocus
-                  placeholder="Search documentation, notes, and topics..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  required
-                  className={`flex-1 text-lg sm:text-xl font-medium outline-none bg-transparent ${
-                    theme === "dark" ? "text-white placeholder:text-zinc-500" : "text-black placeholder:text-gray-400"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsSearchOpen(false)}
-                  className={`ml-4 p-1 rounded-md transition-colors ${
-                    theme === "dark" ? "hover:bg-zinc-800 text-zinc-400" : "hover:bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
-                </button>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <SearchOverlay isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} theme={theme} />
 
       {isShareOpen && (
         <PDFShare

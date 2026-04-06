@@ -9,9 +9,8 @@ import Sidebar from "@/components/DocsPage/shared/SideBar";
 import TableOfContent from "@/components/DocsPage/shared/TableofContent";
 import Panel from "./docs.slug.panel";
 import { fetchChildren, fetchMdxContent } from "@/components/DocsPage/lib/docs.api";
-import { Loader2, FileSearch, Search } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-import Portal from "@/components/ui/portal";
+import { Loader2, FileSearch } from "lucide-react";
+import SearchOverlay from "@/components/ui/search-overlay";
 
 /* ---------- Dynamic ---------- */
 const MainContent = dynamic(
@@ -27,7 +26,7 @@ const ric =
 
 /* =================================
    Docs Page
-================================= */
+ ================================= */
 export default function DocsSlugClient({ slug }) {
   const { theme, toggleTheme, mounted } = useThemeContext();
 
@@ -38,7 +37,6 @@ export default function DocsSlugClient({ slug }) {
   const [isMobile, setIsMobile] = useState(false);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const scrollRef = useRef(null);
   const sidebarRef = useRef(null);
@@ -160,6 +158,8 @@ export default function DocsSlugClient({ slug }) {
     );
 
   /* ---------- Render ---------- */
+  const bgColor = theme === "dark" ? "bg-[#0a0a0a]" : "bg-white";
+
   return (
     <div className={`h-screen flex flex-col transition-colors duration-500 overflow-hidden ${theme === "dark" ? "bg-[#0a0a0a] text-white" : "bg-white text-neutral-900"}`}>
       {/* Professional Doc NavBar */}
@@ -173,7 +173,7 @@ export default function DocsSlugClient({ slug }) {
           side="left"
           panelRef={sidebarRef}
         >
-          <div className="h-full border-r border-zinc-200 dark:border-zinc-800/60 w-72 flex flex-col overflow-hidden bg-background">
+          <div className={`h-full w-72 flex flex-col overflow-hidden ${bgColor}`}>
             <Sidebar
               theme={theme}
               children={children}
@@ -184,7 +184,7 @@ export default function DocsSlugClient({ slug }) {
         </Panel>
 
         {/* Main Content Area */}
-        <div className="flex-1 relative flex flex-col min-w-0 bg-background overflow-hidden h-full">
+        <div className={`flex-1 relative flex flex-col min-w-0 ${bgColor} overflow-hidden h-full`}>
           {isLoadingChildren || (selectedChild && isLoadingMdx) ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4">
               <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
@@ -221,7 +221,7 @@ export default function DocsSlugClient({ slug }) {
 
         {/* TOC */}
         <Panel open={tocOpen} mobile={isMobile} side="right" panelRef={tocRef}>
-          <div className="h-full border-l border-zinc-200 dark:border-zinc-800/60 w-64 bg-background overflow-hidden flex flex-col">
+          <div className={`h-full w-64 ${bgColor} overflow-hidden flex flex-col`}>
           <TableOfContent
             theme={theme}
             mdxContent={mdxContent}
@@ -232,49 +232,8 @@ export default function DocsSlugClient({ slug }) {
         </Panel>
       </div>
 
-      {/* GLOBAL SEARCH OVERLAY (Root Level Fix) */}
-      <Portal>
-        <AnimatePresence>
-          {isSearchOpen && (
-            <div className="fixed inset-0 z-[1000] flex items-start justify-center pt-[15vh]">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                onClick={() => setIsSearchOpen(false)}
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                className={`relative z-[1001] w-[90%] max-w-2xl rounded-3xl shadow-2xl overflow-hidden border ${
-                  theme === "dark" ? "bg-zinc-950 border-zinc-800" : "bg-white border-gray-200"
-                } ring-1 ring-blue-500/10 shadow-blue-500/5`}
-              >
-                <form action="/search" method="GET" className="flex items-center p-5">
-                  <Search className={`w-6 h-6 mr-4 ${theme === "dark" ? "text-zinc-500" : "text-gray-400"}`} />
-                  <input
-                    type="text"
-                    name="q"
-                    autoFocus
-                    placeholder="Search documentation..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    required
-                    className={`flex-1 text-lg sm:text-xl font-medium outline-none bg-transparent ${
-                      theme === "dark" ? "text-white placeholder:text-zinc-600" : "text-black placeholder:text-gray-400"
-                    }`}
-                  />
-                  <button type="button" onClick={() => setIsSearchOpen(false)} className={`ml-4 p-2 rounded-xl transition-colors ${theme === "dark" ? "hover:bg-zinc-800 text-zinc-400" : "hover:bg-gray-100 text-gray-400"}`}>
-                    <span className="text-[10px] font-mono px-2 py-1 rounded border border-zinc-700 bg-zinc-800 text-zinc-300">ESC</span>
-                  </button>
-                </form>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-      </Portal>
+      {/* GLOBAL SEARCH OVERLAY */}
+      <SearchOverlay isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} theme={theme} />
     </div>
   );
 }

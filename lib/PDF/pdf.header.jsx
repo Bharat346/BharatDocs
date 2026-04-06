@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronLeft, Share2, Download, PanelsTopLeft, Search, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import SearchOverlay from "@/components/ui/search-overlay";
 
 export default function PDFHeader({ 
   title, 
@@ -17,7 +18,6 @@ export default function PDFHeader({
 }) {
   const isDark = theme === "dark";
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <nav className={`h-14 w-full flex items-center justify-between px-4 z-[10005] border-b transition-colors duration-300 ${
@@ -101,42 +101,8 @@ export default function PDFHeader({
         </button>
       </div>
 
-      <AnimatePresence>
-        {isSearchOpen && (
-          <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[10vh]">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={() => setIsSearchOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className={`relative z-[201] w-[90%] max-w-2xl rounded-2xl shadow-2xl overflow-hidden border ${
-                isDark ? "bg-[#0a0a0a] border-zinc-800" : "bg-white border-gray-200"
-              }`}
-            >
-              <form action="/search" method="GET" className="flex items-center p-4">
-                <Search className={`w-5 h-5 mr-4 ${isDark ? "text-zinc-500" : "text-gray-400"}`} />
-                <input
-                  type="text"
-                  name="q"
-                  autoFocus
-                  placeholder="Search knowledge hub..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`flex-1 text-base outline-none bg-transparent ${
-                    isDark ? "text-white" : "text-black"
-                  }`}
-                />
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Global Search Overlay */}
+      <SearchOverlay isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} theme={theme} />
     </nav>
   );
 }

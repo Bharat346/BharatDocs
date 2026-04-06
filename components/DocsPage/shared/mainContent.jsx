@@ -39,9 +39,9 @@ const MainContent = function MainContent({
   if (!selectedChild) return <EmptyState theme={theme} />;
 
   return (
-    <div className={`flex flex-col flex-1 h-full min-w-0 relative ${theme === "dark" ? "bg-[#0a0a0a] border-l border-zinc-800" : "bg-neutral-50 shadow-inner"}`}>
+    <div className={`flex flex-col flex-1 h-full min-w-0 relative ${theme === "dark" ? "bg-[#0a0a0a]" : "bg-white"}`}>
       {/* ---------------- HEADER ---------------- */}
-      <header className={`sticky top-0 z-30 border-b backdrop-blur ${theme === "dark" ? "bg-[#0a0a0a]/80 border-zinc-800" : "bg-neutral-50/80 border-neutral-200"}`}>
+      <header className={`sticky top-0 z-30 backdrop-blur ${theme === "dark" ? "bg-[#0a0a0a]/80" : "bg-white/80"}`}>
         <div className="flex h-14 items-center justify-between px-4">
           <div
             className={`flex items-center gap-2 min-w-0 ${

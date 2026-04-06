@@ -9,10 +9,10 @@ export default function DocsNavBar({ theme, toggleTheme, mounted, setIsSearchOpe
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   return (
-    <nav className={`h-16 border-b flex items-center justify-between px-4 sm:px-6 sticky top-0 z-[100] transition-colors duration-300 ${
+    <nav className={`h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-[100] transition-colors duration-300 ${
       theme === "dark" 
-        ? "bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800" 
-        : "bg-white/80 backdrop-blur-md border-gray-100"
+        ? "bg-[#0a0a0a]/80 backdrop-blur-md" 
+        : "bg-white/80 backdrop-blur-md"
     }`}>
       <div className="flex items-center gap-4">
         <Link 

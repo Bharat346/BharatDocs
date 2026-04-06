@@ -134,7 +134,7 @@ export default function TableOfContent({
             <button
               onClick={() => scrollToHeading(node.id)}
               className={cn(
-                "py-1 text-sm truncate text-left",
+                "py-1 text-sm text-left",
                 activeId === node.id
                   ? "text-blue-500 font-medium"
                   : isDark
@@ -162,14 +162,14 @@ export default function TableOfContent({
       className={cn(
         "flex flex-col h-full transition-all duration-300",
         isDark
-          ? "bg-[#0a0a0a] border-l border-zinc-800 text-white"
-          : "bg-white border-l border-neutral-200 text-neutral-900 shadow-xl shadow-neutral-200/5",
+          ? "bg-[#0a0a0a] text-white"
+          : "bg-white text-neutral-900",
         className,
       )}
     >
       {/* Header */}
       <div className={cn("px-2 py-4 h-14 z-10")}>
-        <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+        <div className="flex items-center gap-2 pb-4">
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
           </div>
