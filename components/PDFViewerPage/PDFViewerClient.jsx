@@ -6,7 +6,7 @@ import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
 import Link from "next/link";
 import { useRef } from "react";
 
-const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), {
+const PDFViewer = dynamic(() => import("@/lib/PDF/PDFViewerReact.jsx"), {
   ssr: false,
 });
 
@@ -50,6 +50,7 @@ export default function PDFViewerClient({ path }) {
       <PDFViewer 
          fileUrl={node.filePath || node.slug} 
          nodeId={node.id || node.nodeId}
+         docTitle={node.name || slug}
          onClose={() => backLinkRef.current?.click()} 
          backHref={backHref}
       />

@@ -9,7 +9,7 @@ import NavMobile from "./nav.mobile";
 import { Menu, X, Sun, Moon, Search, Share2, FileText, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import PDFShare from "@/lib/PDF/pdf.share";
+import ShareDropdown from "@/components/DocsPage/shared/ShareDropdown";
 import SearchOverlay from "@/components/ui/search-overlay";
 
 export default function NavBar() {
@@ -56,7 +56,7 @@ export default function NavBar() {
   }, []);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isShareOpen, setIsShareOpen] = useState(false);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -111,27 +111,16 @@ export default function NavBar() {
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className={`p-2 rounded-lg transition-colors ${
-              theme === "dark"
-                ? "hover:bg-gray-800 text-gray-300 hover:text-white"
-                : "hover:bg-gray-100 text-gray-600 hover:text-black"
-            }`}
+            className="p-2.5 rounded-xl transition-all flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
             title="Search (Ctrl+K)"
           >
             <Search className="w-5 h-5" />
           </button>
 
-          <button
-            onClick={() => setIsShareOpen(true)}
-            className={`p-2 rounded-lg transition-colors ${
-              theme === "dark"
-                ? "hover:bg-gray-800 text-gray-300 hover:text-white"
-                : "hover:bg-gray-100 text-gray-600 hover:text-black"
-            }`}
-            title="Share"
-          >
-            <Share2 className="w-5 h-5" />
-          </button>
+          <ShareDropdown 
+            title={typeof document !== "undefined" ? document.title : "BharatDocs"} 
+            url={typeof window !== "undefined" ? window.location.href : ""} 
+          />
 
           <button
             onClick={toggleTheme}
@@ -182,13 +171,7 @@ export default function NavBar() {
       {/* Global Search Modal */}
       <SearchOverlay isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} theme={theme} />
 
-      {isShareOpen && (
-        <PDFShare
-          theme={theme}
-          title={typeof document !== "undefined" ? document.title : "Research Hub"}
-          onClose={() => setIsShareOpen(false)}
-        />
-      )}
+
     </nav>
   );
 }

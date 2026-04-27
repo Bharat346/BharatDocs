@@ -80,17 +80,10 @@ export default function SearchOverlay({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: -10 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className={`relative z-[1001] w-[95%] max-w-3xl rounded-2xl overflow-hidden
-              ${
-                theme === "dark"
-                  ? "bg-gradient-to-b from-zinc-900/90 to-zinc-950/95 border border-white/5"
-                  : "bg-white/90 border border-black/5"
-              }
-              backdrop-blur-3xl shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)]
-              flex flex-col max-h-[75vh]`}
+              className="relative z-[1001] w-[95%] max-w-3xl rounded-2xl overflow-hidden bg-background border border-border backdrop-blur-3xl shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)] flex flex-col max-h-[75vh]"
             >
               {/* 🔍 Header */}
-              <div className="relative flex items-center px-6 py-5 border-b border-white/5">
+              <div className="relative flex items-center px-6 py-5 border-b border-border/50">
                 <div
                   className={`absolute left-8 ${
                     searchLoading ? "text-blue-400" : "text-zinc-500"
@@ -109,17 +102,12 @@ export default function SearchOverlay({
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full pl-12 pr-12 text-xl sm:text-2xl font-medium outline-none bg-transparent
-                  ${
-                    theme === "dark"
-                      ? "text-white placeholder:text-zinc-600"
-                      : "text-black placeholder:text-gray-400"
-                  }`}
+                  className="w-full pl-12 pr-12 text-xl sm:text-2xl font-medium outline-none bg-transparent text-foreground placeholder:text-zinc-500"
                 />
 
                 <button
                   onClick={() => onOpenChange(false)}
-                  className="absolute right-6 p-2 rounded-xl hover:bg-white/5 text-zinc-400 transition"
+                  className="absolute right-6 p-2 rounded-xl hover:bg-secondary-bg text-zinc-400 transition"
                 >
                   <X size={20} />
                 </button>
@@ -199,29 +187,18 @@ function ResultItem({
   getLink,
   highlightMatch,
   query,
-  theme,
   close,
   isMatch = false,
   index = 0,
 }) {
-  const isDark = theme === "dark";
-
   return (
     <a
       href={getLink(node)}
       onClick={close}
       style={{ transitionDelay: `${index * 20}ms` }}
-      className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200
-      ${isDark ? "hover:bg-white/[0.03]" : "hover:bg-black/[0.03]"}`}
+      className="flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 hover:bg-secondary-bg"
     >
-      <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center
-        ${
-          isDark
-            ? "bg-white/[0.03] text-zinc-400"
-            : "bg-black/[0.03] text-gray-500"
-        }`}
-      >
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-secondary-bg text-zinc-500 dark:text-zinc-400">
         {node.fileType === "pdf" ? <Library size={20} /> : <FileText size={20} />}
       </div>
 
@@ -230,7 +207,7 @@ function ResultItem({
           {node.collectionName} / {node.parentName || "Root"}
         </div>
 
-        <div className={`text-[15px] font-medium truncate ${isDark ? "text-white" : "text-black"}`}>
+        <div className="text-[15px] font-medium truncate text-foreground">
           {highlightMatch(node.name, query)}
         </div>
       </div>

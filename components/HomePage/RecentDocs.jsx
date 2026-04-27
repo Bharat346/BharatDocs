@@ -35,112 +35,70 @@ export default function RecentDocs({ theme }) {
     }
   };
 
-  const headingColor = isDark ? "text-white" : "text-neutral-950";
-
   return (
-    <section className="py-12 md:py-24 px-6 max-w-7xl mx-auto">
+    <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto transition-colors duration-500 bg-background">
       {/* Header */}
-      <div className="flex items-end justify-between mb-8 md:mb-14">
+      <div className="flex items-end justify-between mb-10 md:mb-16">
         <div className="max-w-2xl">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-[3px] bg-indigo-600 rounded-full" />
-            <span className="text-[11px] font-extrabold uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary rounded-full" />
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">
               Fresh Updates
             </span>
           </div>
 
-          <h2
-            className={`text-4xl md:text-6xl font-extrabold tracking-tight leading-[0.95] ${headingColor}`}
-          >
-            Recently{" "}
-            <span className="text-indigo-600 dark:text-indigo-500">
-              Added
-            </span>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.95] text-foreground">
+            Recently <span className="text-primary">Added</span>
           </h2>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {loading ? (
-          Array(6)
-            .fill(0)
-            .map((_, i) => (
-              <div
-                key={i}
-                className={`h-64 rounded-3xl animate-pulse ${
-                  isDark ? "bg-neutral-900/50" : "bg-neutral-50"
-                } border ${
-                  isDark ? "border-neutral-800" : "border-neutral-100"
-                }`}
-              />
-            ))
+          Array(6).fill(0).map((_, i) => (
+            <div
+              key={i}
+              className="h-56 rounded-3xl animate-pulse bg-secondary-bg border border-border"
+            />
+          ))
         ) : docs.length > 0 ? (
           docs.map((doc, i) => (
-            <Link
-              key={doc.id}
-              href={getLink(doc)}
-              className="group block h-full"
-            >
+            <Link key={doc.id} href={getLink(doc)} className="group block">
               <motion.div
-                initial={{ opacity: 0, y: 25 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: i * 0.08 }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
                 viewport={{ once: true }}
-                className={`flex flex-col p-7 rounded-[2rem] border transition-all duration-500 h-full ${
-                  isDark
-                    ? "bg-zinc-900/40 border-zinc-800/80 hover:border-indigo-500/50 hover:bg-zinc-900/70"
-                    : "bg-white border-neutral-100 hover:border-indigo-200 hover:shadow-xl"
-                }`}
+                className="flex flex-col p-6 rounded-3xl border border-border transition-all duration-300 h-full bg-background hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 group-hover:bg-secondary-bg/50"
               >
                 {/* Top */}
-                <div className="flex items-center justify-between mb-6">
-                  <div
-                    className={`p-3 rounded-xl transition-all duration-500 ${
-                      isDark
-                        ? "bg-zinc-800 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white"
-                        : "bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white"
-                    }`}
-                  >
-                    <FileText className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-5">
+                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                    <FileText size={18} />
                   </div>
-
-                  <ExternalLink className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-indigo-500" />
+                  <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-500">
-                      {doc.collectionName}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-neutral-400" />
-                    <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">
-                      {doc.parentName || "Root"}
-                    </span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                    <span className="text-primary">{doc.collectionName}</span>
+                    <span className="w-1 h-1 rounded-full bg-border" />
+                    <span className="truncate">{doc.parentName || "Root"}</span>
                   </div>
 
-                  <h3
-                    className={`text-lg md:text-xl font-semibold leading-snug transition-colors ${
-                      isDark
-                        ? "text-white group-hover:text-indigo-400"
-                        : "text-neutral-900 group-hover:text-indigo-600"
-                    }`}
-                  >
+                  <h3 className="text-lg font-bold leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
                     {doc.name}
                   </h3>
 
-                  {/* Bottom Tags */}
+                  {/* Tags */}
                   {doc.tags && doc.tags.length > 0 && (
-                    <div className="mt-auto pt-6 flex flex-wrap gap-2">
-                      {doc.tags.slice(0, 3).map((tag, idx) => (
+                    <div className="mt-5 flex flex-wrap gap-1.5">
+                      {doc.tags.slice(0, 2).map((tag, idx) => (
                         <span
                           key={idx}
-                          className={`text-[10px] font-semibold px-3 py-1 rounded-full ${
-                            isDark
-                              ? "bg-white/5 text-neutral-400 border border-white/10"
-                              : "bg-neutral-100 text-neutral-600"
-                          }`}
+                          className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-secondary-bg border border-border text-neutral-500"
                         >
                           {tag}
                         </span>
@@ -152,9 +110,9 @@ export default function RecentDocs({ theme }) {
             </Link>
           ))
         ) : (
-          <div className="col-span-full py-16 text-center border-2 border-dashed rounded-[2.5rem] border-neutral-200 dark:border-neutral-800">
-            <p className="text-sm font-semibold text-neutral-400 uppercase tracking-widest">
-              No documents found
+          <div className="col-span-full py-20 text-center border-2 border-dashed rounded-[2.5rem] border-border bg-secondary-bg/30">
+            <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest">
+              No recent documents
             </p>
           </div>
         )}

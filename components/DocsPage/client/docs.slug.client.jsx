@@ -2,62 +2,49 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import dynamic from "next/dynamic";
-import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { useThemeContext } from "@/components/ThemeProvider";
 import DocsNavBar from "@/components/DocsPage/shared/DocsNavBar";
 import Sidebar from "@/components/DocsPage/shared/SideBar";
 import TableOfContent from "@/components/DocsPage/shared/TableofContent";
 import Panel from "./docs.slug.panel";
-import { fetchChildren, fetchMdxContent } from "@/components/DocsPage/lib/docs.api";
 import { Loader2, FileSearch } from "lucide-react";
 import SearchOverlay from "@/components/ui/search-overlay";
 
 /* ---------- Dynamic ---------- */
 const MainContent = dynamic(
   () => import("@/components/DocsPage/shared/mainContent"),
-  { ssr: false },
+  { ssr: true },
 );
-
-/* ---------- Helper: safe idle callback ---------- */
-const ric =
-  typeof window !== "undefined" && window.requestIdleCallback
-    ? window.requestIdleCallback
-    : (cb) => setTimeout(cb, 200);
 
 /* =================================
    Docs Page
  ================================= */
-export default function DocsSlugClient({ slug }) {
+export default function DocsSlugClient({
+  slug,
+  initialChildren,
+  initialSelectedChild,
+  initialMdxResult,
+}) {
   const { theme, toggleTheme, mounted } = useThemeContext();
+  const searchParams = useSearchParams();
 
   /* ---------- State ---------- */
-  const [selectedChild, setSelectedChild] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const scrollRef = useRef(null);
   const sidebarRef = useRef(null);
   const tocRef = useRef(null);
 
-  /* ---------- Queries ---------- */
-  const { data: children = [], isError: childrenError, isLoading: isLoadingChildren } = useQuery({
-    queryKey: ["docs", slug],
-    queryFn: ({ signal }) => fetchChildren(slug, signal),
-    staleTime: 5 * 60 * 1000,
-  });
+  const children = initialChildren || [];
+  const selectedChild = initialSelectedChild;
 
-  const { data: mdxData, isError: mdxError, isLoading: isLoadingMdx } = useQuery({
-    queryKey: ["mdx", selectedChild?.filePath],
-    queryFn: ({ signal }) => fetchMdxContent(selectedChild?.filePath, signal),
-    enabled: !!selectedChild,
-    staleTime: 60 * 60 * 1000,
-  });
-
-  const mdxContent = mdxData?.content ?? "";
-  const frontmatter = mdxData?.frontmatter ?? {};
+  const mdxContent = initialMdxResult?.content ?? "";
+  const frontmatter = initialMdxResult?.frontmatter ?? {};
+  const headings = initialMdxResult?.headings ?? [];
 
   /* ---------- Search Toggle ---------- */
   useEffect(() => {
@@ -75,12 +62,12 @@ export default function DocsSlugClient({ slug }) {
   /* ---------- Responsive ---------- */
   useEffect(() => {
     const update = () => {
-      queueMicrotask(() => {
-        const mobile = window.innerWidth < 1024;
-        setIsMobile(mobile);
-        setSidebarOpen(!mobile);
-        setTocOpen(!mobile);
-      });
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(true);
+        setTocOpen(true);
+      }
     };
 
     update();
@@ -88,36 +75,11 @@ export default function DocsSlugClient({ slug }) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  /* ---------- Auto select from URL or first child ---------- */
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : null;
-  const childSlugFromUrl = searchParams?.get("child");
-
-  useEffect(() => {
-    if (!children.length || selectedChild) return;
-
-    if (childSlugFromUrl) {
-      const match = children.find((c) => c.slug === childSlugFromUrl);
-      if (match) {
-        ric(() => setSelectedChild(match));
-        return;
-      }
-    }
-
-    ric(() => setSelectedChild(children[0]));
-  }, [children, selectedChild, childSlugFromUrl]);
-
   /* ---------- Handle child selection ---------- */
-  const handleChildSelect = (child) => {
-    queueMicrotask(() => setSelectedChild(child));
-    history.replaceState(null, "", `/docs/${slug}?child=${child.slug}`);
+  const handleChildSelect = () => {
     if (isMobile) {
-      ric(() => {
-        setSidebarOpen(false);
-        setTocOpen(false);
-      });
+      setSidebarOpen(false);
+      setTocOpen(false);
     }
   };
 
@@ -129,12 +91,10 @@ export default function DocsSlugClient({ slug }) {
       const s = sidebarRef.current;
       const t = tocRef.current;
       if ((s && s.contains(e.target)) || (t && t.contains(e.target))) return;
-      if (e.target.closest("button")) return; 
+      if (e.target.closest("button") || e.target.closest("a")) return;
 
-      ric(() => {
-        setSidebarOpen(false);
-        setTocOpen(false);
-      });
+      setSidebarOpen(false);
+      setTocOpen(false);
     };
 
     document.addEventListener("mousedown", handleClick);
@@ -146,24 +106,20 @@ export default function DocsSlugClient({ slug }) {
     };
   }, [isMobile]);
 
-  /* ---------- Error Guards ---------- */
-  if (childrenError)
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-10 font-roboto text-crimson bg-background text-center">
-        <FileSearch className="w-12 h-12 mb-4 opacity-50" />
-        <h2 className="text-xl font-bold mb-2">Error Loading Cluster</h2>
-        <p className="text-zinc-500">We couldn't retrieve the document structure. Please try again later.</p>
-        <button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Reload Page</button>
-      </div>
-    );
-
-  /* ---------- Render ---------- */
-  const bgColor = theme === "dark" ? "bg-[#0a0a0a]" : "bg-white";
-
   return (
-    <div className={`h-screen flex flex-col transition-colors duration-500 overflow-hidden ${theme === "dark" ? "bg-[#0a0a0a] text-white" : "bg-white text-neutral-900"}`}>
+    <div className="h-screen flex flex-col transition-colors duration-500 overflow-hidden bg-background text-foreground">
       {/* Professional Doc NavBar */}
-      <DocsNavBar theme={theme} toggleTheme={toggleTheme} mounted={mounted} setIsSearchOpen={setIsSearchOpen} />
+      <DocsNavBar
+        theme={theme}
+        toggleTheme={toggleTheme}
+        mounted={mounted}
+        setIsSearchOpen={setIsSearchOpen}
+        docTitle={
+          frontmatter?.title || slug.split("/").pop()?.replace(/[-_]/g, " ")
+        }
+        onMenuClick={() => setSidebarOpen((v) => !v)}
+        onTocClick={() => setTocOpen((v) => !v)}
+      />
 
       <div className="flex flex-1 relative overflow-hidden h-full">
         {/* Sidebar */}
@@ -173,47 +129,41 @@ export default function DocsSlugClient({ slug }) {
           side="left"
           panelRef={sidebarRef}
         >
-          <div className={`h-full w-72 flex flex-col overflow-hidden ${bgColor}`}>
+          <div className="h-full w-72 flex flex-col overflow-hidden bg-background">
             <Sidebar
-              theme={theme}
               children={children}
               selectedChild={selectedChild}
               onChildSelect={handleChildSelect}
+              slug={slug}
             />
           </div>
         </Panel>
 
         {/* Main Content Area */}
-        <div className={`flex-1 relative flex flex-col min-w-0 ${bgColor} overflow-hidden h-full`}>
-          {isLoadingChildren || (selectedChild && isLoadingMdx) ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4">
-              <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-              <p className="text-sm font-medium text-zinc-500 animate-pulse">Initializing documentation...</p>
-            </div>
-          ) : !selectedChild && !isLoadingChildren ? (
+        <div className="flex-1 relative flex flex-col min-w-0 bg-background overflow-hidden h-full">
+          {!selectedChild ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
               <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800/50 rounded-3xl flex items-center justify-center mb-6">
                 <FileSearch className="w-10 h-10 text-zinc-400" />
               </div>
               <h2 className="text-2xl font-bold mb-3">No document found</h2>
               <p className="text-zinc-500 leading-relaxed">
-                The document cluster exists, but no specific page is currently available for display.
+                The document cluster exists, but no specific page is currently
+                available for display.
               </p>
             </div>
           ) : (
-            <Suspense fallback={
-              <div className="flex-1 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-blue-500/50 animate-spin" />
-              </div>
-            }>
+            <Suspense
+              fallback={
+                <div className="flex-1 flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 text-blue-500/50 animate-spin" />
+                </div>
+              }
+            >
               <MainContent
                 scrollRef={scrollRef}
-                theme={theme}
                 selectedChild={selectedChild}
                 mdxContent={mdxContent}
-                frontmatter={frontmatter}
-                onSidebarToggle={() => setSidebarOpen((v) => !v)}
-                onTocToggle={() => setTocOpen((v) => !v)}
               />
             </Suspense>
           )}
@@ -221,19 +171,22 @@ export default function DocsSlugClient({ slug }) {
 
         {/* TOC */}
         <Panel open={tocOpen} mobile={isMobile} side="right" panelRef={tocRef}>
-          <div className={`h-full w-64 ${bgColor} overflow-hidden flex flex-col`}>
-          <TableOfContent
-            theme={theme}
-            mdxContent={mdxContent}
-            containerRef={scrollRef}
-            isMobile={isMobile}
-          />
+          <div className="h-full w-69 bg-background overflow-hidden flex flex-col">
+            <TableOfContent
+              headings={headings}
+              containerRef={scrollRef}
+              isMobile={isMobile}
+            />
           </div>
         </Panel>
       </div>
 
       {/* GLOBAL SEARCH OVERLAY */}
-      <SearchOverlay isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} theme={theme} />
+      <SearchOverlay
+        isOpen={isSearchOpen}
+        onOpenChange={setIsSearchOpen}
+        theme={theme}
+      />
     </div>
   );
 }

@@ -23,21 +23,21 @@ async function fetchJson(url,signal){
  * @param {string} slug
  * @param {AbortSignal} [signal]
  */
-export async function fetchChildren(slug, signal) {
-  if (!slug) return [];
-  return await fetchJson(`/api/docs?parentSlug=${slug}`, signal);
-}
+// export async function fetchChildren(slug, signal) {
+//   if (!slug) return [];
+//   return await fetchJson(`/api/docs?parentSlug=${slug}`, signal);
+// }
 
 /**
  * Fetch MDX content for a given filePath
  * @param {string} filePath
  * @param {AbortSignal} [signal]
  */
-export async function fetchMdxContent(filePath, signal) {
-  if (!filePath) return null;
-  const url = `/api/github/content?url=${encodeURIComponent(filePath)}`;
-  return await fetchJson(url, signal);
-}
+// export async function fetchMdxContent(filePath, signal) {
+//   if (!filePath) return null;
+//   const url = `/api/github/content?url=${encodeURIComponent(filePath)}`;
+//   return await fetchJson(url, signal);
+// }
 
 export async function fetchDocs(signal) {
     const url = `/api/docs?collection=Docs&parentSlug=`;

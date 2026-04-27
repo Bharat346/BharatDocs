@@ -14,7 +14,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function DocsClient() {
-  const { theme } = useThemeContext();
+  const { theme, toggleTheme, mounted } = useThemeContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [selectedTags, setSelectedTags] = useState([]);
@@ -86,38 +86,33 @@ export default function DocsClient() {
     return result;
   }, [collections, searchTerm, sortBy, selectedTags]);
 
-  if (isLoading) return <DocsLoader theme={theme} />;
+  if (isLoading) return <DocsLoader />;
   if (isError)
     return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
-    <div
-      className={`min-h-screen pt-24 pb-20 px-6 transition-colors duration-500 ${
-        theme === "dark"
-          ? "bg-[#18181b] text-white"
-          : "bg-white text-neutral-900"
-      }`}
-    >
+    <div className="min-h-screen pt-12 pb-20 px-6 transition-colors duration-500 bg-background text-foreground">
       <div className="max-w-4xl mx-auto space-y-12">
-        <div className="flex flex-col gap-4 sm:gap-6">
-          <Link
-            href="/"
-            className="group flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-indigo-500 transition-colors self-start"
-          >
-            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />{" "}
-            Back Home
-          </Link>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
-            Docs{" "}
-            <span className="text-indigo-600 dark:text-indigo-400">
-              Library
-            </span>
-          </h1>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col mt-10 gap-4 sm:gap-6">
+            <Link
+              href="/"
+              className="group flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-indigo-500 transition-colors self-start"
+            >
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />{" "}
+              Back Home
+            </Link>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
+              Docs{" "}
+              <span className="text-indigo-600 dark:text-indigo-400">
+                Library
+              </span>
+            </h1>
+          </div>
         </div>
 
         <div className="space-y-8">
           <SearchBar
-            theme={theme}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             filteredCount={filteredCollections.length}
@@ -129,9 +124,9 @@ export default function DocsClient() {
           />
 
           {filteredCollections.length === 0 ? (
-            <EmptyState theme={theme} searchTerm={searchTerm} />
+            <EmptyState searchTerm={searchTerm} />
           ) : (
-            <CollectionsGrid theme={theme} collections={filteredCollections} />
+            <CollectionsGrid collections={filteredCollections} />
           )}
         </div>
       </div>

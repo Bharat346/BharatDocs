@@ -2,7 +2,6 @@
 import { Search, X, ArrowDownAZ, Clock } from "lucide-react";
 
 export default function SearchBar({
-  theme,
   searchTerm,
   setSearchTerm,
   filteredCount,
@@ -12,8 +11,6 @@ export default function SearchBar({
   setSelectedTags,
   allTags = [],
 }) {
-  const isDark = theme === "dark";
-
   const toggleTag = (tag) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
@@ -29,11 +26,7 @@ export default function SearchBar({
     <div className="space-y-8 w-full">
       {/* Massive Premium Search Input */}
       <div className="relative">
-        <div
-          className={`absolute inset-y-0 left-0 pl-5 sm:pl-6 flex items-center pointer-events-none ${
-            isDark ? "text-neutral-500" : "text-neutral-400"
-          }`}
-        >
+        <div className="absolute inset-y-0 left-0 pl-5 sm:pl-6 flex items-center pointer-events-none text-neutral-400 dark:text-zinc-500">
           <Search className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
         <input
@@ -41,20 +34,12 @@ export default function SearchBar({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search collections..."
-          className={`block w-full pl-12 sm:pl-16 pr-14 sm:pr-16 py-5 sm:py-6 text-lg sm:text-xl md:text-2xl font-medium rounded-[2rem] sm:rounded-[2.5rem] border-2 transition-all duration-300 outline-none ${
-            isDark
-              ? "bg-neutral-900/50 border-neutral-800 text-white placeholder-neutral-600 focus:bg-neutral-900 focus:border-indigo-500/50 focus:shadow-[0_0_30px_rgba(99,102,241,0.1)]"
-              : "bg-white border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
-          }`}
+          className="block w-full pl-12 sm:pl-16 pr-14 sm:pr-16 py-5 sm:py-6 text-lg sm:text-xl md:text-2xl font-medium rounded-[2rem] sm:rounded-[2.5rem] border-2 transition-all duration-300 outline-none bg-background border-border text-foreground placeholder-neutral-400 focus:bg-background focus:border-indigo-500 focus:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
         />
         {(searchTerm || selectedTags.length > 0) && (
           <button
             onClick={clearFilters}
-            className={`absolute inset-y-0 right-0 pr-5 sm:pr-6 flex items-center transition-colors ${
-              isDark
-                ? "text-neutral-500 hover:text-white"
-                : "text-neutral-400 hover:text-black"
-            }`}
+            className="absolute inset-y-0 right-0 pr-5 sm:pr-6 flex items-center transition-colors text-neutral-400 hover:text-black dark:text-zinc-500 dark:hover:text-white"
             title="Clear all filters"
           >
             <X className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -87,12 +72,8 @@ export default function SearchBar({
                   onClick={() => toggleTag(tag)}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border ${
                     isSelected
-                      ? isDark
-                        ? "bg-indigo-600 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-                        : "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-200"
-                      : isDark
-                        ? "bg-neutral-900/50 border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-neutral-300"
-                        : "bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 shadow-sm"
+                      ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-200 dark:shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                      : "bg-background border-border text-neutral-600 hover:border-neutral-300 hover:bg-secondary-bg shadow-sm dark:text-zinc-400"
                   }`}
                 >
                   {tag}
@@ -118,11 +99,7 @@ export default function SearchBar({
         <button
           onClick={() => setSortBy(sortBy === "name" ? "updated" : "name")}
           title={`Sort by ${sortBy === "name" ? "Time Updated" : "Name (A-Z)"}`}
-          className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors ${
-            isDark
-              ? "bg-neutral-800/40 hover:bg-neutral-800 text-indigo-400"
-              : "bg-neutral-100/50 hover:bg-neutral-200 text-indigo-600"
-          }`}
+          className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors bg-secondary-bg hover:bg-neutral-200 dark:hover:bg-neutral-800 text-indigo-600 dark:text-indigo-400"
         >
           <span className="text-[12px]">Sort By :</span>{" "}
           {sortBy === "name" ? (

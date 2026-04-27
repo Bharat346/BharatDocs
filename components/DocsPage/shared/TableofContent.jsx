@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useMemo } from "react";
+import Link from "next/link";
 import { Layers, ChevronDown } from "lucide-react";
 import {
   Collapsible,
@@ -8,21 +9,20 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { useHeadingsFromRef } from "@/lib/utils/docsHelper";
 import { buildTocTree } from "@/lib/utils/buildTocTree";
 
 export default function TableOfContent({
-  theme,
   containerRef,
-  mdxContent,
+  headings = [], 
   className = "",
   isMobile = false,
 }) {
-  const isDark = theme === "dark";
-
   /* ---------------- Headings ---------------- */
-  const headings = useHeadingsFromRef(containerRef, mdxContent);
-  const tree = useMemo(() => buildTocTree(headings), [headings]);
+  const processedHeadings = useMemo(() => 
+    headings.slice(1).map((h, i) => ({ ...h, key: h.key || `${h.id}-${i}` })), 
+    [headings]
+  );
+  const tree = useMemo(() => buildTocTree(processedHeadings), [processedHeadings]);
 
   const [activeId, setActiveId] = useState(null);
   const [openMap, setOpenMap] = useState({});
@@ -30,22 +30,22 @@ export default function TableOfContent({
 
   /* ---------------- Auto expand ---------------- */
   useEffect(() => {
-    if (!headings.length) return;
+    if (!processedHeadings.length) return;
 
     setOpenMap((prev) => {
       const next = { ...prev };
-      for (const h of headings) {
+      for (const h of processedHeadings) {
         if (h.level <= 2 && next[h.id] === undefined) {
           next[h.id] = false; // Initially only headings show, not subheadings
         }
       }
       return next;
     });
-  }, [headings]);
+  }, [processedHeadings]);
 
   /* ---------------- Active heading observer ---------------- */
   useEffect(() => {
-    if (!headings.length) return;
+    if (!processedHeadings.length) return;
 
     const scrollRoot = isMobile ? null : containerRef?.current;
     if (!scrollRoot && !isMobile) return;
@@ -69,13 +69,13 @@ export default function TableOfContent({
       },
     );
 
-    headings.forEach(({ id }) => {
+    processedHeadings.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
-  }, [headings, containerRef, isMobile]);
+  }, [processedHeadings, containerRef, isMobile]);
 
   /* ---------------- Scroll logic (FIXED) ---------------- */
   const scrollToHeading = (id) => {
@@ -123,27 +123,28 @@ export default function TableOfContent({
               <CollapsibleTrigger className="p-1">
                 <ChevronDown
                   className={cn(
-                    "h-3 w-3 transition-transform",
-                    !open && "-rotate-90",
-                    isDark && "text-zinc-300",
+                    "h-3 w-3 transition-transform text-neutral-400 dark:text-zinc-500",
+                    !open && "-rotate-90"
                   )}
                 />
               </CollapsibleTrigger>
             )}
 
-            <button
-              onClick={() => scrollToHeading(node.id)}
+            <Link
+              href={`#${node.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToHeading(node.id);
+              }}
               className={cn(
-                "py-1 text-sm text-left",
+                "py-1 text-sm text-left block transition-colors",
                 activeId === node.id
-                  ? "text-blue-500 font-medium"
-                  : isDark
-                    ? "text-zinc-300 hover:text-blue-400"
-                    : "text-gray-700 hover:text-blue-600",
+                  ? "text-blue-600 dark:text-blue-400 font-medium"
+                  : "text-gray-800 hover:text-blue-600 dark:text-zinc-400 dark:hover:text-blue-400",
               )}
             >
               {node.text}
-            </button>
+            </Link>
           </div>
 
           {node.children.length > 0 && (
@@ -160,20 +161,17 @@ export default function TableOfContent({
   return (
     <aside
       className={cn(
-        "flex flex-col h-full transition-all duration-300",
-        isDark
-          ? "bg-[#0a0a0a] text-white"
-          : "bg-white text-neutral-900",
+        "flex flex-col h-full transition-all duration-300 bg-background text-foreground",
         className,
       )}
     >
       {/* Header */}
-      <div className={cn("px-2 py-4 h-14 z-10")}>
+      <div className="px-2 py-4 h-14 z-10">
         <div className="flex items-center gap-2 pb-4">
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
           </div>
-          <h3 className="text-[clamp(0.85rem,2vw,0.9rem)] font-semibold text-blue-500">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-blue-500/80">
             Table of Contents
           </h3>
         </div>
@@ -181,8 +179,8 @@ export default function TableOfContent({
 
       {/* Body */}
       <div className={cn("flex-1 px-1 pb-4 mt-5", !isMobile && "overflow-y-auto")}>
-        {headings.length === 0 ? (
-          <p className="text-sm text-center text-muted-foreground py-8">
+        {processedHeadings.length === 0 ? (
+          <p className="text-xs text-center text-neutral-400 dark:text-zinc-500 py-8">
             This document has no headings
           </p>
         ) : (

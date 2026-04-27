@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -13,97 +12,34 @@ import {
 } from "lucide-react";
 
 import EmptyState from "@/components/DocsPage/shared/EmptyState";
-import DocsLoader from "@/components/DocsPage/shared/DocsLoader";
 import { useScrollDetector } from "@/lib/utils/docsHelper";
-
 import { shouldPrefetch } from "@/lib/network/network.config";
 
-// MDX renderer (client only)
-const MDXContent = dynamic(() => import("./MDXContent"), { ssr: false });
-
-const MainContent = function MainContent({
-  theme,
+export default function MainContent({
   selectedChild,
   mdxContent,
-  frontmatter,
-  onSidebarToggle,
-  sidebarOpen,
-  onTocToggle,
   scrollRef,
 }) {
-  /* ---------------- Scroll Container Ref ---------------- */
-
   const { showScrollTop, scrollToTop } = useScrollDetector(scrollRef, 300);
 
-  /* ---------------- Empty State ---------------- */
-  if (!selectedChild) return <EmptyState theme={theme} />;
+  if (!selectedChild) return <EmptyState />;
 
   return (
-    <div className={`flex flex-col flex-1 h-full min-w-0 relative ${theme === "dark" ? "bg-[#0a0a0a]" : "bg-white"}`}>
-      {/* ---------------- HEADER ---------------- */}
-      <header className={`sticky top-0 z-30 backdrop-blur ${theme === "dark" ? "bg-[#0a0a0a]/80" : "bg-white/80"}`}>
-        <div className="flex h-14 items-center justify-between px-4">
-          <div
-            className={`flex items-center gap-2 min-w-0 ${
-              theme === "dark" ? "text-white" : ""
-            }`}
-          >
-            <div className="flex items-center gap-0">
-              <Button size="icon" variant="ghost" onClick={onSidebarToggle}>
-                {sidebarOpen ? <ChevronLeft /> : <ChevronRight />}
-              </Button>
-
-              <Link
-                href="/docs"
-                size="icon"
-                variant="ghost"
-                className="hidden sm:flex"
-                prefetch={shouldPrefetch()}
-              >
-                <Home size={20} />
-              </Link>
-            </div>
-
-            <div className="ml-2 min-w-0">
-              <h1 className="text-[clamp(1rem,3vw,1.25rem)] font-semibold truncate">
-                {frontmatter?.title || selectedChild.name}
-              </h1>
-            </div>
-          </div>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onTocToggle}
-            className={theme === "dark" ? "text-white" : ""}
-          >
-            <Layers className="mr-2 h-4 w-4" />
-            Contents
-          </Button>
-        </div>
-      </header>
-
-      {/* ---------------- MAIN SCROLL AREA ---------------- */}
-      <main ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="mx-auto max-w-5xl px-6 sm:px-12 lg:px-16 py-12 md:py-16">
+    <div className="flex flex-col flex-1 h-full min-w-0 relative bg-background">
+      {/* ── Main Scroll Area ── */}
+      <main ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-4xl px-6 sm:px-10 lg:px-14 py-10 md:py-14 ">
           {mdxContent ? (
             <article
               id="mdx-content-container"
-              className={`prose prose-lg md:prose-xl max-w-none transition-all duration-500 ${
-                theme === "dark" 
-                  ? "prose-invert prose-headings:text-white prose-p:text-neutral-300 prose-strong:text-white prose-code:text-indigo-400" 
-                  : "prose-headings:text-neutral-900 prose-p:text-neutral-700 prose-strong:text-neutral-900 prose-code:text-indigo-600"
-              }`}
+              className="prose max-w-none min-h-screen"
             >
-              <MDXContent
-                content={mdxContent}
-                theme={theme}
-              />
+              {mdxContent}
             </article>
           ) : (
             <div className="flex flex-col items-center justify-center py-20">
-              <DocsLoader theme={theme} />
-              <p className={`mt-4 text-sm font-medium ${theme === "dark" ? "text-neutral-500" : "text-neutral-400"}`}>
+              <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="mt-4 text-sm font-medium text-zinc-400 dark:text-zinc-500">
                 Preparing your document...
               </p>
             </div>
@@ -111,7 +47,7 @@ const MainContent = function MainContent({
         </div>
       </main>
 
-      {/* ---------------- SCROLL TO TOP BUTTON ---------------- */}
+      {/* ── Scroll to Top ── */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{
@@ -124,11 +60,7 @@ const MainContent = function MainContent({
         <Button
           size="icon"
           onClick={scrollToTop}
-          className={`pointer-events-auto rounded-full shadow-lg ${
-            theme === "dark"
-              ? "bg-blue-600 text-white"
-              : "bg-blue-500 text-white"
-          }`}
+          className="pointer-events-auto rounded-full shadow-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300"
           aria-label="Scroll to top"
         >
           <ChevronUp className="w-5 h-5" />
@@ -136,6 +68,4 @@ const MainContent = function MainContent({
       </motion.div>
     </div>
   );
-};
-
-export default MainContent;
+}

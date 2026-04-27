@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db/index.js";
+import { getSearchIndex } from "@/lib/search/index-builder";
+import { db } from "@/lib/db";
 import { nodes, collections } from "@/lib/db/schema";
-import { eq, ilike, or, and , sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("q");
 
-    // If no query, return 10 most recent nodes as "Featured" or "Initial" results
+    // 1. Handle Empty Query (Recent Results)
     if (!query || !query.trim()) {
       const recent = await db
         .select({
@@ -30,35 +31,14 @@ export async function GET(req) {
       return NextResponse.json(recent);
     }
 
-    // Fuzzy-like search using ilike (case-insensitive) on name, slug, and parentName
-    const results = await db
-      .select({
-        id: nodes.id,
-        name: nodes.name,
-        slug: nodes.slug,
-        nodeType: nodes.nodeType,
-        fileType: nodes.fileType,
-        parentName: nodes.parentName,
-        parentSlug: nodes.parentSlug,
-        tags: nodes.tags,
-        collectionName: collections.name,
-      })
-      .from(nodes)
-      .innerJoin(collections, eq(collections.id, nodes.collectionId))
-      .where(
-        and(
-          eq(nodes.isPublished, true),
-          or(
-            ilike(nodes.name, `%${query}%`),
-            ilike(nodes.slug, `%${query}%`),
-            ilike(nodes.parentName || "", `%${query}%`),
-            sql`${nodes.tags}::text ilike ${`%${query}%`}`,
-          ),
-        ),
-      )
-      .limit(20);
+    // 2. Fuzzy Search using Fuse.js
+    const fuse = await getSearchIndex();
+    const results = fuse.search(query, { limit: 20 });
+    
+    // Map results back to the expected node format
+    const formattedResults = results.map(result => result.item);
 
-    return NextResponse.json(results);
+    return NextResponse.json(formattedResults);
   } catch (error) {
     console.error("Search API Error:", error);
     return NextResponse.json({ error: "Search failed" }, { status: 500 });

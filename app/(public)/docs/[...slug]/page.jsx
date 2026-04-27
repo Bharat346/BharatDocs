@@ -1,58 +1,93 @@
 import DocsSlugClient from "@/components/DocsPage/client/docs.slug.client";
 
 /* ---------------- Dynamic SEO ---------------- */
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const resolvedParams = await params;
-  const slugArray = resolvedParams?.slug;
+  const resolvedSearch = await searchParams;
+  const slugArray = resolvedParams?.slug || [];
+  const childSlugFromUrl = resolvedSearch?.child;
 
-  // Guard against assets / bad routes
-  if (!Array.isArray(slugArray) || slugArray.length === 0) {
-    return {
-      title: "Documentation",
-      description:
-        "Developer documentation and guides for modern web technologies on BH Docs.",
-      alternates: {
-        canonical: "https://bhdocs.in/docs",
-      },
-    };
+  if (slugArray.length === 0) {
+    return { title: "Documentation", description: "Developer documentation." };
   }
 
   const slugPath = slugArray.join("/");
+  
+  // Try to get frontmatter for better SEO
+  const childrenDocs = await getDocsByParentSlug("Docs", slugPath);
+  let selectedChild = childrenDocs[0];
+  if (childSlugFromUrl) {
+    selectedChild = childrenDocs.find((c) => c.slug === childSlugFromUrl) || selectedChild;
+  }
 
-  const readableTitle = slugArray
-    .slice(-1)[0]
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  let title = slugArray.slice(-1)[0].replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  let description = `Documentation for ${title}.`;
 
-  const title = `${readableTitle} Documentation`;
-  const description = `Complete documentation and guides for ${readableTitle}. Learn with structured, developer-focused notes on BH Docs.`;
+  if (selectedChild?.filePath) {
+    try {
+      const { frontmatter } = await getProcessedMDX(selectedChild.filePath);
+      if (frontmatter?.title) title = frontmatter.title;
+      if (frontmatter?.description) description = frontmatter.description;
+    } catch (e) {
+      // Fallback to default
+    }
+  }
 
   return {
-    title,
+    title: `${title} | BharatDocs`,
     description,
     alternates: {
-      canonical: `https://bhdocs.in/docs/${slugPath}`,
+      canonical: `https://bhdocs.in/docs/${slugPath}${childSlugFromUrl ? `?child=${childSlugFromUrl}` : ""}`,
     },
     openGraph: {
-      title,
+      title: `${title} | BharatDocs`,
       description,
-      url: `https://bhdocs.in/docs/${slugPath}`,
-      siteName: "BH Docs",
       type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
     },
   };
 }
 
 /* ---------------- Page ---------------- */
-export default async function DocsSlugPage({ params }) {
+import { getDocsByParentSlug } from "@/lib/db/queries";
+import { getProcessedMDX } from "@/lib/mdx";
+
+export default async function DocsSlugPage({ params, searchParams }) {
   const resolvedParams = await params;
+  const resolvedSearch = await searchParams;
   const slugArray = resolvedParams?.slug || [];
   const slugPath = Array.isArray(slugArray) ? slugArray.join("/") : "";
+  const childSlugFromUrl = resolvedSearch?.child;
 
-  return <DocsSlugClient slug={slugPath} />;
+  // 1. Fetch children from DB
+  const childrenDocs = await getDocsByParentSlug("Docs", slugPath);
+  
+  // 2. Determine selected child
+  let selectedChild = null;
+  if (childrenDocs.length > 0) {
+    if (childSlugFromUrl) {
+      selectedChild = childrenDocs.find((c) => c.slug === childSlugFromUrl);
+    }
+    if (!selectedChild) {
+      selectedChild = childrenDocs[0];
+    }
+  }
+
+  // 3. Process MDX
+  let mdxResult = null;
+  if (selectedChild?.filePath) {
+    try {
+      mdxResult = await getProcessedMDX(selectedChild.filePath);
+    } catch (e) {
+      console.error("Failed to process MDX:", e);
+    }
+  }
+
+  return (
+    <DocsSlugClient 
+      slug={slugPath} 
+      initialChildren={childrenDocs}
+      initialSelectedChild={selectedChild}
+      initialMdxResult={mdxResult}
+    />
+  );
 }

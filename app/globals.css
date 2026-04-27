@@ -11,29 +11,34 @@
     "Roboto Mono", monospace;
 
   /* Light theme colors */
-  --color-bg: #ffffff;
-  --color-bg-secondary: #f9fafb;
-  --color-text: #111827;
-  --color-text-secondary: #6b7280;
-  --color-border: #e5e7eb;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-accent: #f59e0b;
+  --bg: #ffffff;
+  --fg: #111827;
+  --bg-secondary: #f9fafb;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+  --primary: #2563eb;
+  --accent: #f59e0b;
 
-  /* Transition speed */
   --theme-speed: 250ms;
 }
 
 /* Dark mode tokens */
 .dark {
-  --color-bg: #121212;
-  --color-bg-secondary: #1e1e1e;
-  --color-text: #f3f4f6;
-  --color-text-secondary: #a1a1aa;
-  --color-border: #2e2e2e;
-  --color-primary: #60a5fa;
-  --color-primary-hover: #93c5fd;
-  --color-accent: #fbbf24;
+  --bg: #0a0a0a;
+  --fg: #f3f4f6;
+  --bg-secondary: #121212;
+  --text-secondary: #a1a1aa;
+  --border: #2e2e2e;
+  --primary: #3b82f6;
+  --accent: #fbbf24;
+}
+
+@theme {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-primary: var(--primary);
+  --color-border: var(--border);
+  --color-secondary-bg: var(--bg-secondary);
 }
 
 /* === Global Reset & Base === */
@@ -43,8 +48,8 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--bg);
+  color: var(--fg);
   transition:
     background-color var(--theme-speed) ease,
     color var(--theme-speed) ease;
@@ -123,12 +128,12 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: var(--text-secondary);
 }
 
 /* === Keyframes === */
@@ -152,8 +157,16 @@ textarea {
   }
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .terminal-line {
   line-height: 1.5;
   opacity: 0;
   animation: fadeIn 0.5s ease forwards;
 }
+
+
+

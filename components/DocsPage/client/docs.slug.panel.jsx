@@ -13,9 +13,9 @@ export default function Panel({ open, mobile, side, panelRef, children }) {
             exit={{ x: side === "right" ? "100%" : "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             ref={panelRef}
-            className={`fixed inset-y-0 ${
+            className={`fixed top-16 bottom-0 ${
               side === "right" ? "right-0" : "left-0"
-            } z-[150] w-72 bg-background shadow-2xl flex flex-col`}
+            } z-[150] w-72 bg-white dark:bg-[#0a0a0a] shadow-2xl flex flex-col`}
           >
             {children}
           </motion.div>

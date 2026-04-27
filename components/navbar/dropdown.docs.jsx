@@ -25,7 +25,7 @@ export default function DropdownDocuments({ items, theme }) {
                 : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
             }`}
           >
-            {child.icon && <child.icon className="h-4 w-4" />}
+            {child.icon && <child.icon className="h-4 w-4 shrink-0" />}
             {child.label}
           </Link>
         ))}

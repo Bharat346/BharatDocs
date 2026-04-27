@@ -1,5 +1,7 @@
 // app/layout.js
+import "katex/dist/katex.min.css";
 import "./globals.css";
+import "@/styles/custom.css";
 import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 
@@ -24,6 +26,9 @@ export default async function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://raw.githubusercontent.com" />
+        <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
+        {/* Guaranteed KaTeX fonts for perfect math rendering */}
         <script
           id="theme-init"
           nonce={nonce}
@@ -32,8 +37,17 @@ export default async function RootLayout({ children }) {
             __html: `
         (function() {
           try {
-            const stored = localStorage.getItem("theme");
-            const theme = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+            const raw = localStorage.getItem("theme-storage");
+            let theme = "dark";
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && parsed.state && parsed.state.theme) {
+                theme = parsed.state.theme;
+              }
+            } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+              theme = "light";
+            }
+            
             if (theme === "dark") {
               document.documentElement.classList.add("dark");
             } else {

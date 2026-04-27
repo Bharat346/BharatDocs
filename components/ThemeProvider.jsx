@@ -1,15 +1,35 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import { useTheme } from "@/hooks/useTheme";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useThemeStore } from "@/hooks/useTheme";
 
 const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
-  const themeState = useTheme(); // theme, toggleTheme, mounted
+  const themeState = useThemeStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      if (themeState.theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, [themeState.theme, mounted]);
+
+  const value = {
+    ...themeState,
+    mounted
+  };
 
   return (
-    <ThemeContext.Provider value={themeState}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

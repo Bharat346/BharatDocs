@@ -11,7 +11,6 @@ import {
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import img from "../../app/icon.png";
 
 export default function PDFShare({ onClose, title, theme }) {
   const [copied, setCopied] = useState(false);
@@ -95,7 +94,7 @@ export default function PDFShare({ onClose, title, theme }) {
                 : "bg-neutral-100"
             }`}
           >
-            <Image src={img} alt="Logo" width={28} height={28} />
+            <Image src="/icon.png" alt="Logo" width={28} height={28} />
           </div>
 
           <h3 className="text-xl font-semibold">Share</h3>
