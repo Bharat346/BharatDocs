@@ -125,7 +125,7 @@ export default function NavBar() {
           <button
             onClick={toggleTheme}
             suppressHydrationWarning
-            className={`p-2 rounded-lg transition-colors hidden lg:flex ${
+            className={`p-2.5 rounded-xl transition-all hidden sm:flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30 ${
               theme === "dark"
                 ? "hover:bg-gray-800 text-yellow-400"
                 : "hover:bg-gray-100 text-gray-600"

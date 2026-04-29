@@ -94,7 +94,7 @@ export default function PDFShare({ onClose, title, theme }) {
                 : "bg-neutral-100"
             }`}
           >
-            <Image src="/icon.png" alt="Logo" width={28} height={28} />
+            <img src="/icon.png" alt="Logo" />
           </div>
 
           <h3 className="text-xl font-semibold">Share</h3>

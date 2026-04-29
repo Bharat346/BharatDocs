@@ -18,6 +18,29 @@ const nextConfig = {
       },
     ],
   },
+  // Cache static assets aggressively (pdf.worker.min.js, etc.)
+  async headers() {
+    return [
+      {
+        source: "/pdf.worker.min.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/api/pdf",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=604800, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

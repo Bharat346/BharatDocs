@@ -1,4 +1,6 @@
 "use client";
+import { useRef } from "react";
+
 import NavItem from "./nav.item";
 import DropdownDocuments from "./dropdown.docs";
 import DropdownNotes from "./dropdown.notes";
@@ -9,6 +11,20 @@ export default function NavDesktop({
   activeDropdown,
   setActiveDropdown,
 }) {
+  const timeoutRef = useRef(null);
+
+  const handleMouseEnter = (label) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setActiveDropdown(label);
+  };
+
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 300);
+  };
+
   return (
     <div className="hidden lg:flex items-center gap-1">
       {navItems.map((item) => (
@@ -16,8 +32,9 @@ export default function NavDesktop({
           key={item.label}
           item={item}
           theme={theme}
-          activeDropdown={activeDropdown}
-          setActiveDropdown={setActiveDropdown}
+          isActive={activeDropdown === item.label}
+          onEnter={() => handleMouseEnter(item.label)}
+          onLeave={handleMouseLeave}
         >
           {item.children && (
             <DropdownDocuments items={item.children} theme={theme} />
@@ -30,3 +47,4 @@ export default function NavDesktop({
     </div>
   );
 }
+

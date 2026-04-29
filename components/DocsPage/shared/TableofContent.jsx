@@ -140,7 +140,8 @@ export default function TableOfContent({
                 "py-1 text-sm text-left block transition-colors",
                 activeId === node.id
                   ? "text-blue-600 dark:text-blue-400 font-medium"
-                  : "text-gray-800 hover:text-blue-600 dark:text-zinc-400 dark:hover:text-blue-400",
+                  : "text-black hover:text-blue-600 dark:text-neutral-500 dark:hover:text-blue-400",
+
               )}
             >
               {node.text}
@@ -171,18 +172,20 @@ export default function TableOfContent({
           <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
             <Layers size={18} />
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-blue-500/80">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400/80">
             Table of Contents
           </h3>
+
         </div>
       </div>
 
       {/* Body */}
       <div className={cn("flex-1 px-1 pb-4 mt-5", !isMobile && "overflow-y-auto")}>
         {processedHeadings.length === 0 ? (
-          <p className="text-xs text-center text-neutral-400 dark:text-zinc-500 py-8">
+          <p className="text-xs text-center text-gray-500 dark:text-zinc-500 py-8">
             This document has no headings
           </p>
+
         ) : (
           <nav className="space-y-1">{tree.map(renderNode)}</nav>
         )}

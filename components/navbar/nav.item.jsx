@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect } from "react";
+
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,31 +10,23 @@ import { shouldPrefetch } from "@/lib/network/network.config";
 export default function NavItem({
   item,
   theme,
-  activeDropdown,
-  setActiveDropdown,
+  isActive,
+  onEnter,
+  onLeave,
   children,
 }) {
-  const isActive = activeDropdown === item.label;
   const hasDropdown = item.children || item.structure;
-  const timeoutRef = useRef(null);
 
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setActiveDropdown(item.label);
-  };
 
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setActiveDropdown(null);
-    }, 300); // 300ms delay before closing
-  };
+
 
   return (
     <div
       className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
     >
+
       <Link
         href={item.href}
         prefetch={true}

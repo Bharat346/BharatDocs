@@ -63,13 +63,15 @@ export default function ShareDropdown({ title, url }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="p-2.5 rounded-xl transition-all flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
+          className="p-2.5 rounded-xl transition-all hidden sm:flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
           title="Share"
         >
-          <Share2 className="w-5 h-5" />
+          <Share2 className="w-[17px] h-[17px]" strokeWidth={1.8} />
         </button>
+
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 p-2 rounded-[1.5rem] bg-background border-border shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+      <DropdownMenuContent align="end" className="w-64 p-2 rounded-[1.5rem] bg-background border-border text-foreground shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] z-[9999999]">
+
         <DropdownMenuItem 
           onClick={handleCopy}
           className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-secondary-bg transition-colors group"

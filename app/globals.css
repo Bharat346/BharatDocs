@@ -82,6 +82,8 @@ textarea {
   image-rendering: optimizeSpeed;
 }
 
+
+
 .react-pdf__Page {
   margin: 0 auto;
 }
@@ -158,8 +160,13 @@ textarea {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .terminal-line {
@@ -168,5 +175,90 @@ textarea {
   animation: fadeIn 0.5s ease forwards;
 }
 
+/* === PDF Viewer Loading Bar === */
+@keyframes loading-bar {
+  0% {
+    width: 0%;
+    margin-left: 0;
+  }
+  50% {
+    width: 70%;
+    margin-left: 15%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
 
+.animate-loading-bar {
+  animation: loading-bar 1.8s ease-in-out infinite;
+}
 
+/* === PDF Viewer Thumbnail Styles === */
+.pdf-sidebar-dark .rpv-thumbnail__container {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.pdf-sidebar-dark .rpv-thumbnail__container:hover {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.pdf-sidebar-light .rpv-thumbnail__container {
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.pdf-sidebar-light .rpv-thumbnail__container:hover {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+/* Selected thumbnail */
+.rpv-thumbnail__container--selected {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* === No Scrollbar Utility === */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* === PDF Viewer Core Overrides === */
+.rpv-core__viewer {
+  background: transparent !important;
+}
+
+.rpv-core__inner-page {
+  padding: 8px 0 !important;
+}
+
+/* === PDF Dark Mode Inversion === */
+.pdf-dark-mode .rpv-core__page-layer {
+  filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.1);
+}
+
+/* Ensure the background is dark during inversion transition or loading */
+.pdf-dark-mode .rpv-core__inner-page {
+  background-color: #000 !important;
+}
+
+/* Optional: Invert thumbnails as well for consistency */
+.pdf-dark-mode .rpv-thumbnail__image,
+.pdf-sidebar-dark .rpv-thumbnail__image {
+  filter: invert(1) hue-rotate(180deg);
+}

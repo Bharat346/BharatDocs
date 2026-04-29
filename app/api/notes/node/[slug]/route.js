@@ -35,7 +35,13 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "Node not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result[0]);
+    // Cache node metadata aggressively — it rarely changes
+    const response = NextResponse.json(result[0]);
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=3600, max-age=300, stale-while-revalidate=86400"
+    );
+    return response;
   } catch (err) {
     console.error("GET /api/notes/node/[slug]:", err);
     return NextResponse.json(

@@ -20,19 +20,21 @@ export default function DocsNavBar({
       <div className="flex items-center gap-2 sm:gap-4">
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-lg lg:hidden transition-colors hover:bg-gray-100 text-gray-500 dark:hover:bg-zinc-800 dark:text-zinc-400"
+          className="p-2.5 rounded-xl lg:hidden transition-all bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
           title="Toggle Sidebar"
         >
           <Menu className="w-5 h-5" />
         </button>
 
+
         <Link
           href="/docs"
-          className="p-2 rounded-lg transition-colors hidden sm:flex hover:bg-gray-100 text-gray-500 hover:text-black dark:hover:bg-zinc-800 dark:text-zinc-400 dark:hover:text-white"
+          className="p-2.5 rounded-xl transition-all hidden sm:flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
           title="Back to Docs"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
+
         <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block" />
         <Link href="/" className="flex items-center gap-2 group">
           <span className="font-bold text-lg sm:text-xl tracking-tight max-w-[150px] sm:max-w-none truncate">
@@ -64,15 +66,16 @@ export default function DocsNavBar({
 
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg transition-colors flex hover:bg-gray-100 text-gray-600 dark:hover:bg-zinc-800 dark:text-yellow-400"
+          className="p-2.5 rounded-xl transition-all hidden sm:flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
         >
           {mounted ? (
-            theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />
+            theme === "dark" ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5" />
           ) : (
             <div className="h-5 w-5" />
           )}
         </button>
       </div>
+
 
 
     </nav>
