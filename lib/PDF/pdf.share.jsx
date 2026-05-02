@@ -3,12 +3,12 @@
 import {
   Copy,
   Check,
-  MessageSquare,
   Linkedin,
   Twitter,
   Instagram,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { FaReddit, FaWhatsapp } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 
@@ -35,32 +35,26 @@ export default function PDFShare({ onClose, title, theme }) {
   const shareOptions = [
     {
       label: "WhatsApp",
-      icon: <MessageSquare size={18} />,
-      bg: "bg-green-500",
+      icon: <FaWhatsapp className="text-emerald-500" />,
       link: `https://wa.me/?text=${encodeURIComponent(
         title + ": " + url
       )}`,
     },
     {
       label: "LinkedIn",
-      icon: <Linkedin size={18} />,
-      bg: "bg-blue-600",
+      icon: <Linkedin className="text-blue-600" />,
       link: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
         url
       )}`,
     },
     {
-      label: "X",
-      icon: <Twitter size={18} />,
-      bg: "bg-black",
-      link: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-        title
-      )}&url=${encodeURIComponent(url)}`,
+      label: "Reddit",
+      icon: <FaReddit className="text-orange-500" />,
+      link: `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`,
     },
     {
       label: "Instagram",
-      icon: <Instagram size={18} />,
-      bg: "bg-pink-500",
+      icon: <Instagram className="text-pink-500" />,
       link: `https://www.instagram.com/`,
     },
   ];
@@ -127,35 +121,24 @@ export default function PDFShare({ onClose, title, theme }) {
               }`}
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? "Copied" : "Copy"}
+              {/* {copied ? "Copied" : "Copy"} */}
             </button>
           </div>
 
-          {/* Divider */}
-          <div className="text-center text-[10px] uppercase tracking-widest opacity-50">
-            Share via
-          </div>
-
           {/* Socials */}
-          <div className="flex justify-between">
+          <div className="flex flex-col items-center gap-4">
             {shareOptions.map((opt) => (
               <a
                 key={opt.label}
                 href={opt.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 group"
+                title={opt.label}
+                className="w-14 h-14 flex items-center justify-center rounded-2xl bg-neutral-100 dark:bg-zinc-800 hover:bg-neutral-200 dark:hover:bg-zinc-700 transition-all group"
               >
-                <div
-                  className={`w-11 h-11 flex items-center justify-center rounded-xl text-white ${opt.bg}
-                  transition-all duration-200 group-hover:scale-105`}
-                >
+                <div className="text-2xl transition-transform group-hover:scale-110">
                   {opt.icon}
                 </div>
-
-                <span className="text-[10px] opacity-60 group-hover:opacity-100 transition">
-                  {opt.label}
-                </span>
               </a>
             ))}
           </div>

@@ -5,7 +5,7 @@ import { useThemeContext } from "@/components/ThemeProvider";
 import { useNodeForm } from "@/hooks/useNodeForm";
 import { CategorySelector } from "@/components/admin/CategorySelector";
 import { FileConfiguration } from "@/components/admin/FileConfiguration";
-import { Loader2 } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
 // import { SummaryPanel } from "@/components/admin/SummaryPanel";
 
 export default function AdminDocsPage() {
@@ -257,7 +257,7 @@ export default function AdminDocsPage() {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-3">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <BharatLoader small text="" />
                   Creating...
                 </span>
               ) : (

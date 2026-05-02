@@ -14,6 +14,7 @@ import {
 import EmptyState from "@/components/DocsPage/shared/EmptyState";
 import { useScrollDetector } from "@/lib/utils/docsHelper";
 import { shouldPrefetch } from "@/lib/network/network.config";
+import BharatLoader from "@/components/ui/loader";
 
 export default function MainContent({
   selectedChild,
@@ -38,10 +39,7 @@ export default function MainContent({
             </article>
           ) : (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="mt-4 text-sm font-medium text-zinc-400 dark:text-zinc-500">
-                Preparing your document...
-              </p>
+              <BharatLoader text="Preparing your document..." />
             </div>
           )}
         </div>

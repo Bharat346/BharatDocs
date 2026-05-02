@@ -138,6 +138,17 @@ export default function HeroSection({ theme }) {
               Browse Notes
             </Button>
           </Link>
+
+          <Link href="/blogs" className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-16 px-10 text-[0.9rem] font-bold uppercase tracking-[0.1em] w-full sm:min-w-[240px] rounded-2xl border-2 border-border bg-transparent text-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+            >
+              <Sparkles className="mr-3 w-5 h-5" />
+              Read Blog
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

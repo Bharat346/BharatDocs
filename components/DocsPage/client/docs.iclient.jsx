@@ -62,10 +62,12 @@ export default function DocsClient() {
   /* ---------------- Filtered & Sorted collections (memoized) ---------------- */
   const filteredCollections = useMemo(() => {
     let result = collections.filter((c) => {
-      const matchesSearch = 
+      const matchesSearch =
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-        
+        c.tags.some((tag) =>
+          tag.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+
       const matchesTags =
         selectedTags.length === 0 ||
         selectedTags.every((tag) => c.tags.includes(tag));
@@ -91,44 +93,68 @@ export default function DocsClient() {
     return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
-    <div className="min-h-screen pt-12 pb-20 px-6 transition-colors duration-500 bg-background text-foreground">
-      <div className="max-w-4xl mx-auto space-y-12">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col mt-10 gap-4 sm:gap-6">
+    <div className="min-h-screen max-w-7xl mx-auto pt-24 pb-20 px-6 transition-colors duration-500 bg-background text-foreground">
+      {/* Premium Modern Header Area */}
+      <div className="flex flex-col gap-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div className="space-y-4">
             <Link
               href="/"
-              className="group flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-indigo-500 transition-colors self-start"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-indigo-600 transition-colors"
             >
-              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />{" "}
-              Back Home
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back to Home
             </Link>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
-              Docs{" "}
-              <span className="text-indigo-600 dark:text-indigo-400">
-                Library
-              </span>
-            </h1>
+            <div className="space-y-1">
+              <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase text-foreground leading-[0.8]">
+                The{" "}
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  Archives
+                </span>
+              </h1>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-widest uppercase pl-1">
+                Structured Documentation & Guides
+              </p>
+            </div>
+          </div>
+
+          <div className="w-full sm:max-w-xs">
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredCount={filteredCollections.length}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              selectedTags={selectedTags}
+              setSelectedTags={setSelectedTags}
+              allTags={allTags}
+              onlySearch={true}
+            />
           </div>
         </div>
 
-        <div className="space-y-8">
-          <SearchBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filteredCount={filteredCollections.length}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            allTags={allTags}
-          />
+        {/* Divider */}
+        <div className="w-full h-px bg-gradient-to-r from-border via-border to-transparent" />
+      </div>
 
-          {filteredCollections.length === 0 ? (
-            <EmptyState searchTerm={searchTerm} />
-          ) : (
-            <CollectionsGrid collections={filteredCollections} />
-          )}
-        </div>
+      <div className="space-y-6">
+        <SearchBar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filteredCount={filteredCollections.length}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          selectedTags={selectedTags}
+          setSelectedTags={setSelectedTags}
+          allTags={allTags}
+          onlyFilters={true}
+        />
+
+        {filteredCollections.length === 0 ? (
+          <EmptyState searchTerm={searchTerm} />
+        ) : (
+          <CollectionsGrid collections={filteredCollections} />
+        )}
       </div>
     </div>
   );

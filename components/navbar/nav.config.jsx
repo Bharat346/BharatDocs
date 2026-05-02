@@ -5,6 +5,7 @@ import {
   GraduationCap,
   Home,
   ExternalLink,
+  Newspaper,
 } from "lucide-react";
 
 export const DOCS_SUBMENU = [
@@ -50,4 +51,5 @@ export const NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home },
   { label: "Documents", href: "/docs", children: DOCS_SUBMENU },
   { label: "Notes", href: "/notes", structure: NOTES_STRUCTURE },
+  { label: "Blog", href: "/blogs", icon: Newspaper },
 ];

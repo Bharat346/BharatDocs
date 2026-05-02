@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Key, Copy, Check, Loader2, RefreshCw } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
+import { Key, Copy, Check, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function GenerateHashPage() {
@@ -77,7 +78,7 @@ export default function GenerateHashPage() {
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-200 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-500 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-lg active:scale-95"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <BharatLoader small text="" />
             ) : (
               <RefreshCw className="w-5 h-5" />
             )}

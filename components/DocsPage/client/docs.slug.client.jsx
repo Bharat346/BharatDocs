@@ -8,7 +8,8 @@ import DocsNavBar from "@/components/DocsPage/shared/DocsNavBar";
 import Sidebar from "@/components/DocsPage/shared/SideBar";
 import TableOfContent from "@/components/DocsPage/shared/TableofContent";
 import Panel from "./docs.slug.panel";
-import { Loader2, FileSearch } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
+import { FileSearch } from "lucide-react";
 import SearchOverlay from "@/components/ui/search-overlay";
 
 /* ---------- Dynamic ---------- */
@@ -156,7 +157,7 @@ export default function DocsSlugClient({
             <Suspense
               fallback={
                 <div className="flex-1 flex items-center justify-center">
-                  <Loader2 className="w-8 h-8 text-blue-500/50 animate-spin" />
+                  <BharatLoader text="Rendering..." />
                 </div>
               }
             >

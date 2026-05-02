@@ -6,19 +6,13 @@ import NotesLoader from "@/components/NotesPage/shared/NotesLoader";
 import Link from "next/link";
 import { useRef } from "react";
 
+import BharatLoader from "@/components/ui/loader";
+
 const PDFViewer = dynamic(() => import("@/lib/PDF/pdf.viewer.js"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-screen bg-zinc-950">
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative">
-          <div className="w-12 h-12 border-[3px] border-blue-500/20 rounded-full" />
-          <div className="absolute inset-0 w-12 h-12 border-[3px] border-transparent border-t-blue-500 rounded-full animate-spin" />
-        </div>
-        <p className="text-[11px] font-bold tracking-[0.15em] text-zinc-600 uppercase">
-          Loading viewer...
-        </p>
-      </div>
+      <BharatLoader text="Loading viewer..." />
     </div>
   ),
 });

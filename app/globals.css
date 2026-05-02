@@ -262,3 +262,16 @@ textarea {
 .pdf-sidebar-dark .rpv-thumbnail__image {
   filter: invert(1) hue-rotate(180deg);
 }
+
+/* === Prose Overrides === */
+.prose em {
+  color: var(--fg);
+  opacity: 1 !important;
+  font-weight: 500;
+}
+
+.prose strong {
+  color: var(--fg);
+  opacity: 1 !important;
+  font-weight: 700;
+}

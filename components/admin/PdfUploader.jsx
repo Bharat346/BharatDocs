@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import BharatLoader from "@/components/ui/loader";
 import {
   Upload,
   FileText,
   Check,
-  Loader2,
   Copy,
   Folder,
   ChevronRight,
@@ -209,7 +209,7 @@ export default function PdfUploader() {
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-200 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-500 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
         >
           {uploading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <BharatLoader small text="" />
           ) : (
             <Upload className="w-5 h-5" />
           )}

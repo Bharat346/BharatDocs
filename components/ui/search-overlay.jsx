@@ -1,8 +1,8 @@
 "use client";
 
+import BharatLoader from "@/components/ui/loader";
 import {
   Search,
-  Loader2,
   FileSearch,
   FileText,
   Library,
@@ -90,7 +90,7 @@ export default function SearchOverlay({
                   }`}
                 >
                   {searchLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <BharatLoader small text="" />
                   ) : (
                     <Search className="w-5 h-5" />
                   )}

@@ -11,11 +11,11 @@ import {
   Database,
   ChevronRight,
   ChevronLeft,
-  Loader2,
   Search,
   X,
   Copy,
 } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart,
@@ -435,7 +435,7 @@ export default function SimpleLogsPage() {
                   >
                     <td colSpan={activeTab === "access" ? "7" : "6"} className="px-6 py-20 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="w-8 h-8 text-neutral-400 animate-spin" />
+                        <BharatLoader text="Fetching Logs..." />
                         <span className="text-xs font-black uppercase tracking-widest text-neutral-400">
                           Streaming logs...
                         </span>

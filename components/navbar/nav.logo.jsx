@@ -13,17 +13,20 @@ export default function NavLogo({ theme }) {
       className="flex items-center gap-3 group"
     >
       <motion.div
-        className="h-10 w-10 p-1 rounded-xl bg-white shadow-lg overflow-hidden flex items-center justify-center border border-zinc-100"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="h-10 w-10 overflow-hidden flex items-center justify-center transition-all duration-300 rounded-xl border-2 border-border/40 bg-secondary-bg"
       >
         <img
-          src="/icon.png"
+          src={theme === "dark" ? "/icon2.png" : "/icon.png"}
           alt="Logo"
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain p-1"
         />
       </motion.div>
+
       <span
         suppressHydrationWarning
-        className={`text-[clamp(1.05rem,4vw,1.3rem)] font-bold tracking-tight ${
+        className={`text-[clamp(1.05rem,4vw,1.3rem)] font-black tracking-tight ${
           theme === "dark" ? "text-white" : "text-gray-900"
         }`}
       >

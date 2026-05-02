@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
+import { Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { MagicCard } from "@/components/ui/magic-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -138,7 +139,7 @@ export default function AdminLoginPage() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <BharatLoader small text="" />
               ) : (
                 <span className="flex items-center gap-2">
                   Enter Dashboard <ArrowRight className="h-4 w-4" />

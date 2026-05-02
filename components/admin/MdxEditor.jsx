@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Save, Loader2, Check, Folder, Copy } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
+import { FileText, Save, Check, Folder, Copy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useThemeContext } from "@/components/ThemeProvider";
@@ -206,7 +207,7 @@ export default function MdxEditor() {
           className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-neutral-200 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-500 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
         >
           {saving ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <BharatLoader small text="" />
           ) : isSaved ? (
             <Check className="w-5 h-5 text-green-300" />
           ) : (

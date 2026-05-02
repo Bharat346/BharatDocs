@@ -27,56 +27,53 @@ function CollectionCard({ collection }) {
       className="group block h-full focus:outline-none"
     >
       <article
-        className="rounded-xl overflow-hidden transition-all duration-300 h-full flex flex-col bg-background border border-border hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:bg-indigo-500/[0.02]"
+        className="rounded-2xl overflow-hidden transition-all duration-300 h-full flex flex-col bg-background border border-border group-hover:border-indigo-500/50 group-hover:shadow-2xl group-hover:shadow-indigo-500/5 group-hover:-translate-y-1"
       >
-        <div className="p-5 flex-1 flex flex-col">
-          <div className="flex items-start justify-between mb-3">
+        <div className="p-6 flex-1 flex flex-col">
+          <div className="flex items-start justify-between mb-6">
             <div
-              className="p-2.5 rounded-lg transition-colors bg-indigo-500/5 group-hover:bg-indigo-500/15 dark:bg-indigo-500/10 dark:group-hover:bg-indigo-500/20"
+              className="w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-indigo-500/5 group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-500/10"
             >
-              <Folder className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <Folder className="h-6 w-6" />
             </div>
 
-            <ChevronRight
-              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 text-neutral-400 group-hover:text-indigo-500"
-            />
+            <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center group-hover:bg-indigo-600 group-hover:border-indigo-600 group-hover:text-white transition-all">
+              <ChevronRight className="h-4 w-4" />
+            </div>
           </div>
 
-          <h3
-            className="text-lg font-bold mb-1 truncate transition-colors text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
-          >
-            {collection.name}
-          </h3>
+          <div className="space-y-2 mb-6">
+            <h3
+              className="text-xl font-black tracking-tight leading-tight transition-colors text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+            >
+              {collection.name}
+            </h3>
 
-          <div
-            className="flex items-center text-[13px] text-gray-400 dark:text-zinc-500"
-          >
-            <Calendar className="h-3.5 w-3.5 mr-1.5" />
-            Updated {formatDate(collection.updatedAt)}
+            <div
+              className="flex items-center text-[10px] font-bold uppercase tracking-widest text-neutral-400"
+            >
+              <Calendar className="h-3 w-3 mr-1.5" />
+              Updated {formatDate(collection.updatedAt)}
+            </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-border/50 flex flex-wrap gap-1.5">
+          <div className="mt-auto pt-6 border-t border-border/50 flex flex-wrap items-center gap-2">
             {collection.fileType && (
               <span
-                className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20"
+                className="inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
               >
                 {collection.fileType}
               </span>
             )}
             {collection.tags &&
-              collection.tags.slice(0, 3).map((tag) => (
+              collection.tags.slice(0, 2).map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-secondary-bg text-neutral-500 border border-border dark:text-zinc-400"
+                  className="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-[0.15em] bg-secondary-bg border border-border text-neutral-500 dark:text-neutral-400 group-hover:border-indigo-500/30 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
                 >
                   {tag}
                 </span>
               ))}
-            {collection.tags && collection.tags.length > 3 && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20">
-                +{collection.tags.length - 3} more
-              </span>
-            )}
           </div>
         </div>
       </article>

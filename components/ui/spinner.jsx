@@ -1,18 +1,7 @@
-import { Loader2Icon } from "lucide-react"
+import BharatLoader from "@/components/ui/loader";
 
-import { cn } from "@/lib/utils"
-
-function Spinner({
-  className,
-  ...props
-}) {
-  return (
-    <Loader2Icon
-      role="status"
-      aria-label="Loading"
-      className={cn("size-4 animate-spin", className)}
-      {...props} />
-  );
+function Spinner({ className, ...props }) {
+  return <BharatLoader small text="" className={className} {...props} />;
 }
 
-export { Spinner }
+export { Spinner };

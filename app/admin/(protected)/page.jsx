@@ -13,6 +13,7 @@ import {
   FileEdit,
   ArrowRight,
   Key,
+  Newspaper,
 } from "lucide-react";
 import Link from "next/link";
 import { useThemeContext } from "@/components/ThemeProvider";
@@ -89,6 +90,12 @@ export default function AdminProfilePage() {
           icon={<FileEdit className="w-8 h-8 text-indigo-500" />}
           title="MDX Editor"
           desc="Author and push content to GitHub"
+        />
+        <DashboardCard
+          href="/admin/blogs"
+          icon={<Newspaper className="w-8 h-8 text-rose-500" />}
+          title="Blog Manager"
+          desc="Create and manage blog posts"
         />
         <DashboardCard
           href="/admin/docs"

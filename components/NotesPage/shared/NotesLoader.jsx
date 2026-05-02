@@ -1,15 +1,5 @@
-import { Loader2 } from "lucide-react";
+import BharatLoader from "@/components/ui/loader";
 
 export default function NotesLoader() {
-  return (
-    <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-      {/* Spinner */}
-      <Loader2 className="h-10 w-10 text-blue-400 animate-spin" />
-
-      {/* Text */}
-      <div className="font-black text-blue-400 animate-pulse text-sm">
-        Loading notes…
-      </div>
-    </div>
-  );
+  return <BharatLoader text="Loading Notes" />;
 }
