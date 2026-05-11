@@ -4,9 +4,9 @@ import NavBar from "@/components/navbar/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
 import SessionInitializer from "@/lib/SessionInitializer";
-import SplashScreen from "@/components/SplashScreen";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer";
+import NotificationManager from "@/components/NotificationManager";
 
 export default function ClientRoot({ children, nonce }) {
   const pathname = usePathname();
@@ -18,14 +18,13 @@ export default function ClientRoot({ children, nonce }) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        <SplashScreen>
-          {!isAdmin && !isPdf && !isDocsContent && <NavBar />}
-          <SessionInitializer />
-          <main className="min-h-screen flex flex-col">
-            <div className="flex-1 overflow-visible">{children}</div>
-            {showChrome && <Footer />}
-          </main>
-        </SplashScreen>
+        {!isAdmin && !isPdf && !isDocsContent && <NavBar />}
+        <NotificationManager />
+        <SessionInitializer />
+        <main className="min-h-screen flex flex-col">
+          <div className="flex-1 overflow-visible">{children}</div>
+          {showChrome && <Footer />}
+        </main>
       </QueryProvider>
     </ThemeProvider>
   );

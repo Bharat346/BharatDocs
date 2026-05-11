@@ -31,19 +31,31 @@ export function useSearch(initialQuery = "") {
 
   const getLink = (node) => {
     const coll = node.collectionName?.toLowerCase() || "docs";
-    if (coll === "notes") {
-      let baseUrl = `/pdf/${node.parentSlug || ""}`;
-      if (node.fileType === "pdf") {
-        const cleanPdfParam = node.slug || node.name;
-        return `${baseUrl}/${encodeURIComponent(cleanPdfParam)}`;
-      }
-      return baseUrl;
-    } else {
-      if (!node.parentSlug) {
-        return `/docs/${node.slug}`;
-      }
-      return `/docs/${node.parentSlug}?child=${node.slug}`;
+    const isFolder = node.nodeType === "folder";
+    const isPdf = node.fileType === "pdf" || node.nodeType === "note";
+
+    // ✅ Folder Logic: Open the folder view
+    if (isFolder) {
+      if (coll === "notes") return `/pdf/${node.slug}`;
+      return `/docs/${node.slug}`;
     }
+
+    // ✅ PDF Logic: Open the viewer directly
+    if (isPdf) {
+      if (coll === "notes") {
+        const parent = node.parentSlug || "";
+        return `/pdf/${parent}/${encodeURIComponent(node.slug || node.name)}`;
+      }
+      // For Docs collection, if it's a child PDF, open in that context
+      if (node.parentSlug) {
+        return `/docs/${node.parentSlug}?child=${node.slug}`;
+      }
+      return `/docs/${node.slug}`;
+    }
+
+    // Default Fallback
+    if (coll === "notes") return `/pdf/${node.slug}`;
+    return `/docs/${node.slug}`;
   };
 
   return {

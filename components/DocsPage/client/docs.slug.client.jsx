@@ -11,6 +11,7 @@ import Panel from "./docs.slug.panel";
 import BharatLoader from "@/components/ui/loader";
 import { FileSearch } from "lucide-react";
 import SearchOverlay from "@/components/ui/search-overlay";
+import { useUserProfileStore } from "@/hooks/useUserProfile";
 
 /* ---------- Dynamic ---------- */
 const MainContent = dynamic(
@@ -46,6 +47,18 @@ export default function DocsSlugClient({
   const mdxContent = initialMdxResult?.content ?? "";
   const frontmatter = initialMdxResult?.frontmatter ?? {};
   const headings = initialMdxResult?.headings ?? [];
+
+  const addActivity = useUserProfileStore((state) => state.addActivity);
+
+  useEffect(() => {
+    if (selectedChild) {
+      addActivity({
+        type: "read",
+        title: frontmatter?.title || selectedChild.name,
+        url: `/docs/${slug}?child=${selectedChild.slug}`,
+      });
+    }
+  }, [selectedChild, frontmatter, slug, addActivity]);
 
   /* ---------- Search Toggle ---------- */
   useEffect(() => {
@@ -157,7 +170,7 @@ export default function DocsSlugClient({
             <Suspense
               fallback={
                 <div className="flex-1 flex items-center justify-center">
-                  <BharatLoader text="Rendering..." />
+                  <BharatLoader fullScreen={false} />
                 </div>
               }
             >

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { isAuthenticatedAdmin } from "@/lib/auth-server";
 import { updateBlog, deleteBlog } from "@/lib/db/blog-queries";
+import { db } from "@/lib/db/index";
+import { globalNotifications } from "@/lib/db/schema";
 
 /* ── PUT: Update blog ── */
 export async function PUT(request, { params }) {
@@ -16,6 +18,19 @@ export async function PUT(request, { params }) {
 
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
+    }
+
+    // Trigger notification if it's being published
+    if (body.isPublished) {
+      // We can optionally check if it was ALREADY published to avoid duplicate notifications,
+      // but for now, any update while published can notify or we can just trust the user.
+      await db.insert(globalNotifications).values({
+        title: `Updated Blog: ${blog.title}`,
+        message: blog.description,
+        type: 'blogs',
+        tags: blog.tags || [],
+        url: `/blogs/${blog.slug}`
+      });
     }
 
     return NextResponse.json({ success: true, blog });

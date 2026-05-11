@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import BharatLoader from "@/components/ui/loader";
@@ -15,6 +15,12 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+ 
+  // Clear any stale cookies on mount to prevent redirect loops
+  useEffect(() => {
+    document.cookie = "admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "admin_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();

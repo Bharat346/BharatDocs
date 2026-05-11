@@ -57,14 +57,6 @@ export default function PDFHeader({
       >
         {/* LEFT: Sidebar Toggle + Back + Title */}
         <div className="flex items-center gap-0.5 sm:gap-1.5 min-w-0 flex-1">
-          <button
-            onClick={onToggleSidebar}
-            className="p-2.5 rounded-xl transition-all bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
-            title="Toggle Sidebar (press [)"
-          >
-            <PanelsTopLeft size={19} strokeWidth={2} />
-          </button>
-
 
           <Link
             href={backHref}

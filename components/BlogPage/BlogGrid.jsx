@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Suspense } from "react";
 import BlogCard from "./BlogCard";
 import {
   Search,
@@ -12,35 +13,30 @@ import {
 } from "lucide-react";
 import BharatLoader from "@/components/ui/loader";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
 export default function BlogGrid() {
   const [blogs, setBlogs] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchBlogs();
-  }, [selectedTag]);
-
-  const fetchBlogs = async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["blogs", selectedTag],
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (selectedTag) params.set("tag", selectedTag);
-
       const res = await fetch(`/api/blogs?${params.toString()}`);
-      const data = await res.json();
+      if (!res.ok) throw new Error("Failed to fetch blogs");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000, // 5 min
+    gcTime: 30 * 60 * 1000,
+  });
 
-      if (data.blogs) setBlogs(data.blogs);
-      if (data.tags) setAllTags(data.tags);
-    } catch (e) {
-      console.error("Failed to fetch blogs:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (data?.blogs) setBlogs(data.blogs);
+    if (data?.tags) setAllTags(data.tags);
+  }, [data]);
 
   const filteredBlogs = useMemo(() => {
     if (!search.trim()) return blogs;
@@ -66,14 +62,14 @@ export default function BlogGrid() {
               <ArrowLeft className="w-3.5 h-3.5" />
               Back to Home
             </Link>
-            <div className="space-y-1">
-              <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase text-foreground leading-[0.8]">
-                The <span className="text-indigo-600 dark:text-indigo-400">Journal</span>
-              </h1>
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-widest uppercase pl-1">
-                Engineering , Science & Design Insights
-              </p>
-            </div>
+              <div className="space-y-1">
+                <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase text-foreground leading-[0.8]">
+                  The <span className="text-indigo-600 dark:text-indigo-400">Journal</span>
+                </h1>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-widest uppercase pl-1">
+                  Engineering , Science & Design Insights
+                </p>
+              </div>
           </div>
 
           {/* Centered, narrow search bar */}
@@ -134,7 +130,7 @@ export default function BlogGrid() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <BharatLoader text="Loading Blogs..." />
+          <BharatLoader fullScreen={false} />
         </div>
       ) : filteredBlogs.length === 0 ? (
         <motion.div

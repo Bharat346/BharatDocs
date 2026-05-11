@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useThemeContext } from "@/components/ThemeProvider";
 import { NAV_ITEMS } from "./nav.config";
 import NavLogo from "./nav.logo";
 import NavDesktop from "./nav.desk";
 import NavMobile from "./nav.mobile";
-import { Menu, X, Sun, Moon, Search, Share2, FileText, BookOpen } from "lucide-react";
+import { Menu, X, Sun, Moon, Search, FileText, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ShareDropdown from "@/components/DocsPage/shared/ShareDropdown";
 import SearchOverlay from "@/components/ui/search-overlay";
+import NotificationBell from "./NotificationBell";
 
 export default function NavBar() {
   const { theme, toggleTheme, mounted } = useThemeContext();
@@ -108,20 +109,30 @@ export default function NavBar() {
           />
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-0.5 sm:gap-2">
+          {/* Notification Bell - ALWAYS OUTSIDE */}
+          <div className="flex items-center">
+            <NotificationBell />
+          </div>
+
+          {/* Share Button - MOVED OUTSIDE */}
+          <div className="flex items-center">
+            <ShareDropdown 
+              title={typeof document !== "undefined" ? document.title : "BharatDocs"} 
+              url={typeof window !== "undefined" ? window.location.href : ""} 
+            />
+          </div>
+
+          {/* Search Button - HIDDEN ON MOBILE (Moved inside menu) */}
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="p-2.5 rounded-xl transition-all flex bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
+            className="hidden sm:flex p-2.5 rounded-xl transition-all bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
             title="Search (Ctrl+K)"
           >
             <Search className="w-5 h-5" />
           </button>
 
-          <ShareDropdown 
-            title={typeof document !== "undefined" ? document.title : "BharatDocs"} 
-            url={typeof window !== "undefined" ? window.location.href : ""} 
-          />
-
+          {/* Theme Toggle - HIDDEN ON MOBILE (Moved inside menu) */}
           <button
             onClick={toggleTheme}
             suppressHydrationWarning
@@ -165,6 +176,7 @@ export default function NavBar() {
           theme={theme}
           toggleTheme={toggleTheme}
           closeMobile={closeMobile}
+          setIsSearchOpen={setIsSearchOpen}
         />
       </div>
 

@@ -3,9 +3,22 @@
 import { useRef } from "react";
 import BlogHeader from "./BlogHeader";
 import TableOfContents from "@/components/DocsPage/shared/TableofContent";
+import { useUserProfileStore } from "@/hooks/useUserProfile";
+import { useEffect } from "react";
 
 export default function BlogReaderClient({ blog, mdxContent, headings }) {
   const scrollRef = useRef(null);
+  const addActivity = useUserProfileStore((state) => state.addActivity);
+
+  useEffect(() => {
+    if (blog) {
+      addActivity({
+        type: "read",
+        title: blog.title || blog.slug,
+        url: `/blogs/${blog.slug}`,
+      });
+    }
+  }, [blog, addActivity]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground transition-colors">

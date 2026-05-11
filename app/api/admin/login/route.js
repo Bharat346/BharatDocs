@@ -35,13 +35,16 @@ export async function POST(req) {
 
       const response = NextResponse.json({ success: true });
 
+      // Clear existing first to be safe
+      response.cookies.delete("admin_session");
+      response.cookies.delete("admin_user");
+
       response.cookies.set("admin_session", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
         maxAge: 60 * 60 * 24, // 1 Day
-        domain: process.env.NODE_ENV === "production" ? "bhdocs.in" : undefined,
       });
 
       // Store username in a cookie too for the profile
@@ -50,7 +53,6 @@ export async function POST(req) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        domain: process.env.NODE_ENV === "production" ? "bhdocs.in" : undefined,
       });
 
       return response;

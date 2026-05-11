@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { isAuthenticatedAdmin } from "@/lib/auth-server";
 import { getAllBlogsAdmin, createBlog } from "@/lib/db/blog-queries";
+import { db } from "@/lib/db/index";
+import { globalNotifications } from "@/lib/db/schema";
 
 /* ── GET: List all blogs (admin view, includes unpublished) ── */
 export async function GET() {
@@ -57,6 +59,17 @@ export async function POST(request) {
       isPublished: isPublished || false,
       isFeatured: isFeatured || false,
     });
+
+    if (isPublished) {
+      console.log(`[Admin Blogs] Triggering notification for blog: ${title}`);
+      await db.insert(globalNotifications).values({
+        title: `New Blog: ${title}`,
+        message: description,
+        type: 'blogs',
+        tags: tags || [],
+        url: `/blogs/${cleanSlug}`
+      });
+    }
 
     return NextResponse.json({ success: true, blog }, { status: 201 });
   } catch (error) {

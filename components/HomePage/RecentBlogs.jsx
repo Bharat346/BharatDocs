@@ -2,22 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { ArrowRight, Calendar, Clock, Newspaper } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 export default function RecentBlogs() {
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/blogs?limit=3")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.blogs) setBlogs(data.blogs);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: blogs = [], isLoading: loading } = useQuery({
+    queryKey: ["recent-blogs"],
+    queryFn: async () => {
+      const res = await fetch("/api/blogs?limit=3");
+      const data = await res.json();
+      return data.blogs || [];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   if (loading || blogs.length === 0) return null;
 
@@ -25,7 +24,7 @@ export default function RecentBlogs() {
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="flex items-end justify-between mb-10">
+        <div className="flex items-end justify-between mb-10 ml-5">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-[2px] bg-primary rounded-full" />

@@ -2,28 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { FileText, ExternalLink } from "lucide-react";
-import Link from "next/link";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 export default function RecentDocs({ theme }) {
   const isDark = theme === "dark";
-  const [docs, setDocs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRecent = async () => {
-      try {
-        const res = await fetch("/api/docs/recent");
-        const data = await res.json();
-        setDocs(data);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRecent();
-  }, []);
+  const { data: docs = [], isLoading: loading } = useQuery({
+    queryKey: ["recent-docs"],
+    queryFn: async () => {
+      const res = await fetch("/api/docs/recent");
+      if (!res.ok) throw new Error("Failed to fetch recent docs");
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const getLink = (doc) => {
     const coll = doc.collectionName.toLowerCase();

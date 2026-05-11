@@ -82,10 +82,10 @@ export default function Footer() {
         </div>
 
         <div className="pt-10 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-neutral-500 italic opacity-60">
+          <div className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-neutral-500 opacity-60">
             &copy; {new Date().getFullYear()} Bharat Kumar &bull; All rights reserved.
           </div>
-          <div className="flex items-center gap-6 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-neutral-500 italic opacity-60">
+          <div className="flex items-center gap-6 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-neutral-500 opacity-60">
             <span>Intelligence Redefined</span>
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             <span>Stay Focused</span>

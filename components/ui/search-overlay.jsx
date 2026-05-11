@@ -6,6 +6,7 @@ import {
   FileSearch,
   FileText,
   Library,
+  Folder,
   ChevronRight,
   X,
   Sparkles,
@@ -198,8 +199,14 @@ function ResultItem({
       style={{ transitionDelay: `${index * 20}ms` }}
       className="flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 hover:bg-secondary-bg"
     >
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-secondary-bg text-zinc-500 dark:text-zinc-400">
-        {node.fileType === "pdf" ? <Library size={20} /> : <FileText size={20} />}
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-secondary-bg text-zinc-500 dark:text-zinc-400 group-hover:text-primary transition-colors">
+        {node.nodeType === "folder" ? (
+          <Folder size={20} />
+        ) : node.fileType === "pdf" ? (
+          <Library size={20} />
+        ) : (
+          <FileText size={20} />
+        )}
       </div>
 
       <div className="flex-1 min-w-0">

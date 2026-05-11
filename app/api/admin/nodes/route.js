@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/index";
-import { nodes } from "@/lib/db/schema";
+import { nodes, globalNotifications } from "@/lib/db/schema";
 import { eq, and, or, isNull } from "drizzle-orm";
 import { isAuthenticatedAdmin } from "@/lib/auth-server";
 
@@ -139,6 +139,20 @@ export async function POST(req) {
         orderIndex: nodes.orderIndex,
         isPublished: nodes.isPublished,
       });
+
+    if (Boolean(isPublished)) {
+      let type = nodeType === "doc" ? "docs" : "notes";
+      if (nodeType !== "folder") {
+        console.log(`[Admin Nodes] Triggering notification for ${nodeType}: ${name}`);
+        await db.insert(globalNotifications).values({
+          title: `New ${nodeType === "doc" ? "Document" : "Note"}: ${name}`,
+          message: `A new ${nodeType} has been added.`,
+          type,
+          tags: Array.isArray(tags) ? tags : [],
+          url: nodeType === "doc" ? `/docs/${slug}` : `/notes/${slug}`
+        });
+      }
+    }
 
     return NextResponse.json(node);
   } catch (err) {
