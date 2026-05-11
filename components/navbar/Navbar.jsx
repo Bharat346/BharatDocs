@@ -6,7 +6,7 @@ import { NAV_ITEMS } from "./nav.config";
 import NavLogo from "./nav.logo";
 import NavDesktop from "./nav.desk";
 import NavMobile from "./nav.mobile";
-import { Menu, X, Sun, Moon, Search, FileText, BookOpen } from "lucide-react";
+import { Menu, X, Sun, Moon, Search, FileText, BookOpen, User } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ShareDropdown from "@/components/DocsPage/shared/ShareDropdown";
@@ -131,6 +131,15 @@ export default function NavBar() {
           >
             <Search className="w-5 h-5" />
           </button>
+
+          {/* Profile Link - DESKTOP */}
+          <Link
+            href="/profile"
+            className="hidden sm:flex p-2.5 rounded-xl transition-all bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
+            title="Profile"
+          >
+            <User className="w-5 h-5" />
+          </Link>
 
           {/* Theme Toggle - HIDDEN ON MOBILE (Moved inside menu) */}
           <button

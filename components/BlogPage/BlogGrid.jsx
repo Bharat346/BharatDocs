@@ -151,8 +151,7 @@ export default function BlogGrid() {
           </p>
         </motion.div>
       ) : (
-        <motion.div
-          layout
+        <div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <AnimatePresence mode="popLayout">
@@ -160,7 +159,7 @@ export default function BlogGrid() {
               <BlogCard key={blog.id} blog={blog} index={i} />
             ))}
           </AnimatePresence>
-        </motion.div>
+        </div>
       )}
 
       {/* Results count */}
