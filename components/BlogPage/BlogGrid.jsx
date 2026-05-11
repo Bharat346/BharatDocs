@@ -64,7 +64,7 @@ export default function BlogGrid() {
             </Link>
               <div className="space-y-1">
                 <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase text-foreground leading-[0.8]">
-                  The <span className="text-indigo-600 dark:text-indigo-400">Journal</span>
+                  The <span className="text-primary">Journal</span>
                 </h1>
                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-widest uppercase pl-1">
                   Engineering , Science & Design Insights
@@ -104,8 +104,8 @@ export default function BlogGrid() {
             onClick={() => setSelectedTag(null)}
             className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all border ${
               !selectedTag
-                ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20"
-                : "bg-transparent text-neutral-500 border-neutral-200 dark:border-neutral-800 hover:border-indigo-500/50 hover:text-indigo-600"
+                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                : "bg-transparent text-neutral-500 border-border hover:border-primary/50 hover:text-primary"
             }`}
           >
             All
@@ -115,9 +115,9 @@ export default function BlogGrid() {
               key={tag}
               onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
               className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all border flex items-center gap-1.5 ${
-                selectedTag === tag
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20"
-                  : "bg-transparent text-neutral-500 border-neutral-200 dark:border-neutral-800 hover:border-indigo-500/50 hover:text-indigo-600"
+              selectedTag === tag
+                  ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                  : "bg-transparent text-neutral-500 border-border hover:border-primary/50 hover:text-primary"
               }`}
             >
               <Tag className="w-3 h-3" />

@@ -33,10 +33,10 @@ export default function BlogCard({ blog, index = 0 }) {
     >
       <Link
         href={`/blogs/${blog.slug}`}
-        className="group relative flex flex-col h-full bg-secondary-bg dark:bg-zinc-900 border border-border/50 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-[0_20px_50px_-20px_rgba(59,130,246,0.15)]"
+        className="group relative flex flex-col h-full bg-secondary-bg border border-border/60 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-[0_20px_50px_-20px_rgba(59,130,246,0.15)]"
       >
         {/* Cover Image Area */}
-        <div className="relative h-56 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+        <div className="relative h-56 w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800/50">
           {coverImage ? (
             <img
               src={coverImage}
@@ -77,7 +77,7 @@ export default function BlogCard({ blog, index = 0 }) {
                {formattedDate}
              </div>
              <span className="w-1 h-1 rounded-full bg-border" />
-             <div className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+             <div className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                <Clock className="w-3 h-3" />
                {blog.readTime} min
              </div>
@@ -99,7 +99,7 @@ export default function BlogCard({ blog, index = 0 }) {
               </div>
               <div className="flex flex-col">
                 <span className="text-[11px] font-black uppercase tracking-wider text-foreground/80">{blog.author || "BharatDocs"}</span>
-                <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-tighter">Chief Architect</span>
+                <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-tighter">Developer</span>
               </div>
             </div>
             
