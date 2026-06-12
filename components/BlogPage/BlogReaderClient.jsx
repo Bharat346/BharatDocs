@@ -1,14 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import BlogHeader from "./BlogHeader";
 import TableOfContents from "@/components/DocsPage/shared/TableofContent";
 import { useUserProfileStore } from "@/hooks/useUserProfile";
-import { useEffect } from "react";
 
-export default function BlogReaderClient({ blog, mdxContent, headings }) {
+export default function BlogReaderClient({ blog, mdxContent: initialMdxContent, headings }) {
   const scrollRef = useRef(null);
   const addActivity = useUserProfileStore((state) => state.addActivity);
+  const [mdxContent, setMdxContent] = useState(initialMdxContent);
 
   useEffect(() => {
     if (blog) {
@@ -28,7 +28,7 @@ export default function BlogReaderClient({ blog, mdxContent, headings }) {
           ref={scrollRef}
           className="flex-1 overflow-y-auto bg-background pb-32"
         >
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-10 md:py-14 flex flex-col xl:flex-row gap-12 xl:gap-20">
+          <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-14 py-10 md:py-14 flex flex-col xl:flex-row gap-12 xl:gap-20">
             <div className="flex-1 min-w-0">
               <BlogHeader blog={blog} />
 
@@ -52,13 +52,11 @@ export default function BlogReaderClient({ blog, mdxContent, headings }) {
 
             {/* Table of Contents - Concise Floating Block */}
             {headings && headings.length > 0 && (
-              <aside className="hidden xl:block w-64 shrink-0">
-                <div className="sticky top-10">
-                  <TableOfContents
-                    headings={headings}
-                    containerRef={scrollRef}
-                  />
-                </div>
+              <aside className="hidden xl:block w-32 shrink-0 h-[calc(100vh-160px)] sticky top-20">
+                <TableOfContents
+                  headings={headings}
+                  containerRef={scrollRef}
+                />
               </aside>
             )}
           </div>

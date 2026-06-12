@@ -11,21 +11,21 @@ export default function DocsNavBar({
   setIsSearchOpen,
   docTitle,
   onMenuClick,
+  onTocClick,
 }) {
   const url = typeof window !== "undefined" ? window.location.href : "";
   const title = typeof document !== "undefined" ? document.title : "Research Hub";
 
   return (
-    <nav className="h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-[100] transition-colors duration-300 bg-background/80 backdrop-blur-md border-b border-border/60">
-      <div className="flex items-center gap-2 sm:gap-4">
+    <nav className="h-16 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-[100] transition-colors duration-300 bg-background/80 backdrop-blur-md border-b border-border/60">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0 max-w-[50%] sm:max-w-none">
         <button
           onClick={onMenuClick}
           className="p-2.5 rounded-xl lg:hidden transition-all bg-secondary-bg border border-border/50 text-neutral-500 hover:text-primary hover:border-primary/30"
           title="Toggle Sidebar"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
-
 
         <Link
           href="/docs"
@@ -36,30 +36,30 @@ export default function DocsNavBar({
         </Link>
 
         <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block" />
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="font-bold text-lg sm:text-xl tracking-tight max-w-[150px] sm:max-w-none truncate">
+        <Link href="/" className="flex items-center gap-2 group min-w-0">
+          <span className="font-bold text-sm sm:text-xl tracking-tight truncate">
             {docTitle || "BharatDocs"}
           </span>
         </Link>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4 flex-1 justify-end sm:justify-center px-2 sm:px-4">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 justify-end sm:justify-center px-2 sm:px-4 min-w-0">
         <button
           onClick={() => setIsSearchOpen(true)}
-          className="group flex items-center justify-center sm:justify-start gap-3 p-2 sm:px-4 sm:py-2 rounded-xl sm:border transition-all w-auto sm:w-full max-w-md bg-secondary-bg border-border hover:border-primary/30 text-neutral-500 hover:text-primary sm:shadow-sm"
+          className="group flex items-center justify-center sm:justify-start gap-3 p-2 sm:px-4 sm:py-2 rounded-xl sm:border transition-all w-auto sm:w-full max-w-md bg-transparent sm:bg-secondary-bg border-transparent sm:border-border hover:border-primary/30 text-neutral-500 hover:text-primary sm:shadow-sm shrink-0 sm:shrink"
           title="Search"
         >
           <Search className="w-5 h-5 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline text-sm font-medium mr-auto">
-            Search documentation...
+          <span className="hidden sm:inline text-sm font-medium mr-auto truncate">
+            Search docs...
           </span>
-          <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border border-gray-200 bg-white px-1.5 font-mono text-[10px] font-medium text-gray-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
+          <kbd className="hidden sm:inline-flex shrink-0 h-5 items-center gap-1 rounded border border-gray-200 bg-white px-1.5 font-mono text-[10px] font-medium text-gray-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500">
             <span className="text-xs">⌘</span>K
           </kbd>
         </button>
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <div className="hidden sm:flex">
           <ShareDropdown title={title} url={url} />
         </div>
@@ -75,9 +75,6 @@ export default function DocsNavBar({
           )}
         </button>
       </div>
-
-
-
     </nav>
   );
 }

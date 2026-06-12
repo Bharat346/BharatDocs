@@ -34,6 +34,11 @@ export function useSearch(initialQuery = "") {
     const isFolder = node.nodeType === "folder";
     const isPdf = node.fileType === "pdf" || node.nodeType === "note";
 
+    // ✅ Blog Logic: Open the blog viewer
+    if (coll === "blogs" || node.nodeType === "blog") {
+      return `/blogs/${node.slug}`;
+    }
+
     // ✅ Folder Logic: Open the folder view
     if (isFolder) {
       if (coll === "notes") return `/pdf/${node.slug}`;

@@ -143,6 +143,16 @@ const XXE_DETECTION_PATTERNS = [
   /<!ENTITY\s+%\s*\w+/i,
 ];
 
+const PATH_TRAVERSAL_DETECTION_PATTERNS = [
+  /\.\.\//,
+  /\.\.\\/,
+  /%2e%2e%2f/i,
+  /%252e%252e%252f/i,
+  /\/etc\/passwd/i,
+  /\/bin\/sh/i,
+  /cmd\.exe/i,
+];
+
 /* =========================
    HELPERS
 ========================= */
@@ -153,7 +163,7 @@ function hasMaliciousPayload(input) {
     ...SQLI_DETECTION_PATTERNS,
     ...CMD_DETECTION_PATTERNS,
     ...XXE_DETECTION_PATTERNS,
-    ...SQLI_DETECTION_PATTERNS,
+    ...PATH_TRAVERSAL_DETECTION_PATTERNS,
   ];
 
   return patterns.some((re) => re.test(input));

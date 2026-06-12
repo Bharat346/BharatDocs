@@ -27,11 +27,14 @@ export async function POST(req) {
       .limit(1);
 
     if (admin && verifyPassword(password, admin.passwordHash)) {
-      // Create a simple token
-      const token = crypto
+      // Create a secure token: base64(username:expiration:signature)
+      const expiresAt = Date.now() + 60 * 60 * 24 * 1000; // 1 day
+      const payload = `${username}:${expiresAt}`;
+      const signature = crypto
         .createHmac("sha256", SESSION_SECRET)
-        .update("admin_authenticated")
+        .update(payload)
         .digest("hex");
+      const token = Buffer.from(`${payload}:${signature}`).toString("base64");
 
       const response = NextResponse.json({ success: true });
 

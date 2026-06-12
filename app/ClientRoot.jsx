@@ -6,8 +6,6 @@ import QueryProvider from "@/components/QueryProvider";
 import SessionInitializer from "@/lib/SessionInitializer";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer";
-import NotificationManager from "@/components/NotificationManager";
-
 export default function ClientRoot({ children, nonce }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
@@ -19,7 +17,6 @@ export default function ClientRoot({ children, nonce }) {
     <ThemeProvider>
       <QueryProvider>
         {!isAdmin && !isPdf && !isDocsContent && <NavBar />}
-        <NotificationManager />
         <SessionInitializer />
         <main className="min-h-screen flex flex-col">
           <div className="flex-1 overflow-visible">{children}</div>

@@ -13,6 +13,8 @@ import { FileSearch } from "lucide-react";
 import SearchOverlay from "@/components/ui/search-overlay";
 import { useUserProfileStore } from "@/hooks/useUserProfile";
 
+import { getFromCache, setToCache, STORES } from "@/lib/idb.cache";
+
 /* ---------- Dynamic ---------- */
 const MainContent = dynamic(
   () => import("@/components/DocsPage/shared/mainContent"),
@@ -44,7 +46,8 @@ export default function DocsSlugClient({
   const children = initialChildren || [];
   const selectedChild = initialSelectedChild;
 
-  const mdxContent = initialMdxResult?.content ?? "";
+  // Use state to allow hydration
+  const [mdxContent, setMdxContent] = useState(initialMdxResult?.content ?? "");
   const frontmatter = initialMdxResult?.frontmatter ?? {};
   const headings = initialMdxResult?.headings ?? [];
 
@@ -143,7 +146,7 @@ export default function DocsSlugClient({
           side="left"
           panelRef={sidebarRef}
         >
-          <div className="h-full w-72 flex flex-col overflow-hidden bg-background">
+          <div className="h-full w-72 flex flex-col overflow-hidden bg-secondary-bg/30 backdrop-blur-xl border-r border-border/50">
             <Sidebar
               children={children}
               selectedChild={selectedChild}
@@ -157,8 +160,8 @@ export default function DocsSlugClient({
         <div className="flex-1 relative flex flex-col min-w-0 bg-background overflow-hidden h-full">
           {!selectedChild ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
-              <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800/50 rounded-3xl flex items-center justify-center mb-6">
-                <FileSearch className="w-10 h-10 text-zinc-400" />
+              <div className="w-20 h-20 bg-secondary-bg/50 backdrop-blur-md rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-border/50">
+                <FileSearch className="w-10 h-10 text-primary/50" />
               </div>
               <h2 className="text-2xl font-bold mb-3">No document found</h2>
               <p className="text-zinc-500 leading-relaxed">
@@ -184,15 +187,17 @@ export default function DocsSlugClient({
         </div>
 
         {/* TOC */}
-        <Panel open={tocOpen} mobile={isMobile} side="right" panelRef={tocRef}>
-          <div className="h-full w-69 bg-background overflow-hidden flex flex-col">
-            <TableOfContent
-              headings={headings}
-              containerRef={scrollRef}
-              isMobile={isMobile}
-            />
-          </div>
-        </Panel>
+        {!isMobile && (
+          <Panel open={tocOpen} mobile={false} side="right" panelRef={tocRef}>
+            <div className="h-full w-32 bg-transparent flex flex-col items-center">
+              <TableOfContent
+                headings={headings}
+                containerRef={scrollRef}
+                isMobile={false}
+              />
+            </div>
+          </Panel>
+        )}
       </div>
 
       {/* GLOBAL SEARCH OVERLAY */}

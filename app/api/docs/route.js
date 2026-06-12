@@ -1,6 +1,6 @@
-// app/api/docs/route.js
 import { NextResponse } from "next/server";
 import { getDocsByParentSlug } from "@/lib/db/queries";
+import { getCachedData } from "@/lib/redis";
 
 export async function GET(req) {
   try {

@@ -33,7 +33,7 @@ export default function BlogHeader({ blog }) {
             {blog.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] bg-secondary-bg border border-border text-neutral-500 dark:text-neutral-400 rounded-md"
+                className="px-3 py-1.5 text-xs font-black uppercase tracking-[0.1em] bg-neutral-200/80 dark:bg-secondary-bg/80 backdrop-blur-md border border-neutral-300/50 dark:border-border text-neutral-600 dark:text-neutral-300 rounded-lg shadow-sm"
               >
                 {tag}
               </span>

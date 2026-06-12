@@ -7,7 +7,8 @@ import crypto from "crypto";
    CONFIG
 ========================= */
 const WINDOW_SECONDS = 60; // 1 minute window
-const LIMIT = 30; // 100 req / window
+const DEFAULT_LIMIT = 60; // 60 req / window
+const AUTH_LIMIT = 5; // 5 req / window for auth
 const BLOCK_SECONDS = 60 * 10; // 10 min hard block
 
 /* =========================
@@ -72,7 +73,11 @@ export async function rateLimitRequest(request) {
     );
   }
 
-  if (count <= LIMIT) {
+  const endpointLimit = url.pathname.startsWith("/api/session") || url.pathname.startsWith("/api/admin") 
+    ? AUTH_LIMIT 
+    : DEFAULT_LIMIT;
+
+  if (count <= endpointLimit) {
     return { allowed: true };
   }
 
@@ -100,7 +105,7 @@ export async function rateLimitRequest(request) {
         path: url.pathname,
         method: request.method,
         details: JSON.stringify({
-          limit: LIMIT,
+          limit: endpointLimit,
           windowSeconds: WINDOW_SECONDS,
           blockSeconds: BLOCK_SECONDS,
         }),

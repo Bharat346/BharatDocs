@@ -14,6 +14,38 @@ export default function NotificationBell() {
 
   useEffect(() => setMounted(true), []);
 
+  // Silent polling for notifications
+  useEffect(() => {
+    if (!mounted || !store._hasHydrated) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch("/api/notifications");
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        const existingIds = new Set(store.notificationItems.map(n => n.id));
+        const newNotifications = data.filter(n => !existingIds.has(n.id));
+
+        newNotifications.reverse().forEach(notif => {
+          store.addNotification({
+            id: notif.id,
+            title: notif.title,
+            message: notif.message,
+            type: notif.type,
+            url: notif.url,
+            timestamp: notif.createdAt
+          });
+        });
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000); // 60s
+    return () => clearInterval(interval);
+  }, [mounted, store._hasHydrated]);
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -42,7 +74,7 @@ export default function NotificationBell() {
       >
         <Bell className="w-5 h-5" />
         {store.unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center animate-pulse">
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
             {store.unreadCount > 9 ? "9+" : store.unreadCount}
           </span>
         )}
@@ -55,11 +87,11 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className="fixed sm:absolute inset-x-4 sm:inset-auto sm:right-0 top-16 sm:top-full mt-3 sm:w-[380px] rounded-[1.5rem] border border-border bg-background shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-[200] overflow-hidden backdrop-blur-xl"
+            className="fixed sm:absolute inset-x-4 sm:inset-auto sm:right-0 top-16 sm:top-full mt-3 sm:w-[380px] rounded-[1.5rem] border border-border bg-background z-[200] overflow-hidden backdrop-blur-xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-foreground/50">
+              <h4 className="text-sm font-semibold text-foreground/80">
                 Notifications
               </h4>
               <div className="flex items-center gap-2">
@@ -103,11 +135,11 @@ export default function NotificationBell() {
                       <Bell className="w-3.5 h-3.5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {notif.title}
                       </p>
                       {notif.message && (
-                        <p className="text-[10px] text-foreground/30 truncate mt-0.5">
+                        <p className="text-xs text-foreground/60 truncate mt-0.5">
                           {notif.message}
                         </p>
                       )}
@@ -128,7 +160,7 @@ export default function NotificationBell() {
                               store.markRead(notif.id);
                               setIsOpen(false);
                             }}
-                            className="px-2 py-1 rounded-md bg-primary/10 text-primary text-[9px] font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
+                            className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
                           >
                             View
                           </Link>
@@ -148,7 +180,7 @@ export default function NotificationBell() {
               <Link
                 href="/profile"
                 onClick={() => setIsOpen(false)}
-                className="block w-full text-center text-xs font-bold text-primary hover:underline"
+                className="block w-full text-center text-sm font-medium text-primary hover:underline"
               >
                 View all → Profile
               </Link>

@@ -2,12 +2,6 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { Layers, ChevronDown } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { buildTocTree } from "@/lib/utils/buildTocTree";
 
@@ -28,20 +22,7 @@ export default function TableOfContent({
   const [openMap, setOpenMap] = useState({});
   const isProgrammaticScroll = useRef(false);
 
-  /* ---------------- Auto expand ---------------- */
-  useEffect(() => {
-    if (!processedHeadings.length) return;
-
-    setOpenMap((prev) => {
-      const next = { ...prev };
-      for (const h of processedHeadings) {
-        if (h.level <= 2 && next[h.id] === undefined) {
-          next[h.id] = false; // Initially only headings show, not subheadings
-        }
-      }
-      return next;
-    });
-  }, [processedHeadings]);
+  // No auto expand needed for flat list
 
   /* ---------------- Active heading observer ---------------- */
   useEffect(() => {
@@ -108,86 +89,76 @@ export default function TableOfContent({
     }, 450);
   };
 
-  /* ---------------- Render node ---------------- */
-  const renderNode = (node) => {
-    const open = openMap[node.id] ?? false; // Default to closed (no subheadings shown initially)
-
-    return (
-      <div key={node.key} className="pl-1">
-        <Collapsible
-          open={open}
-          onOpenChange={(v) => setOpenMap((m) => ({ ...m, [node.id]: v }))}
-        >
-          <div className="flex items-center gap-1">
-            {node.children.length > 0 && (
-              <CollapsibleTrigger className="p-1">
-                <ChevronDown
-                  className={cn(
-                    "h-3 w-3 transition-transform text-neutral-400 dark:text-zinc-500",
-                    !open && "-rotate-90"
-                  )}
-                />
-              </CollapsibleTrigger>
-            )}
-
-            <Link
-              href={`#${node.id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToHeading(node.id);
-              }}
-              className={cn(
-                "py-1 text-sm text-left block transition-colors",
-                activeId === node.id
-                  ? "text-blue-600 dark:text-blue-400 font-medium"
-                  : "text-black hover:text-blue-600 dark:text-neutral-500 dark:hover:text-blue-400",
-
-              )}
-            >
-              {node.text}
-            </Link>
-          </div>
-
-          {node.children.length > 0 && (
-            <CollapsibleContent className="ml-4 space-y-1">
-              {node.children.map(renderNode)}
-            </CollapsibleContent>
-          )}
-        </Collapsible>
-      </div>
-    );
-  };
-
   /* ---------------- Render ---------------- */
   return (
     <aside
       className={cn(
-        "flex flex-col h-full transition-all duration-300 bg-background text-foreground",
+        "flex flex-col h-full transition-all duration-300 bg-transparent text-foreground justify-center items-center w-full relative group z-50",
         className,
       )}
     >
-      {/* Header */}
-      <div className="px-2 py-4 h-14 z-10">
-        <div className="flex items-center gap-2 pb-4">
-          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-            <Layers size={18} />
+      <div className="flex flex-col items-center justify-center w-full relative">
+        {processedHeadings.length > 0 && (
+          <div className="relative flex flex-col items-center">
+            {/* Minimalist Pill Stack */}
+            <nav className="flex flex-col items-center gap-1 relative w-full">
+              {processedHeadings.map((node) => {
+                const isActive = activeId === node.id;
+                return (
+                  <Link
+                    key={node.key}
+                    href={`#${node.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToHeading(node.id);
+                    }}
+                    className="flex justify-center py-1 w-12 cursor-pointer"
+                  >
+                    <div
+                      className={cn(
+                        "h-[3px] rounded-full transition-all duration-500 ease-out shrink-0",
+                        isActive
+                          ? "w-8 bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)] dark:bg-blue-400 dark:shadow-[0_0_8px_rgba(96,165,250,0.4)]"
+                          : "w-5 bg-foreground/20 hover:bg-foreground/50 hover:w-8"
+                      )}
+                    />
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Floating Large Content Div (Shows ALL headings) */}
+            <div
+              className="absolute right-8 top-1/2 -translate-y-1/2 w-80 bg-background border border-border/50 rounded-3xl shadow-2xl p-6 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-out z-[9999]"
+            >
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 text-center">
+                Table of Contents
+              </h4>
+              <nav className="flex flex-col gap-2.5 max-h-[70vh] overflow-y-auto no-scrollbar">
+                {processedHeadings.map((node) => {
+                  const isActive = activeId === node.id;
+                  return (
+                    <Link
+                      key={`expanded-${node.key}`}
+                      href={`#${node.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToHeading(node.id);
+                      }}
+                      className={cn(
+                        "text-xs tracking-wide transition-colors line-clamp-2 text-center",
+                        isActive
+                          ? "font-bold text-primary"
+                          : "font-semibold text-neutral-500 hover:text-foreground"
+                      )}
+                    >
+                      {node.text}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400/80">
-            Table of Contents
-          </h3>
-
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className={cn("flex-1 px-1 pb-4 mt-5", !isMobile && "overflow-y-auto")}>
-        {processedHeadings.length === 0 ? (
-          <p className="text-xs text-center text-gray-500 dark:text-zinc-500 py-8">
-            This document has no headings
-          </p>
-
-        ) : (
-          <nav className="space-y-1">{tree.map(renderNode)}</nav>
         )}
       </div>
     </aside>

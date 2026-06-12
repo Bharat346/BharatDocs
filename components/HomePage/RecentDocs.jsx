@@ -64,7 +64,7 @@ export default function RecentDocs({ theme }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
                 viewport={{ once: true }}
-                className="flex flex-col p-6 rounded-3xl border border-border transition-all duration-300 h-full bg-background hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 group-hover:bg-secondary-bg/50"
+                className="flex flex-col p-6 rounded-3xl border border-border/50 transition-all duration-500 h-full bg-secondary-bg/50 backdrop-blur-md hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 group-hover:bg-secondary-bg/80"
               >
                 {/* Top */}
                 <div className="flex items-center justify-between mb-5">

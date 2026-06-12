@@ -45,6 +45,23 @@ export async function GET(req) {
       return new NextResponse("Missing file", { status: 400 });
     }
 
+    // ─── Smart URL Resolution ───
+    let resolvedUrl = file;
+    
+    // 1. If it's a relative path starting with /, prepend the site URL
+    if (resolvedUrl.startsWith("/")) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://bhdocs.in";
+      resolvedUrl = `${siteUrl}${resolvedUrl}`;
+    } 
+    // 2. If it's a simple slug or path without a protocol, assume it's in our GitHub storage
+    else if (!resolvedUrl.startsWith("http")) {
+      const GITHUB_BASE = "https://raw.githubusercontent.com/Bharat346/docs-storage/main";
+      // Add .pdf extension if missing and no other extension present
+      const hasExtension = /\.[a-z0-9]+$/i.test(resolvedUrl);
+      const pathWithExt = hasExtension ? resolvedUrl : `${resolvedUrl}.pdf`;
+      resolvedUrl = `${GITHUB_BASE}/${pathWithExt}`;
+    }
+
     const safeKey = Buffer.from(file)
       .toString("base64")
       .replace(/[/+=]/g, "")
@@ -56,19 +73,24 @@ export async function GET(req) {
     if (meta && typeof meta === "string") {
       try {
         meta = JSON.parse(meta);
+        // If cached URL is invalid (doesn't start with http), force re-resolution
+        if (meta && typeof meta.url === 'string' && !meta.url.startsWith('http')) {
+          meta = null;
+        }
       } catch {
         meta = null;
       }
     }
 
     if (!meta) {
-      meta = { url: file, contentType: "application/pdf" };
+      meta = { url: resolvedUrl, contentType: "application/pdf" };
       await safeRedisSet(cacheKey, JSON.stringify(meta), {
         ex: SEVEN_DAYS,
       });
     }
 
     // ─── Fetch from Upstream ───
+    console.log(`[PDF Proxy] Fetching: ${meta.url}`);
     const upstreamHeaders = {
       "Accept-Encoding": "identity",
     };

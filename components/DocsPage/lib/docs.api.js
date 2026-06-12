@@ -1,21 +1,38 @@
 // lib/docs.api.js
 
 
-async function fetchJson(url,signal){
-    const res = await fetch(url,{signal});
-    if (!res.ok) throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+// Helper: non-blocking JSON fetch with local cache
+async function fetchJson(url, signal, ttl = 3600000) { // 1 hour TTL
+  const cacheKey = `client_cache_${url}`;
+  const now = Date.now();
+  
+  if (typeof window !== "undefined") {
+    try {
+      const cachedStr = localStorage.getItem(cacheKey);
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        if (now - cached.timestamp < ttl) {
+          console.log(`[Client Cache] Hit: ${url}`);
+          return cached.data;
+        }
+      }
+    } catch (e) {}
+  }
 
-    const text = await res.text();
-    return new Promise((resolve , reject) => {
-        queueMicrotask(() => {
-            try {
-                const json = JSON.parse(text);
-                resolve(json);
-            } catch (error) {
-                reject(error);
-            }
-        })
-    })
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+
+  const text = await res.text();
+  const json = JSON.parse(text);
+
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: json }));
+      console.log(`[Client Cache] Stored: ${url}`);
+    } catch (e) {}
+  }
+
+  return json;
 }
 
 /**

@@ -80,7 +80,7 @@ export default function PDFBottomToolbar({
               onBlur={commitPage}
               onKeyDown={(e) => e.key === "Enter" && commitPage()}
               className={`
-                     w-9 sm:w-11 text-center py-0.5 font-bold text-[13px] rounded-lg border outline-none 
+                     w-9 sm:w-11 text-center py-0.5 font-bold text-sm rounded-lg border outline-none 
                      transition-all duration-200
                      ${
                        isDark
@@ -90,12 +90,12 @@ export default function PDFBottomToolbar({
                    `}
             />
             <span
-              className={`text-[10px] font-medium ${isDark ? "text-zinc-600" : "text-gray-300"}`}
+              className={`text-sm font-medium ${isDark ? "text-zinc-600" : "text-gray-300"}`}
             >
               /
             </span>
             <span
-              className={`text-[12px] font-bold tabular-nums ${
+              className={`text-sm font-bold tabular-nums ${
                 isDark ? "text-zinc-600" : "text-gray-400"
               }`}
             >
@@ -129,7 +129,7 @@ export default function PDFBottomToolbar({
           <button
             onClick={onZoomFit}
             className={`
-                 px-2 py-1 rounded-lg text-[11px] font-bold tabular-nums transition-all duration-150
+                 px-2 py-1 rounded-lg text-xs font-bold tabular-nums transition-all duration-150
                  ${
                    isDark
                      ? "text-zinc-500 hover:text-blue-400 hover:bg-white/[0.04]"

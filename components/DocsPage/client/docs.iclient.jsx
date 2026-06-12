@@ -14,7 +14,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function DocsClient() {
-  const { theme, toggleTheme, mounted } = useThemeContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [selectedTags, setSelectedTags] = useState([]);
@@ -93,14 +92,14 @@ export default function DocsClient() {
     return <div className="p-8 text-red-500">Failed to load documents.</div>;
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto pt-24 pb-20 px-6 transition-colors duration-500 bg-background text-foreground">
+    <div className="min-h-screen max-w-7xl mx-auto mt-10 pt-24 pb-10 px-6 transition-colors duration-500 bg-background text-foreground">
       {/* Premium Modern Header Area */}
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div className="space-y-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-indigo-600 transition-colors"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               Back to Home
@@ -108,17 +107,17 @@ export default function DocsClient() {
             <div className="space-y-1">
               <h1 className="text-5xl sm:text-7xl font-black tracking-tighter uppercase text-foreground leading-[0.8]">
                 The{" "}
-                <span className="text-indigo-600 dark:text-indigo-400">
+                <span className="text-primary">
                   Archives
                 </span>
               </h1>
               <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-widest uppercase pl-1">
-                Structured Documentation & Guides
+                Documentation & Guides
               </p>
             </div>
           </div>
 
-          <div className="w-full sm:max-w-xs">
+          <div className="relative w-full max-w-sm group">
             <SearchBar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -150,12 +149,12 @@ export default function DocsClient() {
           onlyFilters={true}
         />
 
+      </div>
         {filteredCollections.length === 0 ? (
           <EmptyState searchTerm={searchTerm} />
         ) : (
           <CollectionsGrid collections={filteredCollections} />
         )}
-      </div>
     </div>
   );
 }

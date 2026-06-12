@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { collections, nodes } from "@/lib/db/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import { getCachedData } from "@/lib/redis";
 
 const childNodes = alias(nodes, "child_nodes");
 
@@ -18,49 +19,50 @@ export async function GET(req) {
         ? null
         : parentSlugRaw;
 
-    const result = await db
-      .select({
-        nodeId: nodes.id,
-        parentId: nodes.parentId,
-        parentSlug: nodes.parentSlug,
-        name: nodes.name,
-        slug: nodes.slug,
-        nodeType: nodes.nodeType,
-        fileType: nodes.fileType,
-        filePath: nodes.filePath,
-        isPublished: nodes.isPublished,
-        updatedAt: nodes.updatedAt,
+    const cacheKey = `notes:list:${collectionName}:${parentSlug || "root"}`;
 
-        /*isolated count */
-        subFolderCount: sql`
-          COUNT(DISTINCT ${childNodes.id})
-        `.as("subFolderCount"),
-      })
-      .from(nodes)
-      .innerJoin(
-        collections,
-        eq(collections.id, nodes.collectionId)
-      )
-      .leftJoin(
-        childNodes,
-        and(
-          eq(childNodes.parentId, nodes.id),
-          eq(childNodes.collectionId, nodes.collectionId), // 🔒 SAME COLLECTION
-          eq(childNodes.nodeType, "folder"),               // 🔒 ONLY FOLDERS
-          eq(childNodes.isPublished, true)
+    const result = await getCachedData(cacheKey, async () => {
+      return await db
+        .select({
+          nodeId: nodes.id,
+          parentId: nodes.parentId,
+          parentSlug: nodes.parentSlug,
+          name: nodes.name,
+          slug: nodes.slug,
+          nodeType: nodes.nodeType,
+          fileType: nodes.fileType,
+          filePath: nodes.filePath,
+          isPublished: nodes.isPublished,
+          updatedAt: nodes.updatedAt,
+
+          /*isolated count */
+          subFolderCount: sql`
+            COUNT(DISTINCT ${childNodes.id})
+          `.as("subFolderCount"),
+        })
+        .from(nodes)
+        .innerJoin(collections, eq(collections.id, nodes.collectionId))
+        .leftJoin(
+          childNodes,
+          and(
+            eq(childNodes.parentId, nodes.id),
+            eq(childNodes.collectionId, nodes.collectionId), // 🔒 SAME COLLECTION
+            eq(childNodes.nodeType, "folder"), // 🔒 ONLY FOLDERS
+            eq(childNodes.isPublished, true),
+          ),
         )
-      )
-      .where(
-        and(
-          eq(nodes.isPublished, true),
-          eq(collections.name, collectionName),
-          parentSlug
-            ? eq(nodes.parentSlug, parentSlug)
-            : isNull(nodes.parentSlug)
+        .where(
+          and(
+            eq(nodes.isPublished, true),
+            eq(collections.name, collectionName),
+            parentSlug
+              ? eq(nodes.parentSlug, parentSlug)
+              : isNull(nodes.parentSlug),
+          ),
         )
-      )
-      .groupBy(nodes.id)
-      .orderBy(nodes.name);
+        .groupBy(nodes.id)
+        .orderBy(nodes.name);
+    });
 
     return NextResponse.json(result);
   } catch (err) {

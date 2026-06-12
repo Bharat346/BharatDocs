@@ -64,7 +64,7 @@ export default function RecentBlogs() {
               >
                 <Link
                   href={`/blogs/${blog.slug}`}
-                  className="group block h-full bg-secondary-bg border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+                  className="group block h-full bg-secondary-bg/50 backdrop-blur-md border border-border/50 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10"
                 >
                   {coverImage ? (
                     <div className="h-40 overflow-hidden bg-neutral-100 dark:bg-neutral-800">

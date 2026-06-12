@@ -75,7 +75,7 @@ export default function PDFHeader({
 
           <div className="flex items-center gap-2 min-w-0">
             <h1
-              className={`text-[13px] font-semibold truncate max-w-[120px] sm:max-w-[240px] leading-tight ${
+              className={`text-sm font-semibold truncate max-w-[120px] sm:max-w-[240px] leading-tight ${
                 isDark ? "text-zinc-300" : "text-gray-800"
               }`}
               title={title}
@@ -101,12 +101,12 @@ export default function PDFHeader({
           >
             <div className="flex items-center gap-3">
               <Search className="w-3.5 h-3.5" />
-              <span className="text-[12px] font-medium">Search...</span>
+              <span className="text-sm font-medium">Search...</span>
             </div>
 
             <kbd
               className={`
-              text-[9px] font-bold px-1.5 py-0.5 rounded-md 
+              text-xs font-bold px-1.5 py-0.5 rounded-md 
               tracking-wider uppercase pointer-events-none
               ${
                 isDark

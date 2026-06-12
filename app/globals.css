@@ -10,27 +10,30 @@
     "SF Mono", Monaco, "Cascadia Code", "Fira Code", "JetBrains Mono",
     "Roboto Mono", monospace;
 
-  /* Light theme colors */
-  --bg: #ffffff;
-  --fg: #111827;
-  --bg-secondary: #f9fafb;
-  --text-secondary: #6b7280;
-  --border: #e5e7eb;
-  --primary: #2563eb;
-  --accent: #f59e0b;
+  /* Light theme colors (60:30:10 rule) */
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --bg-secondary: #ffffff;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --primary: #3b82f6;
+  --accent: #10b981;
 
   --theme-speed: 250ms;
 }
 
 /* Dark mode tokens */
 .dark {
-  --bg: #0a0a0a;
-  --fg: #f3f4f6;
-  --bg-secondary: #121212;
-  --text-secondary: #a1a1aa;
-  --border: #2e2e2e;
+  /* Deep slate blue-black for 60% */
+  --bg: #020617;
+  --fg: #f8fafc;
+  /* Surface colors */
+  --bg-secondary: #0f172a;
+  --text-secondary: #94a3b8;
+  --border: #1e293b;
+  /* Primary 30% and Accent 10% */
   --primary: #3b82f6;
-  --accent: #fbbf24;
+  --accent: #10b981;
 }
 
 @theme {
@@ -249,12 +252,13 @@ textarea {
 
 /* === PDF Dark Mode Inversion === */
 .pdf-dark-mode .rpv-core__page-layer {
-  filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.1);
+  filter: invert(0.95) hue-rotate(180deg) contrast(0.85) brightness(1.05) saturate(1.2);
 }
 
 /* Ensure the background is dark during inversion transition or loading */
-.pdf-dark-mode .rpv-core__inner-page {
-  background-color: #000 !important;
+.pdf-dark-mode .rpv-core__inner-page,
+.pdf-dark-mode #gpu-pdf-container {
+  background-color: var(--bg) !important;
 }
 
 /* Optional: Invert thumbnails as well for consistency */

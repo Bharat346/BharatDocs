@@ -28,7 +28,7 @@ export default function MainContent({
   return (
     <div className="flex flex-col flex-1 h-full min-w-0 relative bg-background">
       {/* ── Main Scroll Area ── */}
-      <main ref={scrollRef} className="flex-1 overflow-y-auto">
+      <main ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar">
         <div className="mx-auto max-w-4xl px-6 sm:px-10 lg:px-14 py-10 md:py-14 ">
           {mdxContent ? (
             <article
@@ -58,10 +58,10 @@ export default function MainContent({
         <Button
           size="icon"
           onClick={scrollToTop}
-          className="pointer-events-auto rounded-full shadow-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300"
+          className="pointer-events-auto rounded-full w-10 h-10 bg-secondary-bg/50 backdrop-blur-md border border-border/50 text-neutral-500 hover:text-primary hover:bg-secondary-bg shadow-xl hover:shadow-primary/10 transition-all duration-300"
           aria-label="Scroll to top"
         >
-          <ChevronUp className="w-5 h-5" />
+          <ChevronUp className="w-4 h-4" />
         </Button>
       </motion.div>
     </div>
