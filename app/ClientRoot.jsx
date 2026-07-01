@@ -1,27 +1,27 @@
 "use client";
 
-import NavBar from "@/components/navbar/Navbar";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import QueryProvider from "@/components/QueryProvider";
-import SessionInitializer from "@/lib/SessionInitializer";
 import { usePathname } from "next/navigation";
-import Footer from "@/components/Footer";
-export default function ClientRoot({ children, nonce }) {
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import QueryProvider from "@/components/providers/QueryProvider";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import BackgroundEffects from "@/components/shared/BackgroundEffects";
+
+export default function ClientRoot({ children }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
-  const isPdf = pathname.startsWith("/pdf");
-  const isDocsContent = pathname.startsWith("/docs/");
-  const showChrome = !isAdmin && !isPdf && !isDocsContent;
+  const isViewer = pathname && /^\/(docs|blogs)\/.+/.test(pathname);
 
   return (
     <ThemeProvider>
       <QueryProvider>
-        {!isAdmin && !isPdf && !isDocsContent && <NavBar />}
-        <SessionInitializer />
-        <main className="min-h-screen flex flex-col">
-          <div className="flex-1 overflow-visible">{children}</div>
-          {showChrome && <Footer />}
-        </main>
+        <div className="flex flex-col min-h-screen relative z-0">
+          <BackgroundEffects />
+          <Navbar />
+          <main className="flex-1 flex flex-col pt-16">
+            {children}
+          </main>
+          {!isViewer && <Footer />}
+        </div>
       </QueryProvider>
     </ThemeProvider>
   );

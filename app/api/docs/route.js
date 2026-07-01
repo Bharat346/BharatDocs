@@ -1,22 +1,23 @@
 import { NextResponse } from "next/server";
-import { getDocsByParentSlug } from "@/lib/db/queries";
-import { getCachedData } from "@/lib/redis";
+import { getCachedDocsByParentSlug } from "@/lib/db/queries/docs";
+import { withCacheHeaders } from "@/lib/cache/headers";
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-
-    const collectionName = searchParams.get("collection") || "Docs";
     const parentSlug = searchParams.get("parentSlug") || null;
-    const tag = searchParams.get("tag");
+    const tag = searchParams.get("tag") || null;
 
-    const result = await getDocsByParentSlug(collectionName, parentSlug, tag);
+    const result = await getCachedDocsByParentSlug(
+      parentSlug === "null" ? null : parentSlug,
+      tag,
+    );
 
-    return NextResponse.json(result);
+    return withCacheHeaders(NextResponse.json(result), "listings");
   } catch (error) {
     console.error("GET /api/docs:", error);
     return NextResponse.json(
-      { error: "Failed to fetch documents" },
+      { error: "Failed to fetch documents", code: "DOCS_FETCH_ERROR" },
       { status: 500 },
     );
   }

@@ -1,46 +1,52 @@
-import { getBlogBySlug } from "@/lib/db/blog-queries";
-import { getProcessedMDX } from "@/lib/mdx";
 import { notFound } from "next/navigation";
-import BlogReaderClient from "@/components/BlogPage/BlogReaderClient";
+import BlogReader from "@/components/blogs/BlogReader";
+import { getCachedBlogBySlug, getBlogTags } from "@/lib/db/queries/blogs";
+import { getProcessedMDX } from "@/lib/mdx";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const blog = await getBlogBySlug(slug);
-  if (!blog) return { title: "Blog Not Found" };
+  const blog = await getCachedBlogBySlug(slug);
+
+  if (!blog) return { title: "Not Found" };
 
   return {
-    title: `${blog.title} | BharatDocs Blog`,
+    title: blog.title,
     description: blog.description,
-    alternates: { canonical: `https://bhdocs.in/blogs/${slug}` },
     openGraph: {
       title: blog.title,
       description: blog.description,
+      images: blog.coverImage ? [blog.coverImage] : [],
       type: "article",
       publishedTime: blog.publishedAt,
       authors: [blog.author],
-      images: blog.coverImage ? [{ url: blog.coverImage }] : [],
     },
   };
 }
 
 export default async function BlogSlugPage({ params }) {
   const { slug } = await params;
-  const blog = await getBlogBySlug(slug);
 
+  const blog = await getCachedBlogBySlug(slug);
   if (!blog) notFound();
 
-  let mdxResult = null;
+  const tags = await getBlogTags(blog.id);
+
+  // Compile MDX
+  let content, headings;
   try {
-    mdxResult = await getProcessedMDX(blog.githubPath);
-  } catch (e) {
-    console.error("Blog MDX compile error:", e);
+    const mdxResult = await getProcessedMDX(blog.githubPath);
+    content = mdxResult.content;
+    headings = mdxResult.headings;
+  } catch (error) {
+    return (
+      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-4">
+        <div className="max-w-2xl text-center border border-red-500/20 bg-red-500/10 p-8 rounded-2xl">
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Error loading article</h2>
+          <p className="text-[var(--fg-secondary)]">{error.message}</p>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <BlogReaderClient
-      blog={blog}
-      mdxContent={mdxResult?.content || null}
-      headings={mdxResult?.headings || []}
-    />
-  );
+  return <><BlogReader blog={{ ...blog, tags }} content={content} headings={headings} /></>;
 }

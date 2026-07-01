@@ -1,28 +1,25 @@
-import DocsClient from "@/components/DocsPage/client/docs.iclient";
+import { getCachedAllDocs } from "@/lib/db/queries/docs";
+import DocsList from "@/components/docs/DocsList";
 
 export const metadata = {
-  title: "Documentation & Guides",
-  description:
-    "Explore curated developer documentation, guides, and PDFs for React, Next.js, System Design, APIs, and more on BH Docs.",
-  alternates: {
-    canonical: "https://bhdocs.in/docs",
-  },
-  openGraph: {
-    title: "Developer Documentation & Guides",
-    description:
-      "High-quality developer documentation, structured notes, and learning resources.",
-    url: "https://bhdocs.in/docs",
-    siteName: "BH Docs",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Developer Documentation & Guides",
-    description:
-      "Structured developer docs and guides for modern web development.",
-  },
+  title: "Documentation",
+  description: "Explore curated developer documentation, guides, and references.",
 };
 
-export default function DocsPage() {
-  return <DocsClient />;
+export default async function DocsRootPage() {
+  // Fetch all docs and filter for root level docs (parentId = null)
+  const allDocs = await getCachedAllDocs();
+  const children = allDocs.filter(d => d.parentId === null).sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+  return (
+    <main className="flex-1 w-full min-w-0 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl">
+        <br />
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-[var(--fg)] mb-12">
+          Documentation
+        </h1>
+        <DocsList childrenDocs={children} />
+      </div>
+    </main>
+  );
 }

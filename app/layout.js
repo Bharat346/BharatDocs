@@ -1,78 +1,48 @@
-// app/layout.js
-import "katex/dist/katex.min.css";
-import "./globals.css";
-import "@/styles/custom.css";
-import { headers } from "next/headers";
 import { Inter } from "next/font/google";
-
+import "./globals.css";
+import "katex/dist/katex.min.css";
 import ClientRoot from "./ClientRoot";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-inter",
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-export default async function RootLayout({ children }) {
-  // Server-only: get headers as object
-  const h = await headers();
-  const nonce = h.get("x-nonce") ?? "";
+export const metadata = {
+  title: {
+    template: "%s | BharatDocs",
+    default: "BharatDocs - Learning Hub",
+  },
+  description: "A modern learning hub for documentation, notes, and technical articles.",
+  metadataBase: new URL("https://bhdocs.in"),
+  icons: {
+    icon: "/icon.svg",
+  },
+};
 
+export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${inter.className}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://raw.githubusercontent.com" />
-        <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
-        {/* Guaranteed KaTeX fonts for perfect math rendering */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <script
-          id="theme-init"
-          nonce={nonce}
-          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
-        (function() {
-          try {
-            const raw = localStorage.getItem("theme-storage");
-            let theme = "dark";
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (parsed && parsed.state && parsed.state.theme) {
-                theme = parsed.state.theme;
-              }
-            } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-              theme = "light";
-            }
-            
-            if (theme === "dark") {
-              document.documentElement.classList.add("dark");
-            } else {
-              document.documentElement.classList.remove("dark");
-            }
-          } catch (e) {}
-        })();
-      `,
+              try {
+                let isDark = true;
+                const storage = localStorage.getItem('theme-storage');
+                if (storage) {
+                  const parsed = JSON.parse(storage);
+                  isDark = parsed.state.theme === 'dark';
+                }
+                if (isDark) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            `,
           }}
         />
       </head>
-
-      <body
-        className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}
-      >
-        {/* 🔒 CSP-safe inline script - standard tag avoids hydration-mismatch stripped nonce error */}
-        <script
-          id="csp-nonce"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `self.__next_nonce=${JSON.stringify(nonce)};`,
-          }}
-        />
-
-        {/* 🔥 Everything else is purely client-side */}
+      <body className={`${inter.variable} font-sans antialiased overflow-x-hidden`}>
         <ClientRoot>{children}</ClientRoot>
       </body>
     </html>

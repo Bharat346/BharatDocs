@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db/index";
-import { globalNotifications } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { getActiveNotifications } from "@/lib/db/queries/notifications";
+import { withCacheHeaders } from "@/lib/cache/headers";
 
 export async function GET() {
   try {
-    const data = await db
-      .select()
-      .from(globalNotifications)
-      .orderBy(desc(globalNotifications.createdAt))
-      .limit(50);
-      
-    return NextResponse.json(data);
+    const data = await getActiveNotifications();
+
+    return withCacheHeaders(NextResponse.json(data), "notifications");
   } catch (error) {
-    console.error("[Notifications API Error]", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("GET /api/notifications:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch notifications", code: "NOTIFICATIONS_ERROR" },
+      { status: 500 },
+    );
   }
 }

@@ -1,24 +1,25 @@
-import BlogGrid from "@/components/BlogPage/BlogGrid";
+import BlogGrid from "@/components/blogs/BlogGrid";
+import BlogCard from "@/components/blogs/BlogCard";
+import { getCachedPublishedBlogs, getAllBlogTags } from "@/lib/db/queries/blogs";
 
 export const metadata = {
-  title: "Blog | BharatDocs",
-  description: "Read articles on tech, engineering, and learning from BharatDocs.",
-  alternates: { canonical: "https://bhdocs.in/blogs" },
-  openGraph: {
-    title: "Blog | BharatDocs",
-    description: "Articles on tech, engineering, and learning.",
-    url: "https://bhdocs.in/blogs",
-    siteName: "BH Docs",
-    type: "website",
-  },
+  title: "Technical Blog",
+  description: "Technical articles, tutorials, and insights.",
 };
 
-export default function BlogsPage() {
+export default async function BlogsPage() {
+  const blogs = await getCachedPublishedBlogs({ limit: 50, offset: 0 });
+
   return (
-    <div className="min-h-screen bg-background transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24">
-        <BlogGrid />
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-4">
+        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[var(--fg)]">
+          Articles
+        </h1>
       </div>
+      
+      {/* Grid with Search Filter */}
+      <BlogGrid initialData={{ blogs, total: blogs.length }} />
     </div>
   );
 }

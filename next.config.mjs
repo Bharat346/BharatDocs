@@ -59,6 +59,15 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    const blobUrl = process.env.NEXT_PUBLIC_BLOB_URL || "https://p3o24xqzz16juii0.public.blob.vercel-storage.com";
+    return [
+      {
+        source: "/:path*.pdf",
+        destination: `${blobUrl}/:path*.pdf`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

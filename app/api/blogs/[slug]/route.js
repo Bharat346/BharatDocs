@@ -1,33 +1,39 @@
 import { NextResponse } from "next/server";
-import { getBlogBySlug } from "@/lib/db/blog-queries";
+import { getCachedBlogBySlug, getBlogTags } from "@/lib/db/queries/blogs";
+import { withCacheHeaders } from "@/lib/cache/headers";
 
-export async function GET(request, { params }) {
+export async function GET(req, { params }) {
   try {
     const { slug } = await params;
 
     if (!slug) {
-      return NextResponse.json({ error: "Slug is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing slug parameter", code: "MISSING_SLUG" },
+        { status: 400 },
+      );
     }
 
-    const blog = await getBlogBySlug(slug);
+    const blog = await getCachedBlogBySlug(slug);
 
     if (!blog) {
-      return NextResponse.json({ error: "Blog not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Blog not found", code: "NOT_FOUND" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json(
-      { blog },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
-        },
-      }
+    // Enrich with tags
+    const blogTagsList = await getBlogTags(blog.id);
+
+    return withCacheHeaders(
+      NextResponse.json({ ...blog, tags: blogTagsList }),
+      "detail",
     );
   } catch (error) {
-    console.error("[Blog Slug API]", error);
+    console.error("GET /api/blogs/[slug]:", error);
     return NextResponse.json(
-      { error: "Failed to fetch blog" },
-      { status: 500 }
+      { error: "Failed to fetch blog", code: "BLOG_FETCH_ERROR" },
+      { status: 500 },
     );
   }
 }

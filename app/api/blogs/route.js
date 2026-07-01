@@ -1,33 +1,32 @@
 import { NextResponse } from "next/server";
-import { getPublishedBlogs, getAllBlogTags } from "@/lib/db/blog-queries";
+import { getCachedPublishedBlogs, getAllBlogTags } from "@/lib/db/queries/blogs";
+import { withCacheHeaders } from "@/lib/cache/headers";
 
-export const revalidate = 300; // ISR: revalidate every 5 min
-
-export async function GET(request) {
+export async function GET(req) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(req.url);
     const tag = searchParams.get("tag") || null;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
+    const offset = Math.max(parseInt(searchParams.get("offset") || "0", 10), 0);
 
-    const [blogsList, tags] = await Promise.all([
-      getPublishedBlogs({ tag, limit, offset }),
+    const [blogsList, blogTags] = await Promise.all([
+      getCachedPublishedBlogs({ tagSlug: tag, limit, offset }),
       getAllBlogTags(),
     ]);
 
-    return NextResponse.json(
-      { blogs: blogsList, tags, total: blogsList.length },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
-        },
-      }
+    return withCacheHeaders(
+      NextResponse.json({
+        blogs: blogsList,
+        tags: blogTags,
+        total: blogsList.length,
+      }),
+      "listings",
     );
   } catch (error) {
-    console.error("[Blogs API]", error);
+    console.error("GET /api/blogs:", error);
     return NextResponse.json(
-      { error: "Failed to fetch blogs" },
-      { status: 500 }
+      { error: "Failed to fetch blogs", code: "BLOGS_FETCH_ERROR" },
+      { status: 500 },
     );
   }
 }

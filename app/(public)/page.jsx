@@ -1,18 +1,40 @@
-"use client";
+import HeroSection from "@/components/home/HeroSection";
+import RecentDocs from "@/components/home/RecentDocs";
+import RecentBlogs from "@/components/home/RecentBlogs";
+import ScrollGateController from "@/components/home/ScrollGateController";
 
-import HeroSection from "@/components/HomePage/HeroSection";
-import RecentDocs from "@/components/HomePage/RecentDocs";
-import RecentBlogs from "@/components/HomePage/RecentBlogs";
-import { useThemeContext } from "@/components/ThemeProvider";
+export const metadata = {
+  title: "BharatDocs - Learning Hub",
+  description: "A modern learning hub for documentation, notes, and technical articles.",
+};
 
-export default function HomePage() {
-  const { theme } = useThemeContext();
+import { getCachedRecentDocs } from "@/lib/db/queries/docs";
+import { getCachedPublishedBlogs } from "@/lib/db/queries/blogs";
+
+export default async function HomePage() {
+  const recentDocs = await getCachedRecentDocs(6);
+  const recentBlogs = await getCachedPublishedBlogs({ limit: 3 });
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-500">
-      <HeroSection theme={theme} />
-      <RecentDocs theme={theme} />
-      <RecentBlogs />
-    </div>
+    <ScrollGateController>
+      <div className="flex flex-col min-h-screen">
+        <div className="scroll-gate-section">
+          <HeroSection />
+        </div>
+        
+        {/* Decorative separator between sections */}
+        <div className="w-full h-px bg-[var(--border)] opacity-30" />
+        
+        <div className="recent-docs-gate">
+          <RecentDocs initialDocs={recentDocs} />
+        </div>
+        
+        <div className="w-full h-px bg-[var(--border)] opacity-30" />
+        
+        <div className="scroll-gate-section">
+          <RecentBlogs initialBlogs={recentBlogs} />
+        </div>
+      </div>
+    </ScrollGateController>
   );
 }

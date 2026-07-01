@@ -1,41 +1,84 @@
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css');
 @import "tailwindcss";
-@import "tw-animate-css";
 
-/* === Base Tokens === */
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM — BharatDocs v2
+   HSL-based tokens · Light/Dark · Micro-animations
+   ═══════════════════════════════════════════════ */
+
+/* ── Light Theme Tokens ── */
 :root {
-  --font-body:
-    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, sans-serif;
-  --font-mono:
-    "SF Mono", Monaco, "Cascadia Code", "Fira Code", "JetBrains Mono",
-    "Roboto Mono", monospace;
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
 
-  /* Light theme colors (60:30:10 rule) */
-  --bg: #f8fafc;
-  --fg: #0f172a;
-  --bg-secondary: #ffffff;
-  --text-secondary: #64748b;
-  --border: #e2e8f0;
-  --primary: #3b82f6;
-  --accent: #10b981;
+  /* 60% — Background */
+  --bg: hsl(220, 20%, 97%);
+  --bg-secondary: hsl(0, 0%, 100%);
+  --bg-tertiary: hsl(220, 20%, 95%);
 
-  --theme-speed: 250ms;
+  /* 30% — Text */
+  --fg: hsl(222, 47%, 11%);
+  --fg-secondary: hsl(215, 16%, 47%);
+  --fg-muted: hsl(215, 14%, 62%);
+
+  /* 10% — Accent */
+  --primary: hsl(221, 83%, 53%);
+  --primary-hover: hsl(221, 83%, 46%);
+  --primary-ghost: hsl(221, 83%, 53%, 0.08);
+  --accent: hsl(160, 84%, 39%);
+  --accent-ghost: hsl(160, 84%, 39%, 0.08);
+
+  /* Surfaces */
+  --border: hsl(220, 13%, 91%);
+  --border-hover: hsl(221, 83%, 53%, 0.3);
+  --glass: hsl(0, 0%, 100%, 0.72);
+  --glass-border: hsl(220, 13%, 91%, 0.6);
+  --shadow-sm: 0 1px 2px hsl(0, 0%, 0%, 0.04);
+  --shadow-md: 0 4px 12px hsl(0, 0%, 0%, 0.06);
+  --shadow-lg: 0 8px 30px hsl(0, 0%, 0%, 0.08);
+  --shadow-glow: 0 0 40px hsl(221, 83%, 53%, 0.08);
+
+  /* Radii */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration: 250ms;
+  --duration-slow: 400ms;
 }
 
-/* Dark mode tokens */
+/* ── Dark Theme Tokens ── */
 .dark {
-  /* Deep slate blue-black for 60% */
-  --bg: #020617;
-  --fg: #f8fafc;
-  /* Surface colors */
-  --bg-secondary: #0f172a;
-  --text-secondary: #94a3b8;
-  --border: #1e293b;
-  /* Primary 30% and Accent 10% */
-  --primary: #3b82f6;
-  --accent: #10b981;
+  --bg: hsl(0, 0%, 2%);
+  --bg-secondary: hsl(0, 0%, 5%);
+  --bg-tertiary: hsl(0, 0%, 9%);
+
+  --fg: hsl(210, 20%, 98%);
+  --fg-secondary: hsl(215, 14%, 71%);
+  --fg-muted: hsl(215, 12%, 52%);
+
+  --primary: hsl(217, 91%, 60%);
+  --primary-hover: hsl(217, 91%, 67%);
+  --primary-ghost: hsl(217, 91%, 60%, 0.12);
+  --accent: hsl(160, 84%, 45%);
+  --accent-ghost: hsl(160, 84%, 45%, 0.12);
+
+  --border: hsl(222, 10%, 14%);
+  --border-hover: hsl(217, 91%, 60%, 0.4);
+  --glass: hsl(0, 0%, 5%, 0.8);
+  --glass-border: hsl(222, 15%, 20%, 0.6);
+  --shadow-sm: 0 1px 2px hsl(0, 0%, 0%, 0.4);
+  --shadow-md: 0 4px 12px hsl(0, 0%, 0%, 0.6);
+  --shadow-lg: 0 8px 30px hsl(0, 0%, 0%, 0.8);
+  --shadow-glow: 0 0 50px hsl(217, 91%, 60%, 0.1);
 }
 
+/* ── Tailwind Theme Bridge ── */
 @theme {
   --color-background: var(--bg);
   --color-foreground: var(--fg);
@@ -44,7 +87,10 @@
   --color-secondary-bg: var(--bg-secondary);
 }
 
-/* === Global Reset & Base === */
+/* ═══════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════ */
+
 html {
   scroll-behavior: smooth;
   font-family: var(--font-body);
@@ -53,79 +99,43 @@ html {
 body {
   background-color: var(--bg);
   color: var(--fg);
-  transition:
-    background-color var(--theme-speed) ease,
-    color var(--theme-speed) ease;
+  transition: background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* === Theme Transition on All Common Elements === */
-*,
-*::before,
-*::after {
-  transition-property: background-color, color, border-color, box-shadow;
-  transition-duration: var(--theme-speed);
-  transition-timing-function: ease;
+/* Theme transition on interactive elements only */
+a,
+button,
+input,
+textarea,
+select,
+[class*="bg-"],
+[class*="border-"],
+[class*="text-"] {
+  transition-property: background-color, color, border-color, box-shadow, opacity;
+  transition-duration: var(--duration);
+  transition-timing-function: var(--ease);
 }
 
-/* Exclude elements where transitions cause jank */
+/* Exclude heavy elements from transitions */
 canvas,
 video,
 img,
-[data-no-transition],
-input,
-textarea {
+svg,
+[data-no-transition] {
   transition: none !important;
 }
 
-/* === PDF Viewer === */
-.rpv-core__canvas-layer canvas {
-  image-rendering: optimizeSpeed;
-}
+/* ═══════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════ */
 
-
-
-.react-pdf__Page {
-  margin: 0 auto;
-}
-
-.react-pdf__Page__canvas {
-  margin: 0 auto;
-  max-width: 100%;
-  height: auto !important;
-}
-
-.react-pdf__Page__textContent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  line-height: 1;
-  opacity: 0.2;
-}
-
-.react-pdf__Page__annotations {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.react-pdf__Page__annotations > section {
-  pointer-events: all;
-}
-
-/* === Scrollbar === */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -134,140 +144,364 @@ textarea {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--fg-muted);
 }
 
-/* === Keyframes === */
-@keyframes fadeIn {
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ═══════════════════════════════════════════════
+   GLASSMORPHISM UTILITIES
+   ═══════════════════════════════════════════════ */
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-subtle {
+  background: var(--glass);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+}
+
+/* ═══════════════════════════════════════════════
+   CARD STYLES
+   ═══════════════════════════════════════════════ */
+
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration) var(--ease);
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.card-flat {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* ═══════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-@keyframes loading {
-  0% {
-    left: -33%;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+
+  0%,
   100% {
-    left: 100%;
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
 }
 
-.terminal-line {
-  line-height: 1.5;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards;
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* === PDF Viewer Loading Bar === */
-@keyframes loading-bar {
+@keyframes wavefront {
   0% {
-    width: 0%;
-    margin-left: 0;
-  }
-  50% {
-    width: 70%;
-    margin-left: 15%;
+    transform: scale(0);
+    opacity: 0.8;
+    border-width: 2px;
   }
   100% {
-    width: 0%;
-    margin-left: 100%;
+    transform: scale(1);
+    opacity: 0;
+    border-width: 1px;
   }
 }
 
-.animate-loading-bar {
-  animation: loading-bar 1.8s ease-in-out infinite;
+/* Animation utilities */
+.animate-fade-in-up {
+  animation: fadeInUp var(--duration-slow) var(--ease) forwards;
 }
 
-/* === PDF Viewer Thumbnail Styles === */
-.pdf-sidebar-dark .rpv-thumbnail__container {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 8px !important;
-  overflow: hidden;
+.animate-fade-in {
+  animation: fadeIn var(--duration) var(--ease) forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown var(--duration) var(--ease) forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.animate-dash {
+  animation: dash 2s ease forwards;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-wavefront {
+  animation: wavefront 6s ease-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Staggered entrance delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Skeleton pulse */
+.skeleton {
+  background: var(--bg-tertiary);
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ═══════════════════════════════════════════════
+   PROSE / MDX CONTENT
+   ═══════════════════════════════════════════════ */
+
+.prose {
+  color: var(--fg);
+  line-height: 1.75;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--fg);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+  color: var(--fg);
+}
+
+.prose h2 {
+  font-size: 1.875rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+}
+
+.prose h4 {
+  font-size: 1.25rem;
+}
+
+.prose a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
 }
 
-.pdf-sidebar-dark .rpv-thumbnail__container:hover {
-  border-color: rgba(59, 130, 246, 0.3) !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+.prose a:hover {
+  border-bottom-color: var(--primary);
+  color: var(--primary-hover);
 }
 
-.pdf-sidebar-light .rpv-thumbnail__container {
-  background: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  border-radius: 8px !important;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+.prose blockquote {
+  border-left: 4px solid var(--primary);
+  background: var(--bg-tertiary);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  color: var(--fg-secondary);
+  font-style: italic;
+  box-shadow: var(--shadow-sm);
 }
 
-.pdf-sidebar-light .rpv-thumbnail__container:hover {
-  border-color: rgba(59, 130, 246, 0.3) !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+.prose blockquote p {
+  margin: 0;
 }
 
-/* Selected thumbnail */
-.rpv-thumbnail__container--selected {
-  border-color: rgba(59, 130, 246, 0.5) !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+.prose pre {
+  background: #0d1117 !important;
+  /* Always dark for code */
+  color: #c9d1d9 !important;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
 }
 
-/* === No Scrollbar Utility === */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* === PDF Viewer Core Overrides === */
-.rpv-core__viewer {
-  background: transparent !important;
+.prose code {
+  color: var(--accent);
+  background: var(--bg-tertiary);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: var(--font-mono);
 }
 
-.rpv-core__inner-page {
-  padding: 8px 0 !important;
+.prose pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
 }
 
-/* === PDF Dark Mode Inversion === */
-.pdf-dark-mode .rpv-core__page-layer {
-  filter: invert(0.95) hue-rotate(180deg) contrast(0.85) brightness(1.05) saturate(1.2);
+.prose img {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin: 2rem auto;
+  max-width: 100%;
 }
 
-/* Ensure the background is dark during inversion transition or loading */
-.pdf-dark-mode .rpv-core__inner-page,
-.pdf-dark-mode #gpu-pdf-container {
-  background-color: var(--bg) !important;
+.prose hr {
+  border-color: var(--border);
+  margin: 3rem 0;
 }
 
-/* Optional: Invert thumbnails as well for consistency */
-.pdf-dark-mode .rpv-thumbnail__image,
-.pdf-sidebar-dark .rpv-thumbnail__image {
-  filter: invert(1) hue-rotate(180deg);
-}
-
-/* === Prose Overrides === */
 .prose em {
   color: var(--fg);
   opacity: 1 !important;
@@ -278,4 +512,137 @@ textarea {
   color: var(--fg);
   opacity: 1 !important;
   font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════
+   TABLES & MATH
+   ═══════════════════════════════════════════════ */
+
+.prose table {
+  width: 100%;
+  margin: 2rem 0;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.prose th {
+  background: var(--bg-tertiary);
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.prose td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  color: var(--fg-secondary);
+}
+
+.prose tr:nth-child(even) {
+  background: var(--bg-secondary);
+}
+
+.prose .katex {
+  font-size: 1.05em;
+  line-height: inherit;
+}
+
+.prose .katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════
+   READING PROGRESS BAR
+   ═══════════════════════════════════════════════ */
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--primary);
+  z-index: 9999;
+  transition: width 100ms linear;
+}
+
+/* ═══════════════════════════════════════════════
+   DECORATIVE SVG STYLES
+   ═══════════════════════════════════════════════ */
+
+.svg-float-shape {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.08;
+  z-index: 0;
+}
+
+.dark .svg-float-shape {
+  opacity: 0.05;
+}
+
+.svg-glow-orb {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+}
+
+.svg-wave-divider {
+  display: block;
+  width: 100%;
+  color: var(--bg);
+}
+
+.svg-grid-dots {
+  opacity: 0.3;
+}
+
+.dark .svg-grid-dots {
+  opacity: 0.15;
+}
+
+/* ═══════════════════════════════════════════════
+   FOCUS STYLES
+   ═══════════════════════════════════════════════ */
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+/* rehype-pretty-code styles */
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  code[data-theme*=" "],
+  code[data-theme*=" "] span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+}
+
+code[data-line-numbers] {
+  counter-reset: line;
+}
+code[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1rem;
+  margin-right: 1.5rem;
+  text-align: right;
+  color: gray;
+}
+[data-highlighted-line] {
+  background: rgba(200, 200, 255, 0.1);
+  border-left: 2px solid var(--primary);
 }

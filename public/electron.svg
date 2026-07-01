@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <radialGradient id="sphereGradient" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#4DD0E1" stop-opacity="1" />
+      <stop offset="50%" stop-color="#00838F" stop-opacity="1" />
+      <stop offset="100%" stop-color="#001B2E" stop-opacity="1" />
+    </radialGradient>
+  </defs>
+
+  <circle cx="200" cy="200" r="100" fill="url(#sphereGradient)" />
+
+  <text x="200" y="225" font-family="Arial, sans-serif" font-size="90" font-weight="bold" font-style="italic" fill="#FFFFFF" text-anchor="middle">
+    e<tspan baseline-shift="super" font-size="65%">-</tspan>
+  </text>
+</svg>

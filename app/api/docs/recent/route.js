@@ -1,39 +1,30 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db/index.js";
-import { nodes, collections } from "@/lib/db/schema";
-import { eq, desc, and, ne } from "drizzle-orm";
+import { getCachedRecentDocs, getCachedAllDocs } from "@/lib/db/queries/docs";
+import { withCacheHeaders } from "@/lib/cache/headers";
 
-export async function GET() {
+export async function GET(req) {
   try {
-    const recentNodes = await db
-      .select({
-        id: nodes.id,
-        name: nodes.name,
-        slug: nodes.slug,
-        nodeType: nodes.nodeType,
-        fileType: nodes.fileType,
-        parentName: nodes.parentName,
-        parentSlug: nodes.parentSlug,
-        collectionName: collections.name,
-        createdAt: nodes.createdAt,
-        tags: nodes.tags,
-      })
-      .from(nodes)
-      .innerJoin(collections, eq(collections.id, nodes.collectionId))
-      .where(
-        and(
-          eq(nodes.isPublished, true),
-          ne(nodes.nodeType, "folder"), // Only files
-        ),
-      )
-      .orderBy(desc(nodes.createdAt))
-      .limit(6);
+    const { searchParams } = new URL(req.url);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "6", 10), 20);
 
-    return NextResponse.json(recentNodes);
+    const result = await getCachedRecentDocs(limit);
+    const allDocs = await getCachedAllDocs();
+
+    const resolvedResult = result.map((doc) => {
+      let current = allDocs.find((d) => d.id === doc.id);
+      let path = [];
+      while (current) {
+        path.unshift(current.slug);
+        current = allDocs.find((d) => d.id === current.parentId);
+      }
+      return { ...doc, fullSlug: path.join("/") };
+    });
+
+    return withCacheHeaders(NextResponse.json(resolvedResult), "listings");
   } catch (error) {
-    console.error("Recent API Error:", error);
+    console.error("GET /api/docs/recent:", error);
     return NextResponse.json(
-      { error: "Failed to fetch recent docs" },
+      { error: "Failed to fetch recent docs", code: "DOCS_RECENT_ERROR" },
       { status: 500 },
     );
   }

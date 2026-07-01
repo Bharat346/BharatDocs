@@ -1,85 +1,66 @@
-import { getTree } from "@/lib/db/data";
+import { db } from "@/lib/db";
+import { docs, notes, blogs } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export default async function sitemap() {
   const baseUrl = "https://bhdocs.in";
 
+  // Static routes
+  const routes = ["", "/docs", "/notes", "/blogs"].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: route === "" ? 1 : 0.8,
+  }));
+
   try {
-    const sitemapEntries = [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-        changeFrequency: "daily",
-        priority: 1,
-      },
-      {
-        url: `${baseUrl}/docs`,
-        lastModified: new Date(),
+    // Dynamic docs
+    const allDocs = await db
+      .select({ slug: docs.slug, updatedAt: docs.updatedAt })
+      .from(docs)
+      .where(eq(docs.isPublished, true));
+      
+    allDocs.forEach((doc) => {
+      routes.push({
+        url: `${baseUrl}/docs/${doc.slug}`,
+        lastModified: doc.updatedAt,
         changeFrequency: "weekly",
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/notes`,
-        lastModified: new Date(),
-        changeFrequency: "weekly",
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/search`,
-        lastModified: new Date(),
-        changeFrequency: "monthly",
-        priority: 0.5,
-      },
-    ];
-
-    const docsTree = await getTree("Docs");
-    const notesTree = await getTree("Notes");
-
-    function traverse(nodes, basePath, path = [], depth = 0) {
-      nodes.forEach((node) => {
-        if (!node.slug) return;
-
-        const currentPath = [...path, node.slug];
-        const fullPath = currentPath.join("/");
-        let url = "";
-
-        if (basePath === "/notes") {
-          // Folders to /notes, Files to /pdf
-          url = node.type === "folder" ? `/notes/${fullPath}` : `/pdf/${fullPath}`;
-        } else if (basePath === "/docs") {
-          // depth 0: /docs/cluster, depth > 0: /docs/cluster?child=page
-          if (depth === 0) {
-            url = `/docs/${node.slug}`;
-          } else {
-            url = `/docs/${path[0]}?child=${node.slug}`;
-          }
-        }
-
-        if (url) {
-          sitemapEntries.push({
-            url: `${baseUrl}${url}`,
-            lastModified: node.updatedAt || new Date(),
-            changeFrequency: "monthly",
-            priority: 0.7,
-          });
-        }
-
-        if (node.children && node.children.length > 0) {
-          traverse(node.children, basePath, currentPath, depth + 1);
-        }
+        priority: 0.6,
       });
-    }
+    });
 
-    traverse(docsTree, "/docs");
-    traverse(notesTree, "/notes");
+    // Dynamic notes
+    const allNotes = await db
+      .select({ slug: notes.slug, updatedAt: notes.updatedAt })
+      .from(notes)
+      .where(eq(notes.isPublished, true));
+      
+    allNotes.forEach((note) => {
+      routes.push({
+        url: `${baseUrl}/notes/${note.slug}`,
+        lastModified: note.updatedAt,
+        changeFrequency: "weekly",
+        priority: 0.6,
+      });
+    });
 
-    return sitemapEntries;
+    // Dynamic blogs
+    const allBlogs = await db
+      .select({ slug: blogs.slug, updatedAt: blogs.updatedAt })
+      .from(blogs)
+      .where(eq(blogs.isPublished, true));
+      
+    allBlogs.forEach((blog) => {
+      routes.push({
+        url: `${baseUrl}/blogs/${blog.slug}`,
+        lastModified: blog.updatedAt,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      });
+    });
   } catch (error) {
-    console.error("Error generating sitemap:", error);
-    return [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-      },
-    ];
+    console.error("Sitemap generation error:", error);
   }
+
+  return routes;
 }
