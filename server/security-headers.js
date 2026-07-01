@@ -13,12 +13,13 @@ export function withSecurityHeaders(res, overrideNonce) {
         // Base rule (MUST exist)
         "default-src 'self'",
 
-        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-        `script-src-elem 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-        "style-src 'self' 'unsafe-inline'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "script-src-elem 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+        "style-src-attr 'unsafe-inline'",
 
         // Images (PDF renders images via canvas)
-        "img-src 'self' data: blob:",
+        "img-src 'self' data: blob: https://grainy-gradients.vercel.app",
 
         // Fonts
         "font-src 'self' data:",
@@ -45,9 +46,9 @@ export function withSecurityHeaders(res, overrideNonce) {
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
         "script-src-elem 'self' 'unsafe-inline'",
-        "style-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
         "style-src-attr 'unsafe-inline'",
-        "img-src 'self' data: blob:",
+        "img-src 'self' data: blob: https://grainy-gradients.vercel.app",
         "font-src 'self' data:",
         "worker-src 'self' blob:",
         "connect-src 'self' blob: ws://localhost:* https://*.vercel-storage.com https://bhdocs.in https://bharat-docs.vercel.app http://localhost:3000",
