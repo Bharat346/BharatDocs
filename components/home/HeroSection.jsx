@@ -57,7 +57,7 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-[90vh] flex flex-col justify-center items-center overflow-hidden pt-20">
       {/* ── Electron & Spherical Wavefronts ── */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 z-0 hidden md:flex items-center justify-center overflow-hidden pointer-events-none">
         <div className="relative flex items-center justify-center">
           {/* Central Electron */}
           <div className="absolute w-64 h-64 z-10 opacity-[0.05] pointer-events-none" style={{ transform: 'translateZ(0)' }}>

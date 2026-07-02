@@ -47,10 +47,10 @@ export default function RecentDocs({ initialDocs = null }) {
   const trackHeight = 300;
 
   return (
-    <div ref={containerRef} className="relative w-full h-[150vh]">
-      <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="relative w-full md:h-[150vh]">
+      <div className="md:sticky md:top-0 w-full md:h-screen flex items-center justify-center overflow-hidden py-12 md:py-0">
         {/* ── SVG Dotted Grid Background ── */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1400px] h-[600px] z-[-1] flex justify-center opacity-100" aria-hidden="true">
+        <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1400px] h-[600px] z-[-1] justify-center opacity-100" aria-hidden="true">
           <svg className="w-[200%] h-full text-black/15 dark:text-white/10" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="dotGrid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -62,7 +62,7 @@ export default function RecentDocs({ initialDocs = null }) {
         </div>
 
         {/* ── Electron Track beside the section ── */}
-        <div className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 z-[90] pointer-events-none" style={{ height: `${trackHeight}px` }}>
+        <div className="hidden md:block absolute left-8 md:left-16 top-1/2 -translate-y-1/2 z-[90] pointer-events-none" style={{ height: `${trackHeight}px` }}>
           {/* Track Line */}
           <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-[var(--border)] opacity-30 -translate-x-1/2" />
 
@@ -89,7 +89,7 @@ export default function RecentDocs({ initialDocs = null }) {
           </div>
         </div>
 
-        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative pl-16 md:pl-32 pb-10">
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative md:pl-32 pb-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
             <div>
               <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-[var(--fg)] mb-3">

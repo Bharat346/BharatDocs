@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Folder, FileText, Download, ExternalLink } from "lucide-react";
 import { formatBytes } from "@/lib/utils/format";
+import { handlePdfIntent } from "@/lib/utils/intent";
 import { motion } from "framer-motion";
 
 export default function NoteCard({ note, index = 0 }) {
@@ -78,6 +79,11 @@ export default function NoteCard({ note, index = 0 }) {
       <Link
         href={targetHref}
         target={isPdf ? "_blank" : undefined}
+        onClick={(e) => {
+          if (isPdf) {
+            handlePdfIntent(e, targetHref);
+          }
+        }}
         className="card p-5 group flex flex-col h-full bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl transition-colors"
       >
       <div className="flex items-start justify-between mb-4">

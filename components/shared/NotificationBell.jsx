@@ -41,7 +41,7 @@ export default function NotificationBell() {
       </button>
 
       <div
-        className={`absolute right-0 mt-2 w-80 glass rounded-2xl shadow-lg border border-[var(--glass-border)] overflow-hidden z-[110] transition-all duration-200 origin-top-right ${
+        className={`absolute sm:-right-4 right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:glass bg-[var(--bg)] sm:bg-transparent rounded-2xl shadow-lg border border-[var(--border)] sm:border-[var(--glass-border)] overflow-hidden z-[110] transition-all duration-200 origin-top-right ${
           isOpen ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible pointer-events-none"
         }`}
       >

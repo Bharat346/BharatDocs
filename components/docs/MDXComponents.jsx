@@ -105,7 +105,7 @@ export const MDXComponents = {
       src = `/api/image-proxy?url=${encodeURIComponent(src)}`;
     }
     return (
-      <span className="block my-10 rounded-[24px] overflow-hidden border border-[var(--border)] bg-[var(--bg-tertiary)] shadow-md transition-shadow hover:shadow-lg flex items-center justify-center">
+      <span className="block my-10 rounded-[24px] overflow-hidden border border-[var(--border)] bg-[var(--bg-tertiary)] shadow-md transition-shadow hover:shadow-lg flex flex-col items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="max-w-full max-h-[700px] w-auto h-auto object-contain" loading="lazy" {...props} src={src} alt={props.alt || "Documentation image"} />
         {props.alt && (

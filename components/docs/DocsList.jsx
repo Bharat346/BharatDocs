@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Folder, FileText, Search, SlidersHorizontal } from "lucide-react";
+import { handlePdfIntent } from "@/lib/utils/intent";
 
 export default function DocsList({ childrenDocs, basePath = "/docs" }) {
   const [search, setSearch] = useState("");
@@ -88,7 +89,17 @@ export default function DocsList({ childrenDocs, basePath = "/docs" }) {
                 href = file.filePath.replace(blobUrl, "");
               }
               return (
-                <Link key={file.id} href={href} target={isPdf ? "_blank" : undefined} className="card p-4 flex items-center gap-3 group rounded-xl">
+                <Link 
+                  key={file.id} 
+                  href={href} 
+                  target={isPdf ? "_blank" : undefined} 
+                  onClick={(e) => {
+                    if (isPdf) {
+                      handlePdfIntent(e, href);
+                    }
+                  }}
+                  className="card p-4 flex items-center gap-3 group rounded-xl"
+                >
                   <div className={`p-2 rounded-lg flex-shrink-0 ${isPdf ? "bg-red-500/10 text-red-500" : "bg-[var(--primary-ghost)] text-[var(--primary)]"}`}>
                     <FileText className="w-5 h-5" />
                   </div>

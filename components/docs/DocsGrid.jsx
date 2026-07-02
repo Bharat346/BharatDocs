@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Folder, FileText, Search } from "lucide-react";
 import { useState } from "react";
+import { handlePdfIntent } from "@/lib/utils/intent";
 
 export default function DocsGrid({ docs = [] }) {
   if (!docs || docs.length === 0) {
@@ -95,6 +96,11 @@ export default function DocsGrid({ docs = [] }) {
                   key={doc.id}
                   href={targetHref}
                   target={isPdf ? "_blank" : undefined}
+                  onClick={(e) => {
+                    if (isPdf) {
+                      handlePdfIntent(e, targetHref);
+                    }
+                  }}
                   className="card p-5 group flex gap-4 items-center bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl hover:-translate-y-1 hover:shadow-md transition-all duration-300"
                 >
                   <div className={`p-2.5 rounded-lg flex-shrink-0 ${isPdf

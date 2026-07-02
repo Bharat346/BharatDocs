@@ -65,12 +65,14 @@ export default function TableOfContents({ headings = [] }) {
               onClick={(e) => {
                 e.preventDefault();
                 setIsOpenMobile(false);
-                const element = document.getElementById(heading.id);
-                if (element) {
-                  const y = element.getBoundingClientRect().top + window.scrollY - 100;
-                  window.scrollTo({ top: y, behavior: 'smooth' });
-                  window.history.pushState(null, '', `#${heading.id}`);
-                }
+                setTimeout(() => {
+                  const element = document.getElementById(heading.id);
+                  if (element) {
+                    const y = element.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                    window.history.pushState(null, '', `#${heading.id}`);
+                  }
+                }, 300);
               }}
               className={`block pl-4 -ml-[2px] border-l-2 transition-all py-1 line-clamp-2 ${
                 isActive

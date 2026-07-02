@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Search, FileText, BookOpen, Newspaper } from "lucide-react";
@@ -19,11 +19,31 @@ const NAV_LINKS = [
 export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 20);
+      
+      const isMobile = window.innerWidth < 768;
+      const isViewer = pathname.startsWith('/docs/') || pathname.startsWith('/blogs/');
+      
+      if (isMobile && isViewer) {
+        if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
+          setIsHidden(true);
+        } else if (currentScrollY < lastScrollY.current) {
+          setIsHidden(false);
+        }
+      } else {
+        setIsHidden(false);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
     const onKey = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -47,10 +67,10 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all ${isScrolled
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled
           ? "glass shadow-sm py-0"
           : "bg-[var(--bg-secondary)] py-1"
-          }`}
+          } ${isHidden ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
           {/* Logo */}

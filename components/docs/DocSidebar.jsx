@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Folder, FileText, Menu, X, ChevronRight, ChevronDown } from "lucide-react";
@@ -96,10 +96,34 @@ function SidebarNode({ node, level, pathname }) {
 export default function DocSidebar({ docs = [] }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      const isMobile = window.innerWidth < 1024;
+      
+      if (isMobile) {
+        if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
+          setIsHidden(true);
+        } else if (currentScrollY < lastScrollY.current) {
+          setIsHidden(false);
+        }
+      } else {
+        setIsHidden(false);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const tree = useMemo(() => {
     if (!docs.length) return [];
@@ -167,7 +191,7 @@ export default function DocSidebar({ docs = [] }) {
         <SidebarContent />
       </aside>
 
-      <div className="lg:hidden sticky top-16 z-[90] bg-[var(--bg-secondary)] border-b border-[var(--border)] p-2 flex items-center shadow-sm">
+      <div className={`lg:hidden sticky z-[90] bg-[var(--bg-secondary)] border-b border-[var(--border)] p-2 flex items-center shadow-sm transition-all duration-300 top-16 ${isHidden ? "-translate-y-[calc(100%+4rem)] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
         <button
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--fg)] bg-[var(--bg-tertiary)] hover:bg-[var(--border)] transition-colors"

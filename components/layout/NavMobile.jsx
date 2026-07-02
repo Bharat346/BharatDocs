@@ -6,8 +6,13 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function NavMobile({ links, pathname, onClose, onSearch }) {
   return (
-    <div
-      className="fixed inset-x-0 top-16 z-[99] p-4 md:hidden animate-fade-in-up"
+    <>
+      <div 
+        className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-sm z-[98] md:hidden"
+        onClick={onClose}
+      />
+      <div
+        className="fixed inset-x-0 top-16 z-[99] p-4 md:hidden animate-fade-in-up"
       style={{ animationDuration: '200ms' }}
     >
       <div className="bg-[var(--bg-secondary)] rounded-2xl p-4 shadow-lg border border-[var(--border)]">
@@ -46,6 +51,7 @@ export default function NavMobile({ links, pathname, onClose, onSearch }) {
           <ThemeToggle />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
