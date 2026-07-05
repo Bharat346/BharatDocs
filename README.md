@@ -22,7 +22,7 @@
 
 ## 🏗️ Architectural Design
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Client (Browser)                        │
 ├─────────────────────────────────────────────────────────────────┤
@@ -39,6 +39,13 @@
 │   ├── /docs/[...slug]│                  │   ├── /api/admin/nodes│
 │   ├── /notes         │                  │   └── /api/github/    │
 │   └── /notes/[...path]                  │        content        │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Request Coalescer & Caching Layer                  │
+├─────────────────────────────────────────────────────────────────┤
+│   LRU Memory Cache  ◄──►  Redis (Pub/Sub + Locks)  ◄──► Queue   │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
@@ -63,6 +70,45 @@
 │                 GitHub API (Content Proxy)                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### 🌪️ Request Coalescing Flow
+
+To prevent database overload during high-traffic spikes (e.g., thousands of users requesting the same document simultaneously), Bharat Docs uses a **Distributed Request Coalescing** system. 
+
+```mermaid
+sequenceDiagram
+    participant Clients
+    participant API as Next.js API
+    participant LRU as Memory Cache
+    participant Redis as Redis (Locks)
+    participant DB as Database
+
+    Clients->>API: 10,000 Concurrent Requests for /api/docs
+    
+    API->>LRU: Check Cache
+    alt Cache Hit
+        LRU-->>API: Return instant result
+        API-->>Clients: 10,000 Responses
+    else Cache Miss
+        API->>Redis: Attempt to acquire Lock (SETNX)
+        
+        alt Lock Acquired (Worker)
+            Redis-->>API: Lock Granted
+            API->>DB: Execute EXACTLY ONE Database Query
+            DB-->>API: Return Data
+            API->>LRU: Save to Memory Cache
+            API->>Redis: Publish Result (Pub/Sub) & Release Lock
+            API-->>Clients: Return Response to waiting queue
+        else Lock Denied (Waiters)
+            Redis-->>API: Lock Denied
+            API->>Redis: Subscribe to Pub/Sub Channel
+            Note over API,Redis: Wait for Worker to finish...
+            Redis-->>API: Receive Result via Channel
+            API-->>Clients: Return Response to waiting queue
+        end
+    end
+```
+
 
 ### Project Structure
 
